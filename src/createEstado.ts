@@ -1,12 +1,12 @@
-import { create, isDraft, type Draft, } from 'mutative';
+import { create, type Draft, isDraft, } from 'mutative';
 import compareCallback, { type CompareCallbackReturn, } from './_internal/compareCallback';
-import { createArrayPathProxy, } from './_internal/createArrayPathProxy';
+import createArrayPathProxy from './_internal/createArrayPathProxy';
 import createHistory from './_internal/createHistory';
 import findChanges from './_internal/findChanges';
-import getDeepStringPath from './_internal/getByStringPath';
+import getCacheStringPathToArray from './_internal/getCacheStringPathToArray';
 import getDeepArrayPath from './_internal/getDeepArrayPath';
+import getDeepValueParentByArray from './_internal/getDeepValueParentByArray';
 import noop from './_internal/noop';
-import splitPath from './_internal/splitPath';
 import type { ActRecord, } from './types/ActRecord';
 import type { CreateActs, } from './types/CreateActs';
 import type { CreateActsProps, } from './types/CreateActsProps';
@@ -39,6 +39,14 @@ export default function createEstado<
 	let history = createHistory( { initial, }, );
 	const compare = compareCallback( options?.compare, );
 	const afterChange = typeof options?.afterChange === 'function' ? options.afterChange : noop;
+	const arrayPathMap = new Map<string | number, Array<string | number>>();
+
+	function setHistory( nextHistory: EstadoHistory<State>, ) {
+		history = nextHistory;
+		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
+		return nextHistory;
+	}
+
 	function getDraft( stateHistoryPath: unknown, ) {
 		const [
 			_draft,
@@ -53,44 +61,53 @@ export default function createEstado<
 
 		function finalize() {
 			const next = _finalize();
-			if ( history.state === next.state || history.initial === next.state ) {
+
+			const {
+				changes,
+			} = findChanges(
+				next.initial,
+				next.state,
+				compare as CompareCallbackReturn,
+			);
+
+			if ( changes == null ) {
 				return history;
 			}
-			const nextHistory = {
-				...history,
-				...findChanges(
-					next.initial,
-					next.state,
-					compare as CompareCallbackReturn,
-				) as unknown as EstadoHistory<State>['changes'],
+
+			const nextHistory: EstadoHistory<State> = {
+				changes: changes as EstadoHistory<State>['changes'],
+				priorInitial: next.initial !== history.initial ? history.initial : history.priorInitial,
 				state: next.state,
 				initial: next.initial,
-				priorState: history.state,
+				priorState: next.state !== history.state ? history.state : history.priorState,
 			};
-			history = nextHistory;
-			Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
-			return nextHistory;
+
+			return setHistory( nextHistory, );
 		}
 
-		let draft: Draft<{
+		const draft: Draft<{
 			initial: State
 			state: State
-		}> | undefined = _draft;
-		if ( typeof stateHistoryPath === 'string' ) {
-			draft = getDeepStringPath( _draft, stateHistoryPath, );
-		}
+		}> = _draft;
 
-		if ( isDraft( draft, ) ) {
+		if ( typeof stateHistoryPath === 'string' ) {
+			const value = getDeepArrayPath(
+				_draft,
+				getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
+			);
+			if ( value == null || !isDraft( value, ) ) {
+				throw new Error( `Key path ${stateHistoryPath} cannot be a draft. It's value is ${draft} of type ${typeof draft}`, );
+			}
 			return [
-				draft,
+				value,
 				finalize,
-			];
+			] as const;
 		}
 
 		return [
-			undefined,
-			undefined,
-		];
+			draft,
+			finalize,
+		] as const;
 	}
 
 	function _set( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
@@ -116,12 +133,12 @@ export default function createEstado<
 			}
 		}
 		else if ( typeof statePath === 'string' || Array.isArray( statePath, ) ) {
-			const arrayPath = ( typeof statePath === 'string' ? splitPath( statePath, ) : statePath ) as string[];
+			const arrayPath = ( typeof statePath === 'string' ? getCacheStringPathToArray( arrayPathMap, statePath, ) : statePath ) as string[];
 			const penPath = arrayPath.at( -1, );
 			const [
 				value,
 				parent,
-			] = getDeepArrayPath( draft, arrayPath, );
+			] = getDeepValueParentByArray( draft, arrayPath, );
 
 			if ( typeof nextState === 'function' && value && typeof value === 'object' ) {
 				nextState(
@@ -133,11 +150,7 @@ export default function createEstado<
 			}
 		}
 
-		if ( typeof finalize === 'function' ) {
-			return finalize?.();
-		}
-
-		return history;
+		return finalize();
 	}
 
 	const createActProps: CreateActsProps<State, EstadoHistory<State>> = {
@@ -154,22 +167,24 @@ export default function createEstado<
 				// No argument version
 				return history as Immutable<EstadoHistory<State>>;
 			}
-			return getDeepStringPath( history, stateHistoryPath, ) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
+			return getDeepArrayPath(
+				history,
+				getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
+			) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
 		},
 		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
 		reset() {
 			if ( history.changes == null ) {
 				return history;
 			}
-			history = {
+
+			return setHistory( {
 				initial: history.initial,
 				changes: undefined,
 				priorInitial: history.priorInitial == null ? history.priorInitial : history.initial,
 				priorState: history.priorState == null ? history.priorState : history.state,
 				state: history.initial,
-			};
-			Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
-			return history;
+			}, );
 		},
 		set( ...args: unknown[] ) {
 			return _set( undefined, ...args, );

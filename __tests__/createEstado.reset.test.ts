@@ -16,7 +16,7 @@ describe( 'createEstado.reset', () => {
 
 	it( 'should not reset the state when reset is made', () => {
 		estado.reset();
-		expect( history, ).toStrictEqual( estado.get(), );
+		expect( history, ).toBe( estado.get(), );
 	}, );
 
 	it( 'should reset the state to the initial value', () => {
@@ -34,31 +34,34 @@ describe( 'createEstado.reset', () => {
 		// Verify the state has been modified
 		expect( estado.get( 'state.counter', ), ).toBe( 10, );
 		expect( estado.get( 'state.list', ), ).toEqual( ['item1', 'item2',], );
-		expect( estado.get( 'priorState', ), ).toStrictEqual( history.state, );
+		expect( estado.get( 'priorState', ), ).toBe( history.state, );
 		expect( estado.get( 'changes', ), ).toStrictEqual( changes, );
-		expect( estado.get( 'priorInitial', ), ).toBeUndefined();
+		expect( estado.get( 'priorInitial', ), ).toBe( undefined, );
 
 		// Reset the state using createActProps.reset()
 		estado.reset();
 
+		const newHistory = estado.get();
+
 		// Verify the state has been reset
-		expect( estado.get( 'state.counter', ), ).toBe( 0, );
-		expect( estado.get( 'state.list', ), ).toEqual( ['item1',], );
-		expect( estado.get( 'priorState', ), ).toStrictEqual( changes, );
-		expect( estado.get( 'priorInitial', ), ).toBeUndefined();
+		expect( newHistory.state, ).toBe( history.initial, );
+		expect( newHistory.state.counter, ).toBe( 0, );
+		expect( newHistory.state.list, ).toEqual( ['item1',], );
+		expect( newHistory.priorState, ).toStrictEqual( changes, );
+		expect( newHistory.priorInitial, ).toBe( undefined, );
 	}, );
 
-	it( 'should not reset the state when reset is made', () => {
+	it( 'should reset the state using new initial', () => {
 		const newInitial = {
 			counter: 10,
 			list: ['new', 'initial',],
 		};
+
 		estado.set( 'initial', newInitial, );
 		estado.reset();
-		expect( history.initial, ).not.toStrictEqual( estado.get(), );
-		expect( estado.get( 'initial', ), ).not.toStrictEqual( newInitial, );
-		expect( estado.get( 'state', ), ).not.toStrictEqual( newInitial, );
-		expect( estado.get( 'priorInitial', ), ).not.toStrictEqual( initialState, );
-		expect( estado.get( 'priorState', ), ).not.toStrictEqual( initialState, );
+		const testHistory = estado.get();
+
+		expect( testHistory.initial, ).toBe( newInitial, );
+		expect( testHistory.priorInitial, ).toBe( newInitial, );
 	}, );
 }, );

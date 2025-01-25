@@ -1,7 +1,6 @@
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import getDeepArrayPath from './getDeepArrayPath';
+import getDeepValueParentByArray from './getDeepValueParentByArray';
 import splitPath from './splitPath';
-import unescapeDots from './unescapeDots';
 
 export default function getDeepStringPath<
 	State extends object,
@@ -11,10 +10,9 @@ export default function getDeepStringPath<
 
 	const [
 		value,
-	] = getDeepArrayPath(
+	] = getDeepValueParentByArray(
 		state,
 		segments,
-		unescapeDots,
 	);
 
 	return value;

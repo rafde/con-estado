@@ -60,8 +60,8 @@ describe( 'createEstado.set', () => {
 				const next = estado.set( 'state', state, );
 
 				expect( next.state, ).toStrictEqual( state, );
-				expect( next.initial, ).toBe( initialObject, );
-				expect( next.priorState, ).toStrictEqual( initialObject, );
+				expect( next.initial, ).toBe( history.initial, );
+				expect( next.priorState, ).toStrictEqual( history.initial, );
 				expect( next.priorInitial, ).toBe( undefined, );
 				expect( next.changes, ).toStrictEqual( state, );
 			}, );
@@ -98,7 +98,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 			test( 'should set a new nested value by path', () => {
 				const changes = {
@@ -140,7 +140,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
 			test( 'should push stateProp value by callback', () => {
@@ -163,7 +163,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 
@@ -183,7 +183,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 
@@ -205,7 +205,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 	}, );
@@ -248,7 +248,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
 			test( 'should push a new value by callback in array', () => {
@@ -274,7 +274,7 @@ describe( 'createEstado.set', () => {
 					item,
 				], );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 
@@ -293,10 +293,10 @@ describe( 'createEstado.set', () => {
 				const next = estado.set( 'state', changes, );
 
 				expect( next.state, ).toStrictEqual( changes, );
-				expect( next.initial, ).toBe( initialArray, );
-				expect( next.priorState, ).toStrictEqual( initialArray, );
-				expect( next.priorInitial, ).toBe( undefined, );
+				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.priorState, ).toBe( history.initial, );
+				expect( next.priorInitial, ).toBe( undefined, );
 			}, );
 		}, );
 
@@ -315,7 +315,7 @@ describe( 'createEstado.set', () => {
 
 				expect( next.state, ).toStrictEqual( [...initialArray, changes,], );
 				expect( next.initial, ).toBe( initialArray, );
-				expect( next.priorState, ).toStrictEqual( initialArray, );
+				expect( next.priorState, ).toBe( history.initial, );
 				expect( next.priorInitial, ).toBe( undefined, );
 				expect( next.changes, ).toStrictEqual( [undefined, changes,], );
 			}, );
@@ -335,7 +335,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
 			test( 'should set a new nested value by array index path', () => {
@@ -354,7 +354,7 @@ describe( 'createEstado.set', () => {
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 
@@ -380,7 +380,7 @@ describe( 'createEstado.set', () => {
 					item,
 				], );
 				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 		}, );
 	}, );

@@ -31,11 +31,11 @@ describe( 'createEstado', () => {
 			counter: 10,
 			list: ['item1', 'item2',],
 		}, );
-
+		const newHistory = estado.get();
 		// Verify the state has been updated
-		expect( estado.get().state.counter, ).toBe( 10, );
-		expect( estado.get().state.list, ).toEqual( ['item1', 'item2',], );
-		expect( estado.get( 'priorState', ), ).toStrictEqual( initialState, );
+		expect( newHistory.state.counter, ).toBe( 10, );
+		expect( newHistory.state.list, ).toEqual( ['item1', 'item2',], );
+		expect( newHistory.priorState, ).toStrictEqual( initialState, );
 	}, );
 
 	it( 'should return a draft object and a commit function using getDraft', () => {
@@ -46,10 +46,9 @@ describe( 'createEstado', () => {
 	}, );
 
 	it( 'should return a draft object and a commit function using getDraft', () => {
-		// @ts-expect-error -- should fail
-		const [draft, commit,] = estado.getDraft( 'state.list.0', );
-
-		expect( draft, ).toBeUndefined();
-		expect( commit, ).toBeUndefined();
+		expect(
+			// @ts-expect-error -- should throw error
+			() => estado.getDraft( 'state.list.0', ),
+		).toThrowError( /cannot be a draft/, );
 	}, );
 }, );
