@@ -1,0 +1,55 @@
+import { isDraft, } from 'mutative';
+import { expect, } from 'vitest';
+import { createEstado, } from '../src';
+
+describe( 'createEstado', () => {
+	// Define the initial state
+	const initialState = {
+		counter: 0,
+		list: ['item1',],
+	};
+	let estado = createEstado( initialState, );
+	afterEach( () => {
+		estado = createEstado( initialState, );
+	}, );
+
+	it( 'should return a draft object and a commit function using getDraft', () => {
+		// Get the draft and commit function
+		const [draft, commit,] = estado.getDraft();
+
+		// Modify the draft
+		draft.state.counter = 10;
+		draft.state.list.push( 'item2', );
+
+		// Commit the changes
+		const newState = commit();
+
+		// Verify the draft modifications
+		expect( newState.state.counter, ).toBe( 10, );
+		expect( newState.state.list, ).toEqual( ['item1', 'item2',], );
+		expect( newState.changes, ).toEqual( {
+			counter: 10,
+			list: ['item1', 'item2',],
+		}, );
+
+		// Verify the state has been updated
+		expect( estado.get().state.counter, ).toBe( 10, );
+		expect( estado.get().state.list, ).toEqual( ['item1', 'item2',], );
+		expect( estado.get( 'priorState', ), ).toStrictEqual( initialState, );
+	}, );
+
+	it( 'should return a draft object and a commit function using getDraft', () => {
+		const [draft, commit,] = estado.getDraft( 'state.list', );
+
+		expect( isDraft( draft, ), ).toBe( true, );
+		expect( commit, ).toBeTypeOf( 'function', );
+	}, );
+
+	it( 'should return a draft object and a commit function using getDraft', () => {
+		// @ts-expect-error -- should fail
+		const [draft, commit,] = estado.getDraft( 'state.list.0', );
+
+		expect( draft, ).toBeUndefined();
+		expect( commit, ).toBeUndefined();
+	}, );
+}, );

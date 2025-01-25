@@ -1,4 +1,4 @@
 export type ActRecord = Record<
-	string | number | symbol,
+	string | number,
 	( ...args: never[] ) => unknown
 >;
