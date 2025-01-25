@@ -4,7 +4,8 @@
 		"url": "https://github.com/rafde/estado/issues"
 	},
 	"dependencies": {
-		"fast-equals": "^5.0.1"
+		"fast-equals": "^5.0.1",
+		"mutative": "^1.1.0"
 	},
 	"description": "Deeply nested state manager",
 	"devDependencies": {
@@ -18,9 +19,9 @@
 		"@testing-library/react": "16.2.0",
 		"@types/node": "22.10.10",
 		"@types/react": "19.0.8",
+		"@vitejs/plugin-react": "4.3.4",
 		"@vitest/coverage-v8": "3.0.4",
 		"@vitest/eslint-plugin": "1.1.25",
-		"@vitejs/plugin-react": "4.3.4",
 		"eslint": "9.19.0",
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "5.1.0",
