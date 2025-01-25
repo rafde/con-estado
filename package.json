@@ -1,0 +1,104 @@
+{
+	"author": "Rafael De León",
+	"bugs": {
+		"url": "https://github.com/rafde/estado/issues"
+	},
+	"dependencies": {
+		"fast-equals": "^5.0.1"
+	},
+	"description": "Deeply nested state manager",
+	"devDependencies": {
+		"@eslint/compat": "1.2.5",
+		"@eslint/eslintrc": "3.2.0",
+		"@eslint/js": "9.18.0",
+		"@parcel/bundler-library": "2.13.3",
+		"@parcel/packager-ts": "2.13.3",
+		"@parcel/transformer-typescript-types": "2.13.3",
+		"@stylistic/eslint-plugin": "2.13.0",
+		"@testing-library/react": "16.2.0",
+		"@types/node": "22.10.7",
+		"@types/react": "19.0.7",
+		"@vitest/coverage-v8": "3.0.3",
+		"@vitest/eslint-plugin": "1.1.25",
+		"@vitejs/plugin-react": "4.3.4",
+		"eslint": "9.18.0",
+		"eslint-plugin-react": "7.37.4",
+		"eslint-plugin-react-hooks": "5.1.0",
+		"eslint-plugin-testing-library": "7.1.1",
+		"fast-equals": "5.2.2",
+		"globals": "15.14.0",
+		"happy-dom": "16.6.0",
+		"husky": "9.1.7",
+		"lint-staged": "15.4.1",
+		"parcel": "2.13.3",
+		"react": "19.0.0",
+		"rimraf": "6.0.1",
+		"typescript": "5.7.3",
+		"typescript-eslint": "8.21.0",
+		"vitest": "3.0.3"
+	},
+	"exports": {
+		"import": "./dist/esm/index.mjs",
+		"require": "./dist/cjs/index.js",
+		"types": "./dist/types.d.ts"
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"homepage": "https://github.com/rafde/estado#readme",
+	"keywords": [
+		"hooks",
+		"hook",
+		"management",
+		"manager",
+		"react",
+		"reducer",
+		"state",
+		"store",
+		"typescript"
+	],
+	"license": "MIT",
+	"lint-staged": {
+		"*.ts(x)": [
+			"npm run lint"
+		]
+	},
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.mjs",
+	"name": "estado",
+	"peerDependencies": {
+		"@types/react": ">= 16.8.0 || >= 17.0.0 || >= 18.0.0 || >= 19.0.0",
+		"react": ">= 16.8.0 || >= 17.0.0 || >= 18.0.0 || >= 19.0.0"
+	},
+	"peerDependenciesMeta": {
+		"@types/react": {
+			"optional": true
+		}
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rafde/estado.git"
+	},
+	"scripts": {
+		"build": "rimraf dist && parcel build --log-level verbose --no-cache",
+		"lint": "eslint --cache --fix src/ __tests__/",
+		"prepare": "husky",
+		"test": "vitest",
+		"test:coverage": "vitest --coverage",
+		"tsc": "tsc",
+		"version": "node util/versioning.cjs && git add jsr.json && npm run build && git add -A dist",
+		"postversion": "git push && git push --follow-tags",
+		"version:major": "npm version major",
+		"version:minor": "npm version minor",
+		"version:patch": "npm version patch",
+		"version:prerelease": "npm version prerelease --preid=pre"
+	},
+	"sideEffects": false,
+	"source": "src/index.ts",
+	"types": "dist/types.d.ts",
+	"version": "0.0.1",
+	"workspaces": [
+		"./site"
+	]
+}
