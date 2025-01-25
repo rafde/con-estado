@@ -1,4 +1,4 @@
-import { create, } from 'mutative';
+import { create, isDraft, type Draft, } from 'mutative';
 import compareCallback, { type CompareCallbackReturn, } from './_internal/compareCallback';
 import { createArrayPathProxy, } from './_internal/createArrayPathProxy';
 import createHistory from './_internal/createHistory';
@@ -8,6 +8,7 @@ import getDeepArrayPath from './_internal/getDeepArrayPath';
 import noop from './_internal/noop';
 import splitPath from './_internal/splitPath';
 import type { ActRecord, } from './types/ActRecord';
+import type { CreateActs, } from './types/CreateActs';
 import type { CreateActsProps, } from './types/CreateActsProps';
 import type { EstadoDS, } from './types/EstadoDS';
 import type { EstadoHistory, } from './types/EstadoHistory';
@@ -19,18 +20,25 @@ import type { Immutable, } from './types/Immutable';
 import type { NestedRecordKeys, } from './types/NestedRecordKeys';
 import type { Option, } from './types/Option';
 
+const frozenObj = Object.freeze( {}, );
+const fo = <T,>() => frozenObj as T;
+
 export default function createEstado<
 	State extends EstadoDS,
 	Acts extends ActRecord,
-	Opt extends Option<State, Acts>,
->( initial: State, options?: Opt, ): EstadoProps<
-	State,
-	Acts,
-	EstadoHistory<State>
-> {
+	Opt extends Option<State>,
+>(
+	initial: State,
+	options?: Opt,
+	createActs: CreateActs<State, Acts, EstadoHistory<State>> = fo,
+): EstadoProps<
+		State,
+		Acts,
+		EstadoHistory<State>
+	> {
 	let history = createHistory( { initial, }, );
 	const compare = compareCallback( options?.compare, );
-	const afterChange = typeof options?.afterChange === 'function' ? options?.afterChange : noop;
+	const afterChange = typeof options?.afterChange === 'function' ? options.afterChange : noop;
 	function getDraft( stateHistoryPath: unknown, ) {
 		const [
 			_draft,
@@ -64,18 +72,15 @@ export default function createEstado<
 			return nextHistory;
 		}
 
-		if ( typeof stateHistoryPath === 'undefined' ) {
-			return [
-				_draft,
-				finalize,
-			];
+		let draft: Draft<{
+			initial: State
+			state: State
+		}> | undefined = _draft;
+		if ( typeof stateHistoryPath === 'string' ) {
+			draft = getDeepStringPath( _draft, stateHistoryPath, );
 		}
 
-		const draft = typeof stateHistoryPath === 'string'
-			? getDeepStringPath( _draft, stateHistoryPath, )
-			: _draft;
-
-		if ( typeof draft !== 'undefined' ) {
+		if ( isDraft( draft, ) ) {
 			return [
 				draft,
 				finalize,
@@ -93,20 +98,8 @@ export default function createEstado<
 			targetStatePath,
 			...props
 		] = args;
-		if ( !props.length ) {
-			return history;
-		}
 
-		const mut = getDraft( targetStatePath, );
-		const [draft, finalize,] = mut;
-
-		if ( typeof draft === 'undefined' ) {
-			return history;
-		}
-
-		if ( typeof finalize !== 'function' ) {
-			return history;
-		}
+		const [draft, finalize,] = getDraft( targetStatePath, );
 
 		const [
 			statePath,
@@ -125,9 +118,6 @@ export default function createEstado<
 		else if ( typeof statePath === 'string' || Array.isArray( statePath, ) ) {
 			const arrayPath = ( typeof statePath === 'string' ? splitPath( statePath, ) : statePath ) as string[];
 			const penPath = arrayPath.at( -1, );
-			if ( typeof penPath !== 'string' ) {
-				return history;
-			}
 			const [
 				value,
 				parent,
@@ -138,12 +128,16 @@ export default function createEstado<
 					createArrayPathProxy( value, history, arrayPath.slice( 1, ), ),
 				);
 			}
-			else if ( parent && typeof parent === 'object' && penPath in parent ) {
+			else if ( parent && typeof parent === 'object' && penPath && penPath in parent ) {
 				Reflect.set( parent, penPath, nextState, );
 			}
 		}
 
-		return finalize();
+		if ( typeof finalize === 'function' ) {
+			return finalize?.();
+		}
+
+		return history;
 	}
 
 	const createActProps: CreateActsProps<State, EstadoHistory<State>> = {
@@ -164,6 +158,9 @@ export default function createEstado<
 		},
 		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
 		reset() {
+			if ( history.changes == null ) {
+				return history;
+			}
 			history = {
 				initial: history.initial,
 				changes: undefined,
@@ -179,7 +176,7 @@ export default function createEstado<
 		},
 	};
 
-	const acts = Object.freeze( typeof options?.acts === 'function' ? options.acts( createActProps, ) : {} as Acts, );
+	const acts = createActs( createActProps, );
 
 	return Object.freeze( {
 		...createActProps,
