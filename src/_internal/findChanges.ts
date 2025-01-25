@@ -11,18 +11,18 @@ function setChanges<T,>( a: T, b: T, changes: EstadoDS, key: string | number, co
 }
 
 export default function findChanges<T extends EstadoDS,>( a: T, b: T, compare: CompareCallbackReturn, ) {
-	let changes;
+	let changes: Record<string, unknown> | Array<unknown> = {};
 	let hasChanges = false;
 	if ( Array.isArray( a, ) && Array.isArray( b, ) ) {
-		const shallowChanges = [] as unknown as T;
 		const arr = a.length > b.length ? a : b;
+		changes = new Array( arr.length, );
 
 		for ( let key = 0; key < arr.length; key++ ) {
-			shallowChanges[ key ] = undefined;
+			changes[ key ] = undefined;
 			const _hasChanges = setChanges(
 				Reflect.get( a, key, ),
 				Reflect.get( b, key, ),
-				shallowChanges,
+				changes,
 				key,
 				compare,
 			);
@@ -30,15 +30,13 @@ export default function findChanges<T extends EstadoDS,>( a: T, b: T, compare: C
 				hasChanges = true;
 			}
 		}
-		changes = shallowChanges as unknown as T extends Array<infer U> ? Array<U | undefined> : never;
 	}
 	else if ( isPlainObject( a, ) && isPlainObject( b, ) ) {
-		const shallowChanges = {} as Record<string, unknown>;
 		for ( const key in a ) {
 			const _hasChanges = setChanges(
 				Reflect.get( a, key, ),
 				Reflect.get( b, key, ),
-				shallowChanges,
+				changes,
 				key,
 				compare,
 			);
@@ -46,8 +44,6 @@ export default function findChanges<T extends EstadoDS,>( a: T, b: T, compare: C
 				hasChanges = true;
 			}
 		}
-
-		changes = shallowChanges as Partial<T>;
 	}
 
 	if ( !hasChanges ) {

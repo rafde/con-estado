@@ -19,8 +19,5 @@ export type GetDraftRecord<
 			StateHistoryPath
 		>,
 		() => EstadoHistory<State>,
-	] | [
-		undefined,
-		undefined,
 	]
 };
