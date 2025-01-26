@@ -3,7 +3,7 @@ import { defineConfig, } from 'vitest/config';
 
 export default defineConfig( {
 	cacheDir: '.test-cache',
-	plugins: [react()],
+	plugins: [react(),],
 	test: {
 		coverage: {
 			reportsDirectory: './coverage',
