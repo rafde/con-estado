@@ -24,7 +24,6 @@ export default tseslint.config(
 	},
 	{
 		ignores: [
-			'**/jest.config.js',
 			'node_modules/*',
 		],
 		linterOptions: {
@@ -99,8 +98,8 @@ export default tseslint.config(
 			'@stylistic/implicit-arrow-linebreak': 'error',
 			'@stylistic/indent': ['error', 'tab',],
 			'@stylistic/indent-binary-ops': ['error', 'tab',],
-			'@stylistic/jsx-closing-tag-location': 'off',
 			'@stylistic/jsx-closing-bracket-location': 'off',
+			'@stylistic/jsx-closing-tag-location': 'off',
 			'@stylistic/jsx-indent': ['error', 'tab',],
 			'@stylistic/jsx-indent-props': ['error', 'tab',],
 			'@stylistic/jsx-wrap-multilines': 'off',
@@ -114,7 +113,6 @@ export default tseslint.config(
 			'@stylistic/object-property-newline': 'error',
 			'@stylistic/operator-linebreak': ['error', 'before',],
 			'@stylistic/padded-blocks': ['error', 'never',],
-
 			'@stylistic/quote-props': ['error', 'as-needed', {
 				keywords: true,
 			},],
@@ -122,11 +120,13 @@ export default tseslint.config(
 			'@stylistic/quotes': ['error', 'single', {
 				avoidEscape: true,
 			},],
+
 			'@stylistic/semi': ['error', 'always',],
 			'@stylistic/semi-style': 'error',
 			'@stylistic/space-before-function-paren': ['error', 'never',],
 			'@stylistic/space-in-parens': ['error', 'always',],
 			'@stylistic/switch-colon-spacing': 'error',
+			'@typescript-eslint/consistent-type-imports': 'error',
 			'array-callback-return': 'error',
 			'arrow-body-style': 'error',
 			curly: [2, 'all',],
