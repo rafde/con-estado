@@ -10,7 +10,7 @@
 		"@radix-ui/react-slot": "1.1.1",
 		"@radix-ui/react-tooltip": "1.1.7",
 		"@types/node": "22.10.10",
-		"@types/react": "19.0.7",
+		"@types/react": "19.0.8",
 		"@types/react-copy-to-clipboard": "5.0.7",
 		"@types/react-syntax-highlighter": "15.5.13",
 		"autoprefixer": "10.4.20",
