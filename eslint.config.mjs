@@ -168,7 +168,12 @@ export default tseslint.config(
 			'object-shorthand': 'error',
 			'operator-assignment': 'error',
 			'prefer-const': 'error',
-			'prefer-destructuring': 'error',
+			'prefer-destructuring': ['error', {
+				AssignmentExpression: {
+					array: false,
+					object: false,
+				},
+			},],
 			'prefer-exponentiation-operator': 'error',
 			'prefer-object-spread': 'error',
 			strict: 'error',
