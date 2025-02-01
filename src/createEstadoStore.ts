@@ -2,11 +2,8 @@ import { strictDeepEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
 import createEstadoSubLis from './createEstadoSubLis';
 import type { ActRecord, } from './types/ActRecord';
-import type { CreateActs, } from './types/CreateActs';
+import type { DefaultSelector, } from './types/DefaultSelector';
 import type { EstadoDS, } from './types/EstadoDS';
-import type { EstadoHistory, } from './types/EstadoHistory';
-import type { EstadoProps, } from './types/EstadoProps';
-import type { Immutable, } from './types/Immutable';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
@@ -15,15 +12,12 @@ export default function createEstadoStore<
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Omit<Option<State>, 'dispatcher'> | CreateActs<State, Acts, EstadoHistory<State>>,
-	createActs?: CreateActs<State, Acts, EstadoHistory<State>>,
+	options?: Omit<Option<State, Acts>, 'dispatcher'>,
 ) {
-	const _options = typeof options === 'object' ? options : {};
-	const _createActs = typeof options === 'function' ? options : createActs;
 	const estadoSubLis = createEstadoSubLis(
 		initial,
 		{
-			..._options,
+			...options,
 			dispatcher( nextHistory, ) {
 				snapshot = {
 					...nextHistory,
@@ -32,7 +26,6 @@ export default function createEstadoStore<
 				listeners.forEach( listener => listener( snapshot, ), );
 			},
 		},
-		_createActs,
 	);
 	const {
 		subscribe,
@@ -44,11 +37,7 @@ export default function createEstadoStore<
 		...estado,
 	};
 	let snapshot = initialSnapshot;
-	const defaultSelector: Selector<
-		State,
-		Acts,
-		[Immutable<State>, EstadoProps<State, Acts> & Immutable<EstadoHistory<State>>,]
-	> = selectorProps => [
+	const defaultSelector: DefaultSelector<State, Acts> = selectorProps => [
 		selectorProps.state,
 		selectorProps,
 	];
