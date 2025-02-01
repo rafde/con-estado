@@ -1,5 +1,5 @@
 import type { strictDeepEqual, } from 'fast-equals';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { NestedKeyArray, } from './NestedKeyArray';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
@@ -10,7 +10,7 @@ import type { StringPathToArray, } from './StringPathToArray';
  * Useful for the following scenarios:
  * - Custom equality logic by comparing only specific properties to optimize re-renders.
  * - Handle complex nested objects that need special comparison handling.
- * @template {EstadoDS} State - The {@link EstadoDS} hook state.
+ * @template {DS} State - The {@link DS} hook state.
  * @param previous - A previous value.
  * @param next - A next value.
  * @param extra - An object containing additional parameters for the comparison:
@@ -20,7 +20,7 @@ import type { StringPathToArray, } from './StringPathToArray';
  * @param extra.keys - An array of keys that lead to a nested state's value.
  * @returns `true` if the previous and next values are considered equal, `false` otherwise.
  */
-export type OptionCompare<State extends EstadoDS,> = (
+export type OptionCompare<State extends DS,> = (
 	previousValue: unknown,
 	nextValue: unknown,
 	extra: {

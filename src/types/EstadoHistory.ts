@@ -1,7 +1,7 @@
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoRecord, } from './EstadoRecord';
 
-export type EstadoHistory<State extends EstadoDS,> = {
+export type EstadoHistory<State extends DS,> = {
 	changes: ( State extends Array<infer U>
 		? Array<U | undefined>
 		: State extends EstadoRecord

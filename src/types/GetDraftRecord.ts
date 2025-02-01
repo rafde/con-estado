@@ -1,11 +1,11 @@
 import type { Draft, } from 'mutative';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
 
 export type GetDraftRecord<
-	State extends EstadoDS,
+	State extends DS,
 > = {
 	getDraft( stateHistoryPath?: undefined ): [
 		Draft<Pick<EstadoHistory<State>, 'state' | 'initial'>>,

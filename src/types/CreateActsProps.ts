@@ -1,4 +1,4 @@
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { EstadoSetters, } from './EstadoSetters';
 import type { GetDraftRecord, } from './GetDraftRecord';
@@ -7,7 +7,7 @@ import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 
 export type CreateActsProps<
-	State extends EstadoDS,
+	State extends DS,
 > = {
 	get(
 		stateHistoryPath?: undefined

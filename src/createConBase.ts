@@ -9,7 +9,7 @@ import getDeepValueParentByArray from './_internal/getDeepValueParentByArray';
 import noop from './_internal/noop';
 import type { ActRecord, } from './types/ActRecord';
 import type { CreateActsProps, } from './types/CreateActsProps';
-import type { EstadoDS, } from './types/EstadoDS';
+import type { DS, } from './types/DS';
 import type { EstadoHistory, } from './types/EstadoHistory';
 import type { EstadoRecord, } from './types/EstadoRecord';
 import type { GetDraftRecord, } from './types/GetDraftRecord';
@@ -23,7 +23,7 @@ const fo = <T,>() => frozenObj as T;
 const opts = frozenObj;
 
 export default function createConBase<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,
@@ -169,7 +169,7 @@ export default function createConBase<
 	}
 
 	const props: CreateActsProps<State> = {
-		get<State extends EstadoDS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
+		get<State extends DS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
 			stateHistoryPath?: StateHistoryPath,
 		): {
 			readonly changes: Immutable<State extends ( infer U )[] ? ( U | undefined )[] : State extends EstadoRecord ? Partial<State> : never> | undefined

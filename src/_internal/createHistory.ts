@@ -1,8 +1,8 @@
-import type { EstadoDS, } from '../types/EstadoDS';
+import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
 
 export default function createHistory<
-	State extends EstadoDS,
+	State extends DS,
 >( history: Omit<Partial<EstadoHistory<State>>, 'initial'> & { initial: State }, ): EstadoHistory<State> {
 	const {
 		changes = undefined,

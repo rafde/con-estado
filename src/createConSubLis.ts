@@ -1,11 +1,11 @@
 import createConBase from './createConBase';
 import type { ActRecord, } from './types/ActRecord';
-import type { EstadoDS, } from './types/EstadoDS';
+import type { DS, } from './types/DS';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
 export default function createConSubLis<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,

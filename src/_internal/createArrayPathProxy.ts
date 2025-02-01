@@ -1,4 +1,4 @@
-import type { EstadoDS, } from '../types/EstadoDS';
+import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
 import type { StateArrayPathProps, } from '../types/EstadoSetters';
 import type { NestedObjectKeys, } from '../types/NestedObjectKeys';
@@ -6,14 +6,14 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function createArrayPathProxy<
-	State extends EstadoDS,
+	State extends DS,
 	TargetState extends object,
 >( targetState: TargetState, history: EstadoHistory<State>, arrayPath: string[], ) {
 	return new Proxy(
 		{
 			...history,
 			draft: targetState,
-		} as StateArrayPathProps<State, EstadoDS, StringPathToArray<NestedObjectKeys<EstadoDS>>>,
+		} as StateArrayPathProps<State, DS, StringPathToArray<NestedObjectKeys<DS>>>,
 		{
 			get( target, prop, ) {
 				if ( prop in target ) {

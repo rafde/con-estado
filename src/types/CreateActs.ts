@@ -1,8 +1,8 @@
 import type { ActRecord, } from './ActRecord';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { CreateActsProps, } from './CreateActsProps';
 
 export type CreateActs<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 > = ( createActsProps: CreateActsProps<State> ) => Acts;
