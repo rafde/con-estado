@@ -1,20 +1,20 @@
 import { strictDeepEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
-import createEstadoSubLis from './createEstadoSubLis';
+import createConSubLis from './createConSubLis';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { EstadoDS, } from './types/EstadoDS';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
-export default function createEstadoStore<
+export default function createConStore<
 	State extends EstadoDS,
 	Acts extends ActRecord,
 >(
 	initial: State,
 	options?: Omit<Option<State, Acts>, 'dispatcher'>,
 ) {
-	const estadoSubLis = createEstadoSubLis(
+	const estadoSubLis = createConSubLis(
 		initial,
 		{
 			...options,
@@ -42,7 +42,7 @@ export default function createEstadoStore<
 		selectorProps,
 	];
 
-	function useEstadoSelector<
+	function useConSelector<
 		Sel extends Selector<State, Acts> = typeof defaultSelector,
 	>( selector?: Sel, ) {
 		const _selector = useMemo(
@@ -76,7 +76,7 @@ export default function createEstadoStore<
 	}
 
 	return Object.assign(
-		useEstadoSelector,
+		useConSelector,
 		estado,
 	);
 }
