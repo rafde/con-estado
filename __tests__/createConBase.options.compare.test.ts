@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, } from 'vitest';
-import { createEstado, } from '../src/';
+import { createConBase, } from '../src/';
 import type { OptionCompare, } from '../src/types/OptionCompare';
 
-describe( 'options.compare', () => {
+describe( 'createConBase - options.compare', () => {
 	class CompareTest {
 		value: unknown;
 		constructor( value: unknown, ) {
@@ -33,10 +33,10 @@ describe( 'options.compare', () => {
 
 		return cmp( p, n, );
 	};
-	let estado = createEstado( initialState, { compare: customCompare, }, );
+	let estado = createConBase( initialState, { compare: customCompare, }, );
 	let history = estado.get();
 	afterEach( () => {
-		estado = createEstado( initialState, { compare: customCompare, }, );
+		estado = createConBase( initialState, { compare: customCompare, }, );
 		history = estado.get();
 	}, );
 
@@ -115,7 +115,7 @@ describe( 'options.compare', () => {
 			return a === b;
 		};
 
-		const estado = createEstado( initialState, { compare, }, );
+		const estado = createConBase( initialState, { compare, }, );
 		const history = estado.get();
 
 		// Modify the state
@@ -146,7 +146,7 @@ describe( 'options.compare', () => {
 			return a === b;
 		};
 
-		const estado = createEstado( initialState, { compare, }, );
+		const estado = createConBase( initialState, { compare, }, );
 		const history = estado.get();
 
 		// Modify the state

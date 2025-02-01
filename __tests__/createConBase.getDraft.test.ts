@@ -1,16 +1,16 @@
 import { isDraft, } from 'mutative';
 import { expect, } from 'vitest';
-import { createEstado, } from '../src';
+import { createConBase, } from '../src';
 
-describe( 'createEstado', () => {
+describe( 'createConBase - getDraft', () => {
 	// Define the initial state
 	const initialState = {
 		counter: 0,
 		list: ['item1',],
 	};
-	let estado = createEstado( initialState, );
+	let estado = createConBase( initialState, );
 	afterEach( () => {
-		estado = createEstado( initialState, );
+		estado = createConBase( initialState, );
 	}, );
 
 	it( 'should return a draft object and a commit function using getDraft', () => {

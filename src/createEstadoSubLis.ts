@@ -1,4 +1,4 @@
-import createEstado from './createEstado';
+import createConBase from './createConBase';
 import type { ActRecord, } from './types/ActRecord';
 import type { EstadoDS, } from './types/EstadoDS';
 import type { Option, } from './types/Option';
@@ -11,7 +11,7 @@ export default function createEstadoSubLis<
 	initial: State,
 	options?: Option<State, Acts>,
 ) {
-	const estado = createEstado(
+	const estado = createConBase(
 		initial,
 		options,
 	);
