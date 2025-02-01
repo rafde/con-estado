@@ -1,11 +1,11 @@
 import { renderHook, act, } from '@testing-library/react';
 import { afterEach, expect, } from 'vitest';
-import { createEstadoStore, } from '../src/index';
+import { createConStore, } from '../src/index';
 import { strictDeepEqual, } from 'fast-equals';
 
 const initialState = { count: 0, };
 function createSelector( state: typeof initialState, ) {
-	return createEstadoStore(
+	return createConStore(
 		state,
 		{
 			acts: ( { set, }, ) => ( {
@@ -29,19 +29,19 @@ function createSelector( state: typeof initialState, ) {
 	);
 }
 
-describe( 'createEstadoStore', () => {
-	let useEstadoSelector = createSelector( initialState, );
+describe( 'createConStore', () => {
+	let useConSelector = createSelector( initialState, );
 	afterEach( () => {
-		useEstadoSelector = createSelector( initialState, );
+		useConSelector = createSelector( initialState, );
 	}, );
 
 	it( 'should initialize with the correct initial state', () => {
-		const { result, } = renderHook( () => useEstadoSelector(), );
+		const { result, } = renderHook( () => useConSelector(), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
 	it( 'should update state correctly when actions are dispatched', () => {
-		const { result, } = renderHook( () => useEstadoSelector(), );
+		const { result, } = renderHook( () => useConSelector(), );
 
 		act( () => {
 			result.current[ 1 ].acts.increment();
@@ -57,17 +57,17 @@ describe( 'createEstadoStore', () => {
 	}, );
 
 	it( 'should return the correct state based on the selector function', () => {
-		const { result, } = renderHook( () => useEstadoSelector( props => props.state.count, ), );
+		const { result, } = renderHook( () => useConSelector( props => props.state.count, ), );
 
 		act( () => {
-			useEstadoSelector.acts.incrementBy( 10, );
+			useConSelector.acts.incrementBy( 10, );
 		}, );
 
 		expect( result.current, ).toBe( 10, );
 	}, );
 
 	it( 'should maintain immutable state', () => {
-		const { result, } = renderHook( () => useEstadoSelector(), );
+		const { result, } = renderHook( () => useConSelector(), );
 
 		const [initialSnapshot,] = result.current;
 

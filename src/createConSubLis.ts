@@ -4,7 +4,7 @@ import type { EstadoDS, } from './types/EstadoDS';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
-export default function createEstadoSubLis<
+export default function createConSubLis<
 	State extends EstadoDS,
 	Acts extends ActRecord,
 >(
