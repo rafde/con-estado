@@ -1,4 +1,4 @@
-import { describe, } from 'vitest';
+import { describe, expect, } from 'vitest';
 import { createEstado, } from '../src/';
 
 describe( 'createEstado', () => {
@@ -44,5 +44,18 @@ describe( 'createEstado', () => {
 		expect( estado.get( 'changes', ), ).toBe( undefined, );
 		expect( estado.get( 'priorInitial', ), ).toBe( undefined, );
 		expect( estado.get( 'priorState', ), ).toBe( undefined, );
+	}, );
+
+	it( 'should handle undefined or null initial state', () => {
+		// @ts-expect-error -- checking invalid value
+		expect( () => createEstado( null, ), ).toThrowError( /createEstado can only work with/, );
+
+		// @ts-expect-error -- checking invalid value
+		expect( () => createEstado( undefined, ), ).toThrowError( /createEstado can only work with/, );
+	}, );
+
+	it( 'should handle invalid selector functions', () => {
+		// @ts-expect-error -- checking invalid value
+		expect( () => createEstado( null as unknown, ), ).toThrowError( /createEstado can only work with/, );
 	}, );
 }, );

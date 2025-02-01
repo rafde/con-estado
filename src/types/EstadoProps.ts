@@ -6,7 +6,7 @@ import type { EstadoHistory, } from './EstadoHistory';
 export type EstadoProps<
 	State extends EstadoDS,
 	Acts extends ActRecord,
-	Return extends EstadoHistory<State> | void,
+	Return extends EstadoHistory<State> | void = EstadoHistory<State>,
 > = CreateActsProps<State, Return>
 	& {
 		acts: Acts

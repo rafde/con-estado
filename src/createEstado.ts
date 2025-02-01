@@ -12,7 +12,6 @@ import type { CreateActs, } from './types/CreateActs';
 import type { CreateActsProps, } from './types/CreateActsProps';
 import type { EstadoDS, } from './types/EstadoDS';
 import type { EstadoHistory, } from './types/EstadoHistory';
-import type { EstadoProps, } from './types/EstadoProps';
 import type { EstadoRecord, } from './types/EstadoRecord';
 import type { GetDraftRecord, } from './types/GetDraftRecord';
 import type { GetStringPathValue, } from './types/GetStringPathValue';
@@ -22,27 +21,33 @@ import type { Option, } from './types/Option';
 
 const frozenObj = Object.freeze( {}, );
 const fo = <T,>() => frozenObj as T;
+const opts = frozenObj;
 
 export default function createEstado<
 	State extends EstadoDS,
-	Acts extends ActRecord,
 	Opt extends Option<State>,
+	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Opt,
+	options?: Opt | CreateActs<State, Acts, EstadoHistory<State>>,
 	createActs: CreateActs<State, Acts, EstadoHistory<State>> = fo,
-): EstadoProps<
-		State,
-		Acts,
-		EstadoHistory<State>
-	> {
+) {
+	if ( initial == null || typeof initial !== 'object' ) {
+		throw new Error( `createEstado can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
+	}
 	let history = createHistory( { initial, }, );
-	const compare = compareCallback( options?.compare, );
-	const afterChange = typeof options?.afterChange === 'function' ? options.afterChange : noop;
+	const _options = typeof options === 'object' ? options : opts as Readonly<Opt>;
+	const _createActs = typeof options === 'function' ? options : createActs;
+	const {
+		afterChange = noop,
+		dispatcher = noop,
+	} = _options;
+	const compare = compareCallback( _options?.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
 	function setHistory( nextHistory: EstadoHistory<State>, ) {
 		history = nextHistory;
+		dispatcher( history as Immutable<EstadoHistory<State>>, );
 		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
 		return nextHistory;
 	}
@@ -61,25 +66,28 @@ export default function createEstado<
 
 		function finalize() {
 			const next = _finalize();
+			const {
+				initial,
+				state,
+			} = next;
+
+			if ( initial === history.initial && state === history.state ) {
+				return history;
+			}
 
 			const {
 				changes,
 			} = findChanges(
-				next.initial,
-				next.state,
+				initial,
+				state,
 				compare as CompareCallbackReturn,
 			);
-
-			if ( changes == null ) {
-				return history;
-			}
-
 			const nextHistory: EstadoHistory<State> = {
 				changes: changes as EstadoHistory<State>['changes'],
-				priorInitial: next.initial !== history.initial ? history.initial : history.priorInitial,
-				state: next.state,
-				initial: next.initial,
-				priorState: next.state !== history.state ? history.state : history.priorState,
+				priorInitial: initial !== history.initial ? history.initial : history.priorInitial,
+				state,
+				initial,
+				priorState: state !== history.state ? history.state : history.priorState,
 			};
 
 			return setHistory( nextHistory, );
@@ -153,7 +161,7 @@ export default function createEstado<
 		return finalize();
 	}
 
-	const createActProps: CreateActsProps<State, EstadoHistory<State>> = {
+	const props: CreateActsProps<State, EstadoHistory<State>> = {
 		get<State extends EstadoDS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
 			stateHistoryPath?: StateHistoryPath,
 		): {
@@ -181,8 +189,8 @@ export default function createEstado<
 			return setHistory( {
 				initial: history.initial,
 				changes: undefined,
-				priorInitial: history.priorInitial == null ? history.priorInitial : history.initial,
-				priorState: history.priorState == null ? history.priorState : history.state,
+				priorInitial: history.priorInitial == null ? undefined : history.initial,
+				priorState: history.priorState == null ? undefined : history.state,
 				state: history.initial,
 			}, );
 		},
@@ -191,10 +199,15 @@ export default function createEstado<
 		},
 	};
 
-	const acts = createActs( createActProps, );
+	const createActProps: CreateActsProps<State, EstadoHistory<State>> = {
+		...props,
+
+	};
+
+	const acts = _createActs( createActProps, );
 
 	return Object.freeze( {
-		...createActProps,
+		...props,
 		acts,
 	}, );
 }
