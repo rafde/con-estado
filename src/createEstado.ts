@@ -25,18 +25,17 @@ const opts = frozenObj;
 
 export default function createEstado<
 	State extends EstadoDS,
-	Opt extends Option<State>,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Opt | CreateActs<State, Acts, EstadoHistory<State>>,
+	options?: Option<State> | CreateActs<State, Acts, EstadoHistory<State>>,
 	createActs: CreateActs<State, Acts, EstadoHistory<State>> = fo,
 ) {
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `createEstado can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history = createHistory( { initial, }, );
-	const _options = typeof options === 'object' ? options : opts as Readonly<Opt>;
+	const _options = typeof options === 'object' ? options : opts as Readonly<Option<State>>;
 	const _createActs = typeof options === 'function' ? options : createActs;
 	const {
 		afterChange = noop,
