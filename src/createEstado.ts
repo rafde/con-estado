@@ -65,13 +65,24 @@ export default function createEstado<
 
 		function finalize() {
 			const next = _finalize();
-			const {
+			let {
 				initial,
 				state,
 			} = next;
 
-			if ( initial === history.initial && state === history.state ) {
+			const hasNoStateChanges = compare( history.state, state, 'state', ['state',], );
+			const hasNoInitialChanges = compare( history.initial, initial, 'initial', ['initial',], );
+
+			if ( hasNoStateChanges && hasNoInitialChanges ) {
 				return history;
+			}
+
+			if ( hasNoStateChanges ) {
+				state = history.state;
+			}
+
+			if ( hasNoInitialChanges ) {
+				initial = history.initial;
 			}
 
 			const {
