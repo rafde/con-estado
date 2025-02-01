@@ -1,9 +1,9 @@
 import type { ActRecord, } from './ActRecord';
 import type { CreateActsProps, } from './CreateActsProps';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 
 export type EstadoProps<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 > = CreateActsProps<State>
 	& {

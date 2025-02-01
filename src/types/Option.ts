@@ -4,10 +4,10 @@ import type { EstadoHistory, } from './EstadoHistory';
 import type { Immutable, } from './Immutable';
 import type { OptionAfterChange, } from './OptionAfterChange';
 import type { OptionCompare, } from './OptionCompare';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 
 export type Option<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 > = {
 	compare?: OptionCompare<State>

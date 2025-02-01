@@ -1,8 +1,8 @@
-import type { EstadoDS, } from '../types/EstadoDS';
+import type { DS, } from '../types/DS';
 import type { CompareCallbackReturn, } from './compareCallback';
 import isPlainObject from './isPlainObject';
 
-function setChanges<T,>( a: T, b: T, changes: EstadoDS, key: string | number, compare: CompareCallbackReturn, ): boolean {
+function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, compare: CompareCallbackReturn, ): boolean {
 	if ( !compare( a, b, key as string, [key as string,], ) ) {
 		Reflect.set( changes, key, b, );
 		return true;
@@ -10,7 +10,7 @@ function setChanges<T,>( a: T, b: T, changes: EstadoDS, key: string | number, co
 	return false;
 }
 
-export default function findChanges<T extends EstadoDS,>( a: T, b: T, compare: CompareCallbackReturn, ) {
+export default function findChanges<T extends DS,>( a: T, b: T, compare: CompareCallbackReturn, ) {
 	let changes: Record<string, unknown> | Array<unknown> = {};
 	let hasChanges = false;
 	if ( Array.isArray( a, ) && Array.isArray( b, ) ) {

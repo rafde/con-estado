@@ -1,5 +1,5 @@
 import { strictDeepEqual, } from 'fast-equals';
-import type { EstadoDS, } from '../types/EstadoDS';
+import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
 import type { NestedKeyArray, } from '../types/NestedKeyArray';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
@@ -7,7 +7,7 @@ import type { OptionCompare, } from '../types/OptionCompare';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 
 export default function compareCallback<
-	State extends EstadoDS,
+	State extends DS,
 >(
 	compare?: OptionCompare<State>,
 ) {
@@ -35,5 +35,5 @@ export default function compareCallback<
 }
 
 export type CompareCallbackReturn<
-	State extends EstadoDS = EstadoDS,
+	State extends DS = DS,
 > = ReturnType<typeof compareCallback<State>>;

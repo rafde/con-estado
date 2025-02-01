@@ -1,6 +1,6 @@
 import type { EscapeDots, } from './EscapeDots';
 import type { EstadoArray, } from './EstadoArray';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoRecordKeyTypes, } from './EstadoRecordKeyTypes';
 import type { IsPlainObject, } from './IsPlainObject';
 
@@ -16,7 +16,7 @@ type RecordKey<T,> = {
 		: never;
 }[keyof T & ( EstadoRecordKeyTypes )];
 
-export type NestedObjectKeys<T,> = T extends EstadoDS
+export type NestedObjectKeys<T,> = T extends DS
 	? T extends EstadoArray
 		? ArrayIndexKey<T>
 		: IsPlainObject<T> extends true

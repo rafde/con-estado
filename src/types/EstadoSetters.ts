@@ -1,5 +1,5 @@
 import type { Draft, } from 'mutative';
-import type { EstadoDS, } from './EstadoDS';
+import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { GetStringPathValue, } from './GetStringPathValue';
@@ -8,7 +8,7 @@ import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
 type SubArrayPath<
-	State extends EstadoDS,
+	State extends DS,
 	Path,
 > = Path extends ['state' | 'initial', ...infer Sub,]
 	? Sub extends StringPathToArray<NestedObjectKeys<State>>
@@ -17,8 +17,8 @@ type SubArrayPath<
 	: never;
 
 export type StateArrayPathProps<
-	State extends EstadoDS,
-	TargetState extends EstadoDS,
+	State extends DS,
+	TargetState extends DS,
 	StatePath extends StringPathToArray<NestedObjectKeys<TargetState>>,
 	Sub extends StringPathToArray<NestedObjectKeys<State>> = StringPathToArray<NestedObjectKeys<State>>,
 > = {
@@ -32,7 +32,7 @@ export type StateArrayPathProps<
 }> & EstadoHistory<State>;
 
 type SubStringPath<
-	State extends EstadoDS,
+	State extends DS,
 	Path,
 > = Path extends `${'state' | 'initial'}.${infer Sub}`
 	? Sub extends NestedObjectKeys<State>
@@ -41,7 +41,7 @@ type SubStringPath<
 	: never;
 
 type GetStringPathPropValue<
-	State extends EstadoDS,
+	State extends DS,
 	EHK extends keyof EstadoHistory<State>,
 	Sub extends NestedObjectKeys<State>,
 > = GetStringPathValue<
@@ -50,8 +50,8 @@ type GetStringPathPropValue<
 >;
 
 type NextStateStringPathProps<
-	State extends EstadoDS,
-	TargetState extends EstadoDS,
+	State extends DS,
+	TargetState extends DS,
 	StatePath extends NestedObjectKeys<TargetState>,
 	Sub extends NestedObjectKeys<State>,
 > = {
@@ -66,11 +66,11 @@ type NextStateStringPathProps<
 & EstadoHistory<State>;
 
 type NextState<
-	State extends EstadoDS,
+	State extends DS,
 > = Pick<EstadoHistory<State>, 'state' | 'initial'>;
 
 type EstadoSet<
-	State extends EstadoDS,
+	State extends DS,
 	NS extends NextState<State> = NextState<State>,
 > = {
 	set(
@@ -125,7 +125,7 @@ type EstadoSet<
 };
 
 export type EstadoSetters<
-	State extends EstadoDS,
+	State extends DS,
 > = {
 	reset(): EstadoHistory<State>
 } & EstadoSet<State>;

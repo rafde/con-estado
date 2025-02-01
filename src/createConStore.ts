@@ -3,12 +3,12 @@ import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
 import createConSubLis from './createConSubLis';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
-import type { EstadoDS, } from './types/EstadoDS';
+import type { DS, } from './types/DS';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
 export default function createConStore<
-	State extends EstadoDS,
+	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,
