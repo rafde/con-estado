@@ -1,7 +1,9 @@
 import type { strictDeepEqual, } from 'fast-equals';
 import type { EstadoDS, } from './EstadoDS';
+import type { EstadoHistory, } from './EstadoHistory';
 import type { NestedKeyArray, } from './NestedKeyArray';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
+import type { StringPathToArray, } from './StringPathToArray';
 
 /**
  * A `function` type for custom comparing the previous and next values of a hook state key.
@@ -23,7 +25,7 @@ export type OptionCompare<State extends EstadoDS,> = (
 	nextValue: unknown,
 	extra: {
 		cmp: typeof strictDeepEqual
-		key: NestedRecordKeys<State>
-		keys: NestedKeyArray<State>
+		key: NestedRecordKeys<State> | NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>
+		keys: NestedKeyArray<State> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>>
 	}
 ) => boolean;

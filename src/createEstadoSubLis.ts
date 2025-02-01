@@ -8,11 +8,10 @@ import type { Selector, } from './types/Selector';
 
 export default function createEstadoSubLis<
 	State extends EstadoDS,
-	Opt extends Option<State>,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Opt | CreateActs<State, Acts, EstadoHistory<State>>,
+	options?: Option<State> | CreateActs<State, Acts, EstadoHistory<State>>,
 	createActs?: CreateActs<State, Acts, EstadoHistory<State>>,
 ) {
 	const estado = createEstado(

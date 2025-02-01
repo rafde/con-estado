@@ -12,11 +12,10 @@ import type { Selector, } from './types/Selector';
 
 export default function createEstadoStore<
 	State extends EstadoDS,
-	Opt extends Omit<Option<State>, 'dispatcher'>,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Opt | CreateActs<State, Acts, EstadoHistory<State>>,
+	options?: Omit<Option<State>, 'dispatcher'> | CreateActs<State, Acts, EstadoHistory<State>>,
 	createActs?: CreateActs<State, Acts, EstadoHistory<State>>,
 ) {
 	const _options = typeof options === 'object' ? options : {};
