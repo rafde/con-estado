@@ -22,7 +22,7 @@ const frozenObj = Object.freeze( {}, );
 const fo = <T,>() => frozenObj as T;
 const opts = frozenObj;
 
-export default function createEstado<
+export default function createConBase<
 	State extends EstadoDS,
 	Acts extends ActRecord,
 >(
@@ -30,7 +30,7 @@ export default function createEstado<
 	options: Option<State, Acts> = opts as Readonly<Option<State, Acts>>,
 ) {
 	if ( initial == null || typeof initial !== 'object' ) {
-		throw new Error( `createEstado can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
+		throw new Error( `createConBase can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history = createHistory( { initial, }, );
 	const {

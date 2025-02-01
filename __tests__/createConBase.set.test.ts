@@ -1,7 +1,7 @@
 import { afterEach, describe, } from 'vitest';
-import { createEstado, } from '../src/';
+import { createConBase, } from '../src/';
 
-describe( 'createEstado.set', () => {
+describe( 'createConBase.set', () => {
 	const initialObject = {
 		n: 1,
 		o: {
@@ -21,15 +21,15 @@ describe( 'createEstado.set', () => {
 		},
 	};
 	describe( 'object', () => {
-		let estado = createEstado( initialObject, );
+		let estado = createConBase( initialObject, );
 		let history = estado.get();
 
 		afterEach( () => {
-			estado = createEstado( initialObject, );
+			estado = createConBase( initialObject, );
 			history = estado.get();
 		}, );
 
-		describe( 'createEstado.set(object)', () => {
+		describe( 'set(object)', () => {
 			test( 'should have no changes when setting the same state', () => {
 				const next = estado.set( {
 					state: initialObject,
@@ -67,7 +67,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(function)', () => {
+		describe( 'set(function)', () => {
 			test( 'should set a new value by callback', () => {
 				const next = estado.set( ( { draft, }, ) => {
 					draft.state.n = 11;
@@ -84,7 +84,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(stringPathToValue, non-function)', () => {
+		describe( 'set(stringPathToValue, non-function)', () => {
 			test( 'should set a new value by path', () => {
 				const changes = {
 					n: 3,
@@ -119,7 +119,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(stringPathToValue, function)', () => {
+		describe( 'set(stringPathToValue, function)', () => {
 			test( 'should push a new nested value by callback', () => {
 				const changes = {
 					oo: {
@@ -167,7 +167,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(["array", "path", "to", "value"], non-function)', () => {
+		describe( 'set(["array", "path", "to", "value"], non-function)', () => {
 			test( 'should set a new array value by path array', () => {
 				const changes = {
 					oo: {
@@ -187,7 +187,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(["array", "path", "to", "value"], function)', () => {
+		describe( 'set(["array", "path", "to", "value"], function)', () => {
 			test( 'should modify array by callback using path array', () => {
 				const changes = {
 					oo: {
@@ -215,14 +215,14 @@ describe( 'createEstado.set', () => {
 			initialObject,
 		];
 
-		let estado = createEstado( initialArray, );
+		let estado = createConBase( initialArray, );
 		let history = estado.get();
 		afterEach( () => {
-			estado = createEstado( initialArray, );
+			estado = createConBase( initialArray, );
 			history = estado.get();
 		}, );
 
-		describe( 'createEstado.set(array)', () => {
+		describe( 'set(array)', () => {
 			test( 'should have no changes when setting the same array state', () => {
 				const next = estado.set( {
 					state: initialArray,
@@ -232,7 +232,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(function)', () => {
+		describe( 'set(function)', () => {
 			test( 'should set a new value by callback in array', () => {
 				const changes = [
 					{
@@ -278,7 +278,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(stringPathToValue, non-function)', () => {
+		describe( 'set(stringPathToValue, non-function)', () => {
 			test( 'should set a new array value by string path', () => {
 				const changes = [
 					{
@@ -289,7 +289,7 @@ describe( 'createEstado.set', () => {
 						},
 					},
 				];
-				const estado = createEstado( initialArray, );
+				const estado = createConBase( initialArray, );
 				const next = estado.set( 'state', changes, );
 
 				expect( next.state, ).toStrictEqual( changes, );
@@ -300,7 +300,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set(stringPathToValue, function)', () => {
+		describe( 'set(stringPathToValue, function)', () => {
 			test( 'should set a new array value by string path', () => {
 				const changes = {
 					...initialArray[ 0 ],
@@ -321,7 +321,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set([number, "path", "to", "value"], non-function)', () => {
+		describe( 'set([number, "path", "to", "value"], non-function)', () => {
 			test( 'should set a new value by array index path', () => {
 				const changes = [
 					{
@@ -358,7 +358,7 @@ describe( 'createEstado.set', () => {
 			}, );
 		}, );
 
-		describe( 'createEstado.set([number, "path", "to", "value"], function)', () => {
+		describe( 'set([number, "path", "to", "value"], function)', () => {
 			test( 'should set a new nested value by callback in array', () => {
 				const item = {
 					...initialArray[ 0 ],

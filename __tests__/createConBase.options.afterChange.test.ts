@@ -1,17 +1,17 @@
 import { waitFor, } from '@testing-library/react';
 import { afterEach, describe, } from 'vitest';
-import { createEstado, } from '../src';
+import { createConBase, } from '../src';
 
-describe( 'option.afterChange()', () => {
+describe( 'createConBase - option.afterChange()', () => {
 	const initialState = {
 		counter: 0,
 		list: ['item1',],
 	};
-	let afterChangeMock = vi.fn();
-	let estado = createEstado( initialState, { afterChange: afterChangeMock, }, );
+	let afterChange = vi.fn();
+	let estado = createConBase( initialState, { afterChange, }, );
 	afterEach( () => {
-		afterChangeMock = vi.fn();
-		estado = createEstado( initialState, { afterChange: afterChangeMock, }, );
+		afterChange = vi.fn();
+		estado = createConBase( initialState, { afterChange, }, );
 	}, );
 
 	it( 'should call the afterChange callback after the state is updated', async() => {
@@ -23,10 +23,10 @@ describe( 'option.afterChange()', () => {
 		expect( estado.get( 'state.counter', ), ).toBe( 10, );
 		expect( estado.get( 'state.list', ), ).toEqual( ['item1', 'item2',], );
 		await waitFor( () => {
-			expect( afterChangeMock, ).toHaveBeenCalledTimes( 1, );
+			expect( afterChange, ).toHaveBeenCalledTimes( 1, );
 		}, );
 		await waitFor( () => {
-			expect( afterChangeMock, ).toBeCalledWith( estado.get(), );
+			expect( afterChange, ).toBeCalledWith( estado.get(), );
 		}, );
 	}, );
 }, );
