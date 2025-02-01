@@ -8,7 +8,6 @@ import getDeepArrayPath from './_internal/getDeepArrayPath';
 import getDeepValueParentByArray from './_internal/getDeepValueParentByArray';
 import noop from './_internal/noop';
 import type { ActRecord, } from './types/ActRecord';
-import type { CreateActs, } from './types/CreateActs';
 import type { CreateActsProps, } from './types/CreateActsProps';
 import type { EstadoDS, } from './types/EstadoDS';
 import type { EstadoHistory, } from './types/EstadoHistory';
@@ -28,20 +27,18 @@ export default function createEstado<
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Option<State> | CreateActs<State, Acts, EstadoHistory<State>>,
-	createActs: CreateActs<State, Acts, EstadoHistory<State>> = fo,
+	options: Option<State, Acts> = opts as Readonly<Option<State, Acts>>,
 ) {
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `createEstado can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history = createHistory( { initial, }, );
-	const _options = typeof options === 'object' ? options : opts as Readonly<Option<State>>;
-	const _createActs = typeof options === 'function' ? options : createActs;
 	const {
 		afterChange = noop,
 		dispatcher = noop,
-	} = _options;
-	const compare = compareCallback( _options?.compare, );
+		acts = fo,
+	} = options;
+	const compare = compareCallback( options.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
 	function setHistory( nextHistory: EstadoHistory<State>, ) {
@@ -171,7 +168,7 @@ export default function createEstado<
 		return finalize();
 	}
 
-	const props: CreateActsProps<State, EstadoHistory<State>> = {
+	const props: CreateActsProps<State> = {
 		get<State extends EstadoDS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
 			stateHistoryPath?: StateHistoryPath,
 		): {
@@ -209,15 +206,13 @@ export default function createEstado<
 		},
 	};
 
-	const createActProps: CreateActsProps<State, EstadoHistory<State>> = {
+	const createActProps: CreateActsProps<State> = {
 		...props,
 
 	};
 
-	const acts = _createActs( createActProps, );
-
 	return Object.freeze( {
 		...props,
-		acts,
+		acts: acts( createActProps, ),
 	}, );
 }

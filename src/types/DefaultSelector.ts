@@ -1,5 +1,6 @@
 import type { ActRecord, } from './ActRecord';
 import type { EstadoDS, } from './EstadoDS';
+import type { EstadoHistory, } from './EstadoHistory';
 import type { EstadoProps, } from './EstadoProps';
 import type { Selector, } from './Selector';
 import type { Immutable, } from './Immutable';
@@ -10,8 +11,8 @@ export type DefaultSelector<
 > = Selector<
 	State,
 	Acts,
-	Immutable<[
-		State,
-		EstadoProps<State, Acts, void>,
-	]>
+	[
+		Immutable<State>,
+		EstadoProps<State, Acts> & Immutable<EstadoHistory<State>>,
+	]
 >;

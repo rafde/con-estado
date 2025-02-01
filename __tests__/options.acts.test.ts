@@ -12,27 +12,30 @@ describe( 'options.acts', () => {
 			};
 
 			// Create the estado instance with custom actions
-			const estado = createEstado( initialState,
-				undefined,
-				( { set, }, ) => ( {
-					increment() {
-						set( ( { draft, }, ) => {
-							draft.state.counter += 1;
-						}, );
-					},
-					addItem( item: string, ) {
-						set( ( { draft, }, ) => {
-							draft.state.list.push( item, );
-						}, );
-					},
-					async asyncIncrement() {
-						return Promise.resolve().then( () => {
+			const estado = createEstado(
+				initialState,
+				{
+					acts: ( { set, }, ) => ( {
+						increment() {
 							set( ( { draft, }, ) => {
-								draft.state.counter += 10;
+								draft.state.counter += 1;
 							}, );
-						}, );
-					},
-				} ), );
+						},
+						addItem( item: string, ) {
+							set( ( { draft, }, ) => {
+								draft.state.list.push( item, );
+							}, );
+						},
+						async asyncIncrement() {
+							return Promise.resolve().then( () => {
+								set( ( { draft, }, ) => {
+									draft.state.counter += 10;
+								}, );
+							}, );
+						},
+					} ),
+				},
+			);
 
 			// Verify the custom actions are available
 			expect( estado.acts.increment, ).toBeDefined();

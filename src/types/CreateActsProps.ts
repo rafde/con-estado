@@ -8,7 +8,6 @@ import type { NestedRecordKeys, } from './NestedRecordKeys';
 
 export type CreateActsProps<
 	State extends EstadoDS,
-	Return extends EstadoHistory<State> | void,
 > = {
 	get(
 		stateHistoryPath?: undefined
@@ -18,4 +17,4 @@ export type CreateActsProps<
 	): Immutable<GetStringPathValue<EstadoHistory<State>, StateHistoryPath>>
 }
 & GetDraftRecord<State>
-& EstadoSetters<State, Return>;
+& EstadoSetters<State>;

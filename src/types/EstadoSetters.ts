@@ -71,12 +71,11 @@ type NextState<
 
 type EstadoSet<
 	State extends EstadoDS,
-	Return extends EstadoHistory<State> | void = EstadoHistory<State>,
 	NS extends NextState<State> = NextState<State>,
 > = {
 	set(
 		nextState: NS
-	): Return
+	): EstadoHistory<State>
 	set(
 		nextState: (
 			props: EstadoHistory<State>
@@ -84,7 +83,7 @@ type EstadoSet<
 					draft: Draft<NS>
 				}>,
 		) => void
-	): Return
+	): EstadoHistory<State>
 	set<
 		StatePath extends NestedObjectKeys<NS>,
 	>(
@@ -97,13 +96,13 @@ type EstadoSet<
 				SubStringPath<State, StatePath>
 			>,
 		) => void,
-	): Return
+	): EstadoHistory<State>
 	set<
 		StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
 	>(
 		statePath: StatePath,
 		nextState: GetArrayPathValue<NextState<State>, StatePath>,
-	): Return
+	): EstadoHistory<State>
 	set<
 		StatePath extends StringPathToArray<NestedObjectKeys<NS>>,
 	>(
@@ -116,18 +115,17 @@ type EstadoSet<
 				SubArrayPath<State, StatePath>
 			>,
 		) => void,
-	): Return
+	): EstadoHistory<State>
 	set<
 		StatePath extends NestedRecordKeys<NS>,
 	>(
 		statePath: StatePath,
 		nextState: GetStringPathValue<NS, StatePath>,
-	): Return
+	): EstadoHistory<State>
 };
 
 export type EstadoSetters<
 	State extends EstadoDS,
-	Return extends EstadoHistory<State> | void,
 > = {
-	reset(): Return
-} & EstadoSet<State, Return>;
+	reset(): EstadoHistory<State>
+} & EstadoSet<State>;

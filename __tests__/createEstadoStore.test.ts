@@ -7,23 +7,25 @@ const initialState = { count: 0, };
 function createSelector( state: typeof initialState, ) {
 	return createEstadoStore(
 		state,
-		( { set, }, ) => ( {
-			increment() {
-				set( 'state', ( { draft, }, ) => {
-					draft.count++;
-				}, );
-			},
-			incrementBy( num: number, ) {
-				set( 'state', ( { draft, }, ) => {
-					draft.count += num;
-				}, );
-			},
-			decrement() {
-				set( 'state', ( { draft, }, ) => {
-					draft.count--;
-				}, );
-			},
-		} ),
+		{
+			acts: ( { set, }, ) => ( {
+				increment() {
+					set( 'state', ( { draft, }, ) => {
+						draft.count++;
+					}, );
+				},
+				incrementBy( num: number, ) {
+					set( 'state', ( { draft, }, ) => {
+						draft.count += num;
+					}, );
+				},
+				decrement() {
+					set( 'state', ( { draft, }, ) => {
+						draft.count--;
+					}, );
+				},
+			} ),
+		},
 	);
 }
 
