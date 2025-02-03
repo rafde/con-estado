@@ -1,18 +1,18 @@
 import { strictDeepEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
+import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './createConSubLis';
 import type { ActRecord, } from './types/ActRecord';
-import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
-import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
+import type { UseEstadoProps, } from './types/UseEstadoProps';
 
 export default function createConStore<
 	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Omit<Option<State, Acts>, 'dispatcher'>,
+	options?: UseEstadoProps<State, Acts>,
 ) {
 	const estadoSubLis = createConSubLis(
 		initial,
@@ -37,20 +37,16 @@ export default function createConStore<
 		...estado,
 	};
 	let snapshot = initialSnapshot;
-	const defaultSelector: DefaultSelector<State, Acts> = selectorProps => [
-		selectorProps.state,
-		selectorProps,
-	];
 
 	function useConSelector<
-		Sel extends Selector<State, Acts> = typeof defaultSelector,
+		Sel extends Selector<State, Acts> = typeof defaultSelector<State, Acts>,
 	>( selector?: Sel, ) {
 		const _selector = useMemo(
 			() => {
 				if ( typeof selector === 'function' ) {
 					return selector;
 				}
-				return defaultSelector;
+				return defaultSelector<State, Acts>;
 			},
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			[],
