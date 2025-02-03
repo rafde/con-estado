@@ -14,10 +14,14 @@ export default function createConStore<
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,
 ) {
+	const {
+		selector = defaultSelector<State, Acts>,
+		..._options
+	} = options ?? {};
 	const estadoSubLis = createConSubLis(
 		initial,
 		{
-			...options,
+			..._options,
 			dispatcher( nextHistory, ) {
 				snapshot = {
 					...nextHistory,
@@ -38,15 +42,15 @@ export default function createConStore<
 	};
 	let snapshot = initialSnapshot;
 
-	function useConSelector<
-		Sel extends Selector<State, Acts> = typeof defaultSelector<State, Acts>,
-	>( selector?: Sel, ) {
+	function useConSelector(): ReturnType<typeof defaultSelector<State, Acts>>;
+	function useConSelector<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>;
+	function useConSelector<Sel extends Selector<State, Acts>,>( select?: Sel, ) {
 		const _selector = useMemo(
 			() => {
-				if ( typeof selector === 'function' ) {
-					return selector;
+				if ( typeof select === 'function' ) {
+					return select;
 				}
-				return defaultSelector<State, Acts>;
+				return selector;
 			},
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			[],
@@ -64,7 +68,7 @@ export default function createConStore<
 			[],
 		);
 		// @see {@link https://github.com/facebook/react/blob/main/packages/use-sync-external-store/src/useSyncExternalStoreShimClient.js}
-		return useSyncExternalStore<ReturnType<typeof _selector>>(
+		return useSyncExternalStore(
 			subscribe,
 			() => selectorCallback( snapshot, ),
 			() => selectorCallback( initialSnapshot, ),

@@ -2,12 +2,18 @@ import { renderHook, act, } from '@testing-library/react';
 import { afterEach, expect, } from 'vitest';
 import { createConStore, } from '../src/index';
 import { strictDeepEqual, } from 'fast-equals';
+import type { UseEstadoProps, } from 'src/types/UseEstadoProps';
+import type { ActRecord, } from 'src/types/ActRecord';
 
-const initialState = { count: 0, };
-function createSelector( state: typeof initialState, ) {
+const initialState = {
+	count: 0,
+	test: 'test',
+};
+function createSelector( state: typeof initialState, options?: UseEstadoProps<typeof initialState, ActRecord>, ) {
 	return createConStore(
 		state,
 		{
+			...options,
 			acts: ( { set, }, ) => ( {
 				increment() {
 					set( 'state', ( { draft, }, ) => {
@@ -56,7 +62,19 @@ describe( 'createConStore', () => {
 		expect( result.current[ 0 ].count, ).toBe( 0, );
 	}, );
 
+	it( 'should return the correct state based on the useConSelector selector function', () => {
+		const useConSelector = createSelector( initialState, { selector: props => props.state.count, }, );
+		const { result, } = renderHook( () => useConSelector( props => props.state.test, ), );
+
+		act( () => {
+			useConSelector.set( 'state.test', 'test2', );
+		}, );
+
+		expect( result.current, ).toBe( 'test2', );
+	}, );
+
 	it( 'should return the correct state based on the selector function', () => {
+		const useConSelector = createSelector( initialState, { selector: props => props.state.count, }, );
 		const { result, } = renderHook( () => useConSelector( props => props.state.count, ), );
 
 		act( () => {
