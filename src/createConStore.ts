@@ -1,7 +1,7 @@
 import { strictDeepEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
-import createConSubLis from './createConSubLis';
+import createConSubLis from './_internal/createConSubLis';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { Selector, } from './types/Selector';
