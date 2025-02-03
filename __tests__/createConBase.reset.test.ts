@@ -1,5 +1,5 @@
 import { afterEach, expect, } from 'vitest';
-import { createConBase, } from '../src';
+import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase - reset', () => {
 	// Define the initial state

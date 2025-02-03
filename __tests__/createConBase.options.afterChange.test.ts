@@ -1,6 +1,6 @@
 import { waitFor, } from '@testing-library/react';
 import { afterEach, describe, } from 'vitest';
-import { createConBase, } from '../src';
+import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase - option.afterChange()', () => {
 	const initialState = {

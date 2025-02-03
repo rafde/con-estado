@@ -1,5 +1,5 @@
 import { waitFor, } from '@testing-library/react';
-import { createConBase, } from '../src';
+import createConBase from '../src/_internal/createConBase';
 import { describe, } from 'vitest';
 
 describe( 'createConBase -  options.acts', () => {
