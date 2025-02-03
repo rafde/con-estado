@@ -1,5 +1,5 @@
 import { describe, expect, } from 'vitest';
-import { createConBase, } from '../src/';
+import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase', () => {
 	test( 'should create a new base from object', () => {

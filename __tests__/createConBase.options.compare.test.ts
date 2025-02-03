@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, } from 'vitest';
-import { createConBase, } from '../src/';
+import createConBase from '../src/_internal/createConBase';
 import type { OptionCompare, } from '../src/types/OptionCompare';
 
 describe( 'createConBase - options.compare', () => {

@@ -1,6 +1,6 @@
 import { isDraft, } from 'mutative';
 import { expect, } from 'vitest';
-import { createConBase, } from '../src';
+import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase - getDraft', () => {
 	// Define the initial state

@@ -1,4 +1,4 @@
-import createConBase from '../createConBase';
+import createConBase from './createConBase';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Option, } from '../types/Option';
