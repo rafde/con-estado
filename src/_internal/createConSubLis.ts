@@ -1,8 +1,8 @@
-import createConBase from './createConBase';
-import type { ActRecord, } from './types/ActRecord';
-import type { DS, } from './types/DS';
-import type { Option, } from './types/Option';
-import type { Selector, } from './types/Selector';
+import createConBase from '../createConBase';
+import type { ActRecord, } from '../types/ActRecord';
+import type { DS, } from '../types/DS';
+import type { Option, } from '../types/Option';
+import type { Selector, } from '../types/Selector';
 
 export default function createConSubLis<
 	State extends DS,
