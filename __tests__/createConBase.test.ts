@@ -48,14 +48,14 @@ describe( 'createConBase', () => {
 
 	it( 'should handle undefined or null initial state', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( null, ), ).toThrowError( /createConBase can only work with/, );
+		expect( () => createConBase( null, ), ).toThrowError( /createCon can only work with/, );
 
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( undefined, ), ).toThrowError( /createConBase can only work with/, );
+		expect( () => createConBase( undefined, ), ).toThrowError( /createCon can only work with/, );
 	}, );
 
 	it( 'should handle invalid selector functions', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( null as unknown, ), ).toThrowError( /createConBase can only work with/, );
+		expect( () => createConBase( null as unknown, ), ).toThrowError( /createCon can only work with/, );
 	}, );
 }, );
