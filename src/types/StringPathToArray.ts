@@ -4,4 +4,6 @@ export type StringPathToArray<T extends string,> = T extends `${infer First}\\.$
 		? First extends `${number}`
 			? [number, ...StringPathToArray<Rest>,]
 			: [First, ...StringPathToArray<Rest>,]
-		: [T,];
+		: T extends `${number}`
+			? [number,]
+			: [T,];

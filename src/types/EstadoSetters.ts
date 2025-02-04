@@ -98,12 +98,6 @@ type EstadoSet<
 		) => void,
 	): EstadoHistory<State>
 	set<
-		StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
-	>(
-		statePath: StatePath,
-		nextState: GetArrayPathValue<NextState<State>, StatePath>,
-	): EstadoHistory<State>
-	set<
 		StatePath extends StringPathToArray<NestedObjectKeys<NS>>,
 	>(
 		statePath: StatePath,
@@ -117,10 +111,33 @@ type EstadoSet<
 		) => void,
 	): EstadoHistory<State>
 	set<
+		StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
+	>(
+		statePath: StatePath,
+		nextState: GetArrayPathValue<NS, StatePath> | (
+			(
+				props: {
+					stateProp: GetArrayPathValue<NS, StatePath>
+					initialProp: GetArrayPathValue<NS, StatePath>
+					priorInitialProp: GetArrayPathValue<NS, StatePath>
+					priorStateProp: GetArrayPathValue<NS, StatePath>
+					changesProp: GetArrayPathValue<NS, StatePath>
+				}
+			) => GetArrayPathValue<NS, StatePath> ),
+	): EstadoHistory<State>
+	set<
 		StatePath extends NestedRecordKeys<NS>,
 	>(
 		statePath: StatePath,
-		nextState: GetStringPathValue<NS, StatePath>,
+		nextState: GetStringPathValue<NS, StatePath> | ( (
+			props: EstadoHistory<State> & {
+				stateProp: GetStringPathValue<NS, StatePath>
+				initialProp: GetStringPathValue<NS, StatePath>
+				priorInitialProp: GetStringPathValue<NS, StatePath>
+				priorStateProp: GetStringPathValue<NS, StatePath>
+				changesProp: GetStringPathValue<NS, StatePath>
+			}
+		) => GetStringPathValue<NS, StatePath> ),
 	): EstadoHistory<State>
 };
 
