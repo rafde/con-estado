@@ -10,21 +10,21 @@ import type { Selector, } from './types/Selector';
 export default function useCon<
 	State extends DS,
 	Acts extends ActRecord,
-	Sel extends Selector<State, Acts>
+	Sel extends Selector<State, Acts>,
 >(
 	initial: State,
 	options: UseEstadoProps<State, Acts> & { selector: Sel }
 ): ReturnType<Sel>;
 export default function useCon<
 	State extends DS,
-	Acts extends ActRecord
+	Acts extends ActRecord,
 >(
 	initial: State,
 	options?: Omit<UseEstadoProps<State, Acts>, 'selector'>
 ): ReturnType<typeof defaultSelector<State, Acts>>;
 export default function useCon<
 	State extends DS,
-	Acts extends ActRecord
+	Acts extends ActRecord,
 >(
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,

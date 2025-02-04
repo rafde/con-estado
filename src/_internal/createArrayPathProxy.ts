@@ -8,7 +8,11 @@ import getDeepValueParentByArray from './getDeepValueParentByArray';
 export default function createArrayPathProxy<
 	State extends DS,
 	TargetState extends object,
->( targetState: TargetState, history: EstadoHistory<State>, arrayPath: string[], ) {
+>(
+	targetState: TargetState,
+	history: EstadoHistory<State>,
+	arrayPath: string[],
+) {
 	return new Proxy(
 		{
 			...history,
