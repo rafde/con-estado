@@ -1,13 +1,13 @@
 {
 	"author": "Rafael De León",
 	"bugs": {
-		"url": "https://github.com/rafde/estado/issues"
+		"url": "https://github.com/rafde/con-estado/issues"
 	},
 	"dependencies": {
 		"fast-equals": "^5.0.1",
 		"mutative": "^1.1.0"
 	},
-	"description": "Deeply nested state manager",
+	"description": "Deeply nested react state manager",
 	"devDependencies": {
 		"@eslint/compat": "1.2.5",
 		"@eslint/eslintrc": "3.2.0",
@@ -47,7 +47,7 @@
 		"dist",
 		"src"
 	],
-	"homepage": "https://github.com/rafde/estado#readme",
+	"homepage": "https://github.com/rafde/con-estado#readme",
 	"keywords": [
 		"hooks",
 		"hook",
@@ -67,7 +67,7 @@
 	},
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
-	"name": "estado",
+	"name": "con-estado",
 	"peerDependencies": {
 		"@types/react": ">= 16.8.0 || >= 17.0.0 || >= 18.0.0 || >= 19.0.0",
 		"react": ">= 16.8.0 || >= 17.0.0 || >= 18.0.0 || >= 19.0.0"
@@ -79,7 +79,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/rafde/estado.git"
+		"url": "git+https://github.com/rafde/con-estado.git"
 	},
 	"scripts": {
 		"build": "rimraf dist && parcel build --log-level verbose --no-cache",
