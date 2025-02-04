@@ -1,6 +1,6 @@
 {
   "name": "@rafde/con-estado",
-  "version": "0.0.1",
+  "version": "0.0.2-pre.0",
   "license": "MIT",
   "exports": "./src/index.ts",
   "publish": {

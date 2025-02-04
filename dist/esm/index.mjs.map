@@ -1,0 +1,1 @@
+{"mappings":"","sources":["src/index.ts"],"sourcesContent":["export { default as createConStore, } from './createConStore';\nexport { default as useCon, } from './useCon';\n"],"names":[],"version":3,"file":"index.mjs.map"}
