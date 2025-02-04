@@ -8,6 +8,13 @@ import type { Selector, } from './types/Selector';
 import type { UseEstadoProps, } from './types/UseEstadoProps';
 import type createConBase from './_internal/createConBase';
 
+/**
+ * Type definition for the return value of createConStore.
+ * Combines the return type of createConBase with a function signature that accepts an optional selector.
+ *
+ * @typeParam {DS} State - The type of the state object
+ * @typeParam {ActRecord} Acts - The type of the actions record
+ */
 type CreateConStoreReturnType<
 	State extends DS,
 	Acts extends ActRecord,
@@ -16,6 +23,31 @@ type CreateConStoreReturnType<
 	<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>
 };
 
+/**
+ * Creates a new store with state management and subscription capabilities.
+ *
+ * @param {DS} initial - The initial state object
+ * @param {UseEstadoProps<DS, ActRecord>} [options] - Configuration options
+ * @param {CreateActs<DS, ActRecord>} [options.acts] - A function to create a Record of action functions that modify state
+ * @param {OptionCompare<DS>} [options.compare] - Custom comparison function to determine if state has changed
+ * @param {OptionAfterChange<DS>} [options.afterChange] - Callback function executed asynchronously after state changes
+ * @param {Selector<DS, ActRecord>} [options.selector=typeof defaultSelector<DS, ActRecord>] - Function to select and transform state values
+ *
+ * @returns {CreateConStoreReturnType<DS, ActRecord>} A function that can be used as a hook to access and modify the store state
+ *
+ * @example
+ * ```typescript
+ * const useStore = createConStore<StoreState>({
+ *   count: 0,
+ *   text: ''
+ * });
+ *
+ * // In component:
+ * const [state, controls] = useStore();
+ * // With selector:
+ * const [count, set] = useStore(props => [state.count, controls.set]);
+ * ```
+ */
 export default function createConStore<
 	State extends DS,
 	Acts extends ActRecord,
