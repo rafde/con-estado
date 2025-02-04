@@ -149,13 +149,13 @@ function UserPreferences() {
 	const preferences = useCon( initialState, {
 		selector: props => ( {
 			theme: props.state.user.preferences.theme,
-			updateTheme: ( newTheme: string ) => props.set( 'state.user.preferences.theme', newTheme, ),
+			updateTheme: (event: ChangeEvent<HTMLSelectElement>) => props.set('state.user.preferences.theme', event.target.value),
 		} ),
 	} );
 	return (
 		<select
 			value={preferences.theme}
-			onChange={e => preferences.updateTheme( e.target.value, )}
+			onChange={preferences.updateTheme}
 		>
 			<option value="light">Light</option>
 			<option value="dark">Dark</option>
@@ -171,23 +171,26 @@ Define reusable actions for complex state updates:
 ```tsx
 function PostList() {
 	const [state, { acts }] = useCon(initialState, {
-		acts: ({ set }) => ({
-			addPost(post: Post) {
-				set('state.posts', ({ draft }) => {
-					draft.push(post);
-				});
-			},
-			updatePost(id: number, updates: Partial<Post>) {
-				set('state.posts', ({ draft }) => {
-					const post = draft.find(p => p.id === id);
-					if (post) Object.assign(post, updates);
-				});
-			},
-			async fetchPosts() {
-				const posts = await api.getPosts();
-				set('state.posts', posts);
+		acts: ({ currySet }) => {
+			const setPost = currySet('state.posts');
+			return {
+				addPost(post: Post) {
+					setPost(({ draft }) => {
+						draft.push(post);
+					});
+				},
+				updatePost(id: number, updates: Partial<Post>) {
+					setPost(({ draft }) => {
+						const post = draft.find(p => p.id === id);
+						if (post) Object.assign(post, updates);
+					});
+				},
+				async fetchPosts() {
+					const posts = await api.getPosts();
+					setPost( posts );
+				}
 			}
-		})
+		}
 	});
 
 	return (
@@ -246,6 +249,7 @@ const [state, controls] = useCon(initialState, options?);
 ### Controls
 
 - `set(path, value)`: Update state at path
+- `currySet(path)`: Get a function to specify which part of the state you want to update by currying set(path) 
 - `get(path?)`: Get current state or value at path
 - `reset()`: Reset state to initial
 - `acts`: Custom defined actions

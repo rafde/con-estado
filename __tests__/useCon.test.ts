@@ -46,22 +46,59 @@ describe( 'useCon', () => {
 		expect( oldState, ).toBe( newState, );
 	}, );
 
-	test( 'should use a custom selector', () => {
-		const { result, } = renderHook( () => useCon(
-			initialState,
-			{
-				selector: props => ( {
-					test: props.state.text,
-					set: props.set,
-				} ),
-			},
-		), );
+	describe( 'selector', () => {
+		test( 'should use a custom selector', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				{
+					selector: props => ( {
+						test: props.state.text,
+						set: props.set,
+					} ),
+				},
+			), );
 
-		act( () => {
-			result.current.set( 'state.text', 'world', );
+			act( () => {
+				result.current.set( 'state.text', 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		expect( result.current.test, ).toBe( 'world', );
+		test( 'should use a custom selector with custom setter', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				{
+					selector: props => ( {
+						test: props.state.text,
+						setText: ( text: string, ) => props.set( 'state.text', text, ),
+					} ),
+				},
+			), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+		test( 'should use a custom selector with curry setter', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				{
+					selector: props => ( {
+						test: props.state.text,
+						setText: props.currySet( 'state.text', ),
+					} ),
+				},
+			), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
 	}, );
 
 	describe( 'acts', () => {

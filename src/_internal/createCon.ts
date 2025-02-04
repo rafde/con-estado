@@ -173,7 +173,20 @@ export default function createCon<
 		return finalize();
 	}
 
+	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
+
 	const props: CreateActsProps<State> = {
+		currySet( statePath: unknown, ) {
+			const curryFn = curryMap.get( statePath, );
+			if ( typeof curryFn === 'function' ) {
+				return curryFn;
+			}
+			function curriedSet( nextState: unknown, ) {
+				return _set( undefined, statePath, nextState, );
+			}
+			curryMap.set( statePath, curriedSet, );
+			return curriedSet;
+		},
 		get<State extends DS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
 			stateHistoryPath?: StateHistoryPath,
 		): {

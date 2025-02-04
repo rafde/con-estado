@@ -98,74 +98,74 @@ export default function useCon<
 	const [
 		state,
 		setState,
-	] = useState( () => {
-		const {
-			selector = defaultSelector<State, Acts>,
-			..._options
-		} = options ?? {};
-		const conProps = createCon( initial, _options, );
+	] = useState(
+		() => {
+			const {
+				selector = defaultSelector<State, Acts>,
+				..._options
+			} = options ?? {};
+			const conProps = createCon( initial, _options, );
+			function updateStateIfChanged<T,>( operation: () => T, ): T {
+				const oldHistory = conProps.get();
+				const results = operation();
+				const newHistory = conProps.get();
 
-		const conActProps = {
-			...conProps,
-			getDraft( ...args: Parameters<typeof conProps.getDraft> ) {
-				const [
-					draft,
-					_finalize,
-				] = conProps.getDraft( ...args, );
-
-				function finalize() {
-					const oldHistory = conProps.get();
-					const results = _finalize();
-					const newHistory = conProps.get();
-					if ( oldHistory === newHistory ) {
-						return results;
-					}
+				if ( oldHistory !== newHistory ) {
 					setState( selector( {
 						...propsConActs.get(),
 						...propsConActs,
 					}, ), );
-					return results;
 				}
 
-				return [
-					draft,
-					finalize,
-				];
-			},
-			reset() {
-				const oldHistory = conProps.get();
-				const results = conProps.reset();
-				const newHistory = conProps.get();
-				if ( oldHistory === newHistory ) {
-					return results;
-				}
-				setState( selector( {
-					...propsConActs.get(),
-					...propsConActs,
-				}, ), );
 				return results;
-			},
-			set( ...args: Parameters<typeof conProps.set> ) {
-				const oldHistory = conProps.get();
-				const results = conProps.set( ...args, );
-				const newHistory = conProps.get();
-				if ( oldHistory === newHistory ) {
-					return results;
-				}
-				setState( selector( {
-					...propsConActs.get(),
-					...propsConActs,
-				}, ), );
-				return results;
-			},
-		} as typeof conProps;
-		const propsConActs = createConActs( conActProps, options?.acts, );
+			}
 
-		return selector( {
-			...propsConActs,
-			...conActProps.get(),
-		}, );
-	}, );
+			const wm = new WeakMap();
+			const conActProps = {
+				...conProps,
+				currySet( ...args: Parameters<typeof conProps.currySet> ) {
+					const curried = conProps.currySet( ...args, );
+					const wmFn = wm.get( curried, );
+					if ( typeof wmFn === 'function' ) {
+						return wmFn;
+					}
+
+					function curriedSet( nextValue: Parameters<typeof curried>[0], ) {
+						return updateStateIfChanged( () => curried( nextValue, ), );
+					}
+					wm.set( curried, curriedSet, );
+					return curriedSet;
+				},
+				getDraft( ...args: Parameters<typeof conProps.getDraft> ) {
+					const [
+						draft,
+						_finalize,
+					] = conProps.getDraft( ...args, );
+
+					function finalize() {
+						return updateStateIfChanged( () => _finalize(), );
+					}
+
+					return [
+						draft,
+						finalize,
+					];
+				},
+				reset() {
+					return updateStateIfChanged( () => conProps.reset(), );
+				},
+				set( ...args: Parameters<typeof conProps.set> ) {
+					return updateStateIfChanged( () => conProps.set( ...args, ), );
+				},
+			} as typeof conProps;
+			const propsConActs = createConActs( conActProps, options?.acts, );
+
+			return selector( {
+				...propsConActs,
+				...conActProps.get(),
+			}, );
+		},
+	);
 
 	return state;
 }
