@@ -8,12 +8,12 @@ const initialState = {
 };
 
 describe( 'useCon', () => {
-	it( 'should initialize with the correct initial state', () => {
+	test( 'should initialize with the correct initial state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
-	it( 'should set count correctly', () => {
+	test( 'should set count correctly', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 
@@ -33,7 +33,7 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ].count, ).toBe( 0, );
 	}, );
 
-	it( 'should not return a new state', () => {
+	test( 'should not return a new state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		const oldHistory = result.current[ 1 ].get();
 		const oldState = result.current[ 0 ];
@@ -46,7 +46,7 @@ describe( 'useCon', () => {
 		expect( oldState, ).toBe( newState, );
 	}, );
 
-	it( 'should use a custom selector', () => {
+	test( 'should use a custom selector', () => {
 		const { result, } = renderHook( () => useCon(
 			initialState,
 			{

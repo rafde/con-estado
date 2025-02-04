@@ -2,7 +2,7 @@ import { describe, expect, } from 'vitest';
 import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase', () => {
-	test( 'should create a new base from object', () => {
+	it( 'should create a new base from object', () => {
 		const initial = {
 			n: 1,
 			o: {
@@ -29,7 +29,7 @@ describe( 'createConBase', () => {
 		expect( estado.get( 'priorState', ), ).toBe( undefined, );
 	}, );
 
-	test( 'should create a new base with array initial state', () => {
+	it( 'should create a new base with array initial state', () => {
 		const initial = [
 			{
 				n: 1,

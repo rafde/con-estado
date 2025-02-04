@@ -30,7 +30,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(object)', () => {
-			test( 'should have no changes when setting the same state', () => {
+			it( 'should have no changes when setting the same state', () => {
 				const next = estado.set( {
 					state: initialObject,
 					initial: initialObject,
@@ -38,7 +38,7 @@ describe( 'createConBase.set', () => {
 				expect( history, ).toStrictEqual( next, );
 			}, );
 
-			test( 'should set state object', () => {
+			it( 'should set state object', () => {
 				const state = {
 					n: 7,
 					o: {
@@ -68,7 +68,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(function)', () => {
-			test( 'should set a new value by callback', () => {
+			it( 'should set a new value by callback', () => {
 				const next = estado.set( ( { draft, }, ) => {
 					draft.state.n = 11;
 				}, );
@@ -85,7 +85,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, non-function)', () => {
-			test( 'should set a new value by path', () => {
+			it( 'should set a new value by path', () => {
 				const changes = {
 					n: 3,
 				};
@@ -100,7 +100,7 @@ describe( 'createConBase.set', () => {
 				expect( next.priorState, ).toBe( history.state, );
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
-			test( 'should set a new nested value by path', () => {
+			it( 'should set a new nested value by path', () => {
 				const changes = {
 					o: {
 						on: 7,
@@ -120,7 +120,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			test( 'should push a new nested value by callback', () => {
+			it( 'should push a new nested value by callback', () => {
 				const changes = {
 					oo: {
 						ooa: [
@@ -143,7 +143,7 @@ describe( 'createConBase.set', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			test( 'should push stateProp value by callback', () => {
+			it( 'should push stateProp value by callback', () => {
 				const changes = {
 					ooo: {
 						oooa: [
@@ -168,7 +168,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(["array", "path", "to", "value"], non-function)', () => {
-			test( 'should set a new array value by path array', () => {
+			it( 'should set a new array value by path array', () => {
 				const changes = {
 					oo: {
 						ooa: [11,],
@@ -188,7 +188,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(["array", "path", "to", "value"], function)', () => {
-			test( 'should modify array by callback using path array', () => {
+			it( 'should modify array by callback using path array', () => {
 				const changes = {
 					oo: {
 						ooa: [1, 100,],
@@ -223,7 +223,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(array)', () => {
-			test( 'should have no changes when setting the same array state', () => {
+			it( 'should have no changes when setting the same array state', () => {
 				const next = estado.set( {
 					state: initialArray,
 					initial: initialArray,
@@ -233,7 +233,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(function)', () => {
-			test( 'should set a new value by callback in array', () => {
+			it( 'should set a new value by callback in array', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -251,7 +251,7 @@ describe( 'createConBase.set', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			test( 'should push a new value by callback in array', () => {
+			it( 'should push a new value by callback in array', () => {
 				const item = {
 					...initialArray[ 0 ],
 					n: 7,
@@ -279,7 +279,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, non-function)', () => {
-			test( 'should set a new array value by string path', () => {
+			it( 'should set a new array value by string path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -301,7 +301,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			test( 'should set a new array value by string path', () => {
+			it( 'should set a new array value by string path', () => {
 				const changes = {
 					...initialArray[ 0 ],
 					n: 7,
@@ -322,7 +322,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set([number, "path", "to", "value"], non-function)', () => {
-			test( 'should set a new value by array index path', () => {
+			it( 'should set a new value by array index path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -338,7 +338,7 @@ describe( 'createConBase.set', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			test( 'should set a new nested value by array index path', () => {
+			it( 'should set a new nested value by array index path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -359,7 +359,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set([number, "path", "to", "value"], function)', () => {
-			test( 'should set a new nested value by callback in array', () => {
+			it( 'should set a new nested value by callback in array', () => {
 				const item = {
 					...initialArray[ 0 ],
 					o: {
