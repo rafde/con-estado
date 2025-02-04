@@ -5,10 +5,26 @@ import defaultSelector from './_internal/defaultSelector';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { UseEstadoProps, } from './types/UseEstadoProps';
+import type { Selector, } from './types/Selector';
 
 export default function useCon<
 	State extends DS,
 	Acts extends ActRecord,
+	Sel extends Selector<State, Acts>
+>(
+	initial: State,
+	options: UseEstadoProps<State, Acts> & { selector: Sel }
+): ReturnType<Sel>;
+export default function useCon<
+	State extends DS,
+	Acts extends ActRecord
+>(
+	initial: State,
+	options?: Omit<UseEstadoProps<State, Acts>, 'selector'>
+): ReturnType<typeof defaultSelector<State, Acts>>;
+export default function useCon<
+	State extends DS,
+	Acts extends ActRecord
 >(
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,
@@ -17,7 +33,11 @@ export default function useCon<
 		state,
 		setState,
 	] = useState( () => {
-		const conProps = createCon( initial, options, );
+		const {
+			selector = defaultSelector<State, Acts>,
+			..._options
+		} = options ?? {};
+		const conProps = createCon( initial, _options, );
 
 		const conActProps = {
 			...conProps,
@@ -34,7 +54,7 @@ export default function useCon<
 					if ( oldHistory === newHistory ) {
 						return results;
 					}
-					setState( defaultSelector<State, Acts>( {
+					setState( selector( {
 						...propsConActs.get(),
 						...propsConActs,
 					}, ), );
@@ -53,7 +73,7 @@ export default function useCon<
 				if ( oldHistory === newHistory ) {
 					return results;
 				}
-				setState( defaultSelector<State, Acts>( {
+				setState( selector( {
 					...propsConActs.get(),
 					...propsConActs,
 				}, ), );
@@ -66,7 +86,7 @@ export default function useCon<
 				if ( oldHistory === newHistory ) {
 					return results;
 				}
-				setState( defaultSelector<State, Acts>( {
+				setState( selector( {
 					...propsConActs.get(),
 					...propsConActs,
 				}, ), );
@@ -75,7 +95,7 @@ export default function useCon<
 		} as typeof conProps;
 		const propsConActs = createConActs( conActProps, options?.acts, );
 
-		return defaultSelector<State, Acts>( {
+		return selector( {
 			...propsConActs,
 			...conActProps.get(),
 		}, );

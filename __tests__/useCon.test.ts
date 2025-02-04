@@ -2,7 +2,10 @@ import { renderHook, act, } from '@testing-library/react';
 import { describe, expect, } from 'vitest';
 import useCon from '../src/useCon';
 
-const initialState = { count: 0, };
+const initialState = {
+	count: 0,
+	text: 'hello',
+};
 
 describe( 'useCon', () => {
 	it( 'should initialize with the correct initial state', () => {
@@ -41,6 +44,24 @@ describe( 'useCon', () => {
 		const newState = result.current[ 0 ];
 		expect( oldHistory, ).toBe( newHistory, );
 		expect( oldState, ).toBe( newState, );
+	}, );
+
+	it( 'should use a custom selector', () => {
+		const { result, } = renderHook( () => useCon(
+			initialState,
+			{
+				selector: props => ( {
+					test: props.state.text,
+					set: props.set,
+				} ),
+			},
+		), );
+
+		act( () => {
+			result.current.set( 'state.text', 'world', );
+		}, );
+
+		expect( result.current.test, ).toBe( 'world', );
 	}, );
 
 	describe( 'acts', () => {
