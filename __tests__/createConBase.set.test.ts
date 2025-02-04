@@ -20,6 +20,7 @@ describe( 'createConBase.set', () => {
 			],
 		},
 	};
+
 	describe( 'object', () => {
 		let estado = createConBase( initialObject, );
 		let history = estado.get();
@@ -199,9 +200,12 @@ describe( 'createConBase.set', () => {
 						ooa: [1, 100,],
 					},
 				};
-				const next = estado.set( ['state', 'oo', 'ooa',], ( { draft, }, ) => {
-					draft.push( 100, );
-				}, );
+				const next = estado.set(
+					['state', 'oo', 'ooa',],
+					( { draft, }, ) => {
+						draft.push( 100, );
+					},
+				);
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -214,7 +218,10 @@ describe( 'createConBase.set', () => {
 			}, );
 
 			it( 'should set first element in array with callback value', () => {
-				const next = estado.set( ['state', 'oo', 'ooa', '0',], ( { stateProp, }, ) => stateProp + 1, );
+				const next = estado.set(
+					['state', 'oo', 'ooa', 0,],
+					( { stateProp, }, ) => stateProp + 1,
+				);
 				expect( next.state.oo.ooa[ 0 ], ).toBe( 2, );
 			}, );
 		}, );
@@ -378,9 +385,12 @@ describe( 'createConBase.set', () => {
 					},
 				};
 
-				const next = estado.set( ['state', 0, 'o',], ( { draft, }, ) => {
-					draft.on = item.o.on;
-				}, );
+				const next = estado.set(
+					['state', 0, 'o',],
+					( { draft, }, ) => {
+						draft.on = item.o.on;
+					},
+				);
 
 				expect( next.state, ).toStrictEqual( [
 					item,
