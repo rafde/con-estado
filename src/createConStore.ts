@@ -6,6 +6,15 @@ import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { Selector, } from './types/Selector';
 import type { UseEstadoProps, } from './types/UseEstadoProps';
+import type createConBase from './_internal/createConBase';
+
+type CreateConStoreReturnType<
+	State extends DS,
+	Acts extends ActRecord,
+> = ReturnType<typeof createConBase<State, Acts>> & {
+	(): ReturnType<typeof defaultSelector<State, Acts>>
+	<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>
+};
 
 export default function createConStore<
 	State extends DS,
@@ -13,7 +22,7 @@ export default function createConStore<
 >(
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,
-) {
+): CreateConStoreReturnType<State, Acts> {
 	const {
 		selector = defaultSelector<State, Acts>,
 		..._options
