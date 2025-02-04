@@ -1,33 +1,33 @@
-# estado
+# con-estado
 
-[![NPM License](https://img.shields.io/npm/l/estado)](/LICENSE)
-[![NPM Version](https://img.shields.io/npm/v/estado)](https://www.npmjs.com/package/estado)
-[![JSR Version](https://img.shields.io/jsr/v/%40rafde/estado)](https://jsr.io/@rafde/estado)
-![Test](https://github.com/rafde/estado/actions/workflows/test.yml/badge.svg)
+[![NPM License](https://img.shields.io/npm/l/con-estado)](/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/con-estado)](https://www.npmjs.com/package/con-estado)
+[![JSR Version](https://img.shields.io/jsr/v/%40rafde/con-estado)](https://jsr.io/@rafde/con-estado)
+![Test](https://github.com/rafde/con-estado/actions/workflows/test.yml/badge.svg)
 
-[Full docs](https://rafde.github.io/estado)
+[Full docs](https://rafde.github.io/con-estado)
 
 ## Installation
 
 ```shell
-npm i estado
+npm i con-estado
 ```
 
 ```shell
-yarn add estado
+yarn add con-estado
 ```
 
 ```shell
-deno add jsr:@rafde/estado
+deno add jsr:@rafde/con-estado
 ```
 
 ## Introduction
 
-`estado` is a state management library built on top of [Mutative](https://mutative.js.org/) with the goal of helping with deeply nested state management in your application.
+`con-estado` is a state management library built on top of [Mutative](https://mutative.js.org/) with the goal of helping with deeply nested state management in your application.
 
-## Why Use estado?
+## Why Use `con-estado`?
 
-Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `estado` provides:
+Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `con-estado` provides:
 
 - **Direct path updates** - Modify nested properties using dot notation instead of spreading multiple levels
 - **Referential stability** - Only modified portions of state create new references, preventing unnecessary re-renders
@@ -35,7 +35,7 @@ Managing deeply nested state in React often becomes cumbersome with traditional 
 - **Optimized selectors** - Prevent component re-renders by selecting only relevant state fragments
 - **Type-safe mutations** - Full TypeScript support for state paths and updates
 
-Built on `Mutative`'s efficient immutable updates, `estado` is particularly useful for applications with:
+Built on `Mutative`'s efficient immutable updates, `con-estado` is particularly useful for applications with:
 - Complex nested state structures
 - Performance-sensitive state operations
 - Frequent partial state updates
@@ -44,7 +44,7 @@ Built on `Mutative`'s efficient immutable updates, `estado` is particularly usef
 ## Basic Usage
 
 ```tsx
-import { useCon } from 'estado';
+import { useCon } from 'con-estado';
 // Define your initial state
 const initialState = {
 	user: {
@@ -83,7 +83,7 @@ function MyComponent() {
 For applications needing global state management, `createConStore` provides a solution with built-in actions and optimized updates:
 
 ```tsx
-import { createConStore } from 'estado';
+import { createConStore } from 'con-estado';
 
 type CounterState = {
   count: number;
@@ -253,7 +253,7 @@ const [state, controls] = useCon(initialState, options?);
 
 ## TypeScript Support
 
-estado is written in TypeScript and can infer the state and actions types:
+`con-estado` is written in TypeScript and can infer the state and actions types:
 
 ```ts
 const [state, { set }] = useCon({
