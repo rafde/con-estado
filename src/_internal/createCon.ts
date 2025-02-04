@@ -157,8 +157,16 @@ export default function createCon<
 					createArrayPathProxy( value, history, arrayPath.slice( 1, ), ),
 				);
 			}
-			else if ( parent && typeof parent === 'object' && penPath && penPath in parent ) {
-				Reflect.set( parent, penPath, nextState, );
+			else if ( parent && typeof parent === 'object' && typeof penPath !== 'undefined' && penPath in parent ) {
+				if ( typeof nextState === 'function' ) {
+					const result = nextState(
+						createArrayPathProxy( parent, history, arrayPath.slice( 1, ), ),
+					);
+					Reflect.set( parent, penPath, result, );
+				}
+				else {
+					Reflect.set( parent, penPath, nextState, );
+				}
 			}
 		}
 

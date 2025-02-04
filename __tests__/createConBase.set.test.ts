@@ -120,7 +120,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			it( 'should push a new nested value by callback', () => {
+			it( 'should push a new nested draft value by callback', () => {
 				const changes = {
 					oo: {
 						ooa: [
@@ -143,7 +143,7 @@ describe( 'createConBase.set', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			it( 'should push stateProp value by callback', () => {
+			it( 'should push stateProp draft value by callback', () => {
 				const changes = {
 					ooo: {
 						oooa: [
@@ -164,6 +164,11 @@ describe( 'createConBase.set', () => {
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
+			}, );
+
+			it( 'should set primitive value using callback', () => {
+				const next = estado.set( 'state.n', ( { stateProp, }, ) => stateProp + 1, );
+				expect( next.state.n, ).toBe( 2, );
 			}, );
 		}, );
 
@@ -188,7 +193,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(["array", "path", "to", "value"], function)', () => {
-			it( 'should modify array by callback using path array', () => {
+			it( 'should modify draft array by callback using path array', () => {
 				const changes = {
 					oo: {
 						ooa: [1, 100,],
@@ -206,6 +211,11 @@ describe( 'createConBase.set', () => {
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.priorState, ).toBe( history.state, );
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
+			}, );
+
+			it( 'should set first element in array with callback value', () => {
+				const next = estado.set( ['state', 'oo', 'ooa', '0',], ( { stateProp, }, ) => stateProp + 1, );
+				expect( next.state.oo.ooa[ 0 ], ).toBe( 2, );
 			}, );
 		}, );
 	}, );
@@ -301,7 +311,7 @@ describe( 'createConBase.set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			it( 'should set a new array value by string path', () => {
+			it( 'should set draft with a new array value by string path', () => {
 				const changes = {
 					...initialArray[ 0 ],
 					n: 7,
