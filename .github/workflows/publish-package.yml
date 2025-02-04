@@ -33,6 +33,8 @@ jobs:
       - name: Checkout repository
         if: ${{ inputs.jsr || inputs.npm }}
         uses: actions/checkout@v4
+        with:
+          ref: release
 
       - name: Pull latest changes
         run: git pull
