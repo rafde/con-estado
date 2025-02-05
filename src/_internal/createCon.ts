@@ -16,7 +16,6 @@ import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
-import noop from './noop';
 
 function handleStateUpdate<
 	State extends DS,
@@ -152,6 +151,8 @@ function _getDraft<State extends DS,>(
 }
 
 const opts = Object.freeze( {}, );
+function noop(): void {
+}
 
 export default function createCon<
 	State extends DS,

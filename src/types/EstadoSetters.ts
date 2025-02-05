@@ -65,6 +65,30 @@ type NextStateStringPathProps<
 }>
 & EstadoHistory<State>;
 
+type StringPathProps<
+	State extends DS,
+	NS extends NextState<State>,
+	StatePath extends NestedRecordKeys<NS>,
+> = {
+	changesProp: GetStringPathValue<NS, StatePath> | undefined
+	initialProp: GetStringPathValue<NS, StatePath>
+	priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
+	priorStateProp: GetStringPathValue<NS, StatePath> | undefined
+	stateProp: GetStringPathValue<NS, StatePath>
+};
+
+type ArrayPathProps<
+	State extends DS,
+	NS extends NextState<State>,
+	StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
+> = {
+	changesProp: GetArrayPathValue<NS, StatePath> | undefined
+	initialProp: GetArrayPathValue<NS, StatePath>
+	priorInitialProp: GetArrayPathValue<NS, StatePath> | undefined
+	priorStateProp: GetArrayPathValue<NS, StatePath> | undefined
+	stateProp: GetArrayPathValue<NS, StatePath>
+};
+
 type NextState<
 	State extends DS,
 > = Pick<EstadoHistory<State>, 'state' | 'initial'>;
@@ -118,13 +142,7 @@ type EstadoSet<
 		statePath: StatePath,
 		nextState: GetArrayPathValue<NS, StatePath> | (
 			(
-				props: {
-					changesProp: GetArrayPathValue<NS, StatePath> | undefined
-					initialProp: GetArrayPathValue<NS, StatePath>
-					priorInitialProp: GetArrayPathValue<NS, StatePath> | undefined
-					priorStateProp: GetArrayPathValue<NS, StatePath> | undefined
-					stateProp: GetArrayPathValue<NS, StatePath>
-				}
+				props: ArrayPathProps<State, NS, StatePath>
 			) => GetArrayPathValue<NS, StatePath> ),
 	): EstadoHistory<State>
 	set<
@@ -132,13 +150,7 @@ type EstadoSet<
 	>(
 		statePath: StatePath,
 		nextState: GetStringPathValue<NS, StatePath> | ( (
-			props: EstadoHistory<State> & {
-				changesProp: GetStringPathValue<NS, StatePath> | undefined
-				initialProp: GetStringPathValue<NS, StatePath>
-				priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
-				priorStateProp: GetStringPathValue<NS, StatePath> | undefined
-				stateProp: GetStringPathValue<NS, StatePath>
-			}
+			props: EstadoHistory<State> & StringPathProps<State, NS, StatePath>
 		) => GetStringPathValue<NS, StatePath> ),
 	): EstadoHistory<State>
 };
@@ -153,13 +165,7 @@ type EstadoCurrySet<
 		StatePath extends RK,
 	>( statePath: StatePath, ): (
 		( nextState: GetStringPathValue<NS, StatePath> | ( (
-			props: EstadoHistory<State> & {
-				changesProp: GetStringPathValue<NS, StatePath> | undefined
-				initialProp: GetStringPathValue<NS, StatePath>
-				priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
-				priorStateProp: GetStringPathValue<NS, StatePath> | undefined
-				stateProp: GetStringPathValue<NS, StatePath>
-			}
+			props: EstadoHistory<State> & StringPathProps<State, NS, StatePath>
 		) => GetStringPathValue<NextState<State>, StatePath> ) ) => EstadoHistory<State>
 	)
 	currySet<
@@ -191,13 +197,7 @@ type EstadoCurrySet<
 	>( statePath: StatePath, ): (
 		nextState: GetArrayPathValue<NS, StatePath> | (
 		(
-			props: {
-				changesProp: GetArrayPathValue<NS, StatePath> | undefined
-				initialProp: GetArrayPathValue<NS, StatePath>
-				priorInitialProp: GetArrayPathValue<NS, StatePath> | undefined
-				priorStateProp: GetArrayPathValue<NS, StatePath> | undefined
-				stateProp: GetArrayPathValue<NS, StatePath>
-			}
+			props: ArrayPathProps<State, NS, StatePath>
 		) => GetArrayPathValue<NS, StatePath> )
 	) => EstadoHistory<State>
 };
@@ -254,13 +254,7 @@ type EstadoSetWrap<
 		statePath: StatePath,
 		nextState: (
 			(
-				props: {
-					changesProp: GetArrayPathValue<NS, StatePath> | undefined
-					initialProp: GetArrayPathValue<NS, StatePath>
-					priorInitialProp: GetArrayPathValue<NS, StatePath> | undefined
-					priorStateProp: GetArrayPathValue<NS, StatePath> | undefined
-					stateProp: GetArrayPathValue<NS, StatePath>
-				},
+				props: ArrayPathProps<State, NS, StatePath>,
 				...args: Args
 			) => GetArrayPathValue<NS, StatePath> ),
 	): ( ...args: Args ) => EstadoHistory<State>
@@ -270,13 +264,7 @@ type EstadoSetWrap<
 	>(
 		statePath: StatePath,
 		nextState: GetStringPathValue<NS, StatePath> | ( (
-			props: EstadoHistory<State> & {
-				changesProp: GetStringPathValue<NS, StatePath> | undefined
-				initialProp: GetStringPathValue<NS, StatePath>
-				priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
-				priorStateProp: GetStringPathValue<NS, StatePath> | undefined
-				stateProp: GetStringPathValue<NS, StatePath>
-			},
+			props: EstadoHistory<State> & StringPathProps<State, NS, StatePath>,
 			...args: Args
 		) => GetStringPathValue<NS, StatePath> ),
 	): ( ...args: Args ) => EstadoHistory<State>
