@@ -1,7 +1,8 @@
-import { useState, } from 'react';
+import { useCallback, useMemo, useRef, useState, } from 'react';
 import createCon from './_internal/createCon';
 import createConActs from './_internal/createConActs';
 import defaultSelector from './_internal/defaultSelector';
+import returnOnChange from './_internal/returnOnChange';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { UseEstadoProps, } from './types/UseEstadoProps';
@@ -95,23 +96,39 @@ export default function useCon<
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,
 ) {
+	const _selector = useMemo(
+		() => {
+			if ( typeof options?.selector === 'function' ) {
+				return options?.selector;
+			}
+			return defaultSelector<State, Acts>;
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
+	const resultRef = useRef( null as ReturnType<typeof _selector>, );
+	const selectorCallback = useCallback(
+		( snapshot: ReturnType<typeof _selector>, ) => {
+			const result = _selector( snapshot as never, );
+			resultRef.current = returnOnChange( resultRef.current, result, ) as ReturnType<typeof _selector>;
+			return resultRef.current;
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
 	const [
 		state,
 		setState,
 	] = useState(
 		() => {
-			const {
-				selector = defaultSelector<State, Acts>,
-				..._options
-			} = options ?? {};
-			const conProps = createCon( initial, _options, );
+			const conProps = createCon( initial, options, );
 			function updateStateIfChanged<T,>( operation: () => T, ): T {
 				const oldHistory = conProps.get();
 				const results = operation();
 				const newHistory = conProps.get();
 
 				if ( oldHistory !== newHistory ) {
-					setState( selector( {
+					setState( selectorCallback( {
 						...propsConActs.get(),
 						...propsConActs,
 					}, ), );
@@ -130,9 +147,7 @@ export default function useCon<
 						return wmFn;
 					}
 
-					function curriedSet( nextValue: Parameters<typeof curried>[0], ) {
-						return updateStateIfChanged( () => curried( nextValue, ), );
-					}
+					const curriedSet = ( nextValue: Parameters<typeof curried>[0], ) => updateStateIfChanged( () => curried( nextValue, ), );
 					wm.set( curried, curriedSet, );
 					return curriedSet;
 				},
@@ -157,10 +172,14 @@ export default function useCon<
 				set( ...args: Parameters<typeof conProps.set> ) {
 					return updateStateIfChanged( () => conProps.set( ...args, ), );
 				},
+				setWrap( ...args: Parameters<typeof conProps.setWrap> ) {
+					const wrapped = conProps.setWrap( ...args, );
+					return ( ...wrapProps: unknown[] ) => updateStateIfChanged( () => wrapped( ...wrapProps, ), );
+				},
 			} as typeof conProps;
 			const propsConActs = createConActs( conActProps, options?.acts, );
 
-			return selector( {
+			return selectorCallback( {
 				...propsConActs,
 				...conActProps.get(),
 			}, );
