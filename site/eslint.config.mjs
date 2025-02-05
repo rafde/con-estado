@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, } from 'node:url';
 import js from '@eslint/js';
 import { FlatCompat, } from '@eslint/eslintrc';
-import tailwind from 'eslint-plugin-tailwindcss';
+// import tailwind from 'eslint-plugin-tailwindcss';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 import rootEslintConfig from '../eslint.config.mjs';
@@ -18,7 +18,7 @@ const compat = new FlatCompat( {
 
 export default [
 	...rootEslintConfig,
-	...tailwind.configs[ 'flat/recommended' ],
+	// ...tailwind.configs[ 'flat/recommended' ],
 	...compat.extends(
 		'plugin:@next/next/recommended',
 	),
