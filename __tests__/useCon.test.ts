@@ -99,6 +99,33 @@ describe( 'useCon', () => {
 
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
+
+		test( 'should use a custom selector with setWrap', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				{
+					selector: props => ( {
+						test: props.state.text,
+						setText: props.setWrap(
+							'state.text',
+							( _, text: string, ) => text,
+						),
+					} ),
+				},
+			), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+
+			act( () => {
+				result.current.setText( 'hi', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'hi', );
+		}, );
 	}, );
 
 	describe( 'acts', () => {

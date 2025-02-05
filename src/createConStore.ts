@@ -1,7 +1,7 @@
-import { strictDeepEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
+import returnOnChange from './_internal/returnOnChange';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { Selector, } from './types/Selector';
@@ -18,8 +18,13 @@ import type createConBase from './_internal/createConBase';
 type CreateConStoreReturnType<
 	State extends DS,
 	Acts extends ActRecord,
+	Options extends UseEstadoProps<State, Acts>,
 > = ReturnType<typeof createConBase<State, Acts>> & {
-	(): ReturnType<typeof defaultSelector<State, Acts>>
+	(): Options extends undefined
+		? ReturnType<typeof defaultSelector<State, Acts>>
+		: Options['selector'] extends Selector<State, Acts>
+			? ReturnType<Options['selector']>
+			: ReturnType<typeof defaultSelector<State, Acts>>
 	<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>
 };
 
@@ -51,10 +56,11 @@ type CreateConStoreReturnType<
 export default function createConStore<
 	State extends DS,
 	Acts extends ActRecord,
+	Options extends UseEstadoProps<State, Acts>,
 >(
 	initial: State,
-	options?: UseEstadoProps<State, Acts>,
-): CreateConStoreReturnType<State, Acts> {
+	options?: Options,
+): CreateConStoreReturnType<State, Acts, Options> {
 	const {
 		selector = defaultSelector<State, Acts>,
 		..._options
@@ -83,7 +89,13 @@ export default function createConStore<
 	};
 	let snapshot = initialSnapshot;
 
-	function useConSelector(): ReturnType<typeof defaultSelector<State, Acts>>;
+	function useConSelector(): ReturnType<
+		Options extends undefined
+			? typeof defaultSelector<State, Acts>
+			: Options['selector'] extends Selector<State, Acts>
+				? Options['selector']
+				: typeof defaultSelector<State, Acts>
+	>;
 	function useConSelector<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>;
 	function useConSelector<Sel extends Selector<State, Acts>,>( select?: Sel, ) {
 		const _selector = useMemo(
@@ -100,9 +112,7 @@ export default function createConStore<
 		const selectorCallback = useCallback(
 			( snapshot: typeof initialSnapshot, ) => {
 				const result = _selector( snapshot, );
-				if ( !strictDeepEqual( resultRef.current, result, ) ) {
-					resultRef.current = result as ReturnType<typeof _selector>;
-				}
+				resultRef.current = returnOnChange( resultRef.current, result, ) as ReturnType<typeof _selector>;
 				return resultRef.current;
 			},
 			// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,5 +129,5 @@ export default function createConStore<
 	return Object.assign(
 		useConSelector,
 		estado,
-	);
+	) as CreateConStoreReturnType<State, Acts, Options>;
 }
