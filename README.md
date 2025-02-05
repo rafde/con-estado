@@ -5,7 +5,8 @@
 [![JSR Version](https://img.shields.io/jsr/v/%40rafde/con-estado)](https://jsr.io/@rafde/con-estado)
 ![Test](https://github.com/rafde/con-estado/actions/workflows/test.yml/badge.svg)
 
-[Full docs](https://rafde.github.io/con-estado)
+## Docs
+For full documentation, with details and examples, see [con-estado docs](https://rafde.github.io/con-estado).
 
 ## Installation
 
@@ -23,7 +24,8 @@ deno add jsr:@rafde/con-estado
 
 ## Introduction
 
-`con-estado` is a state management library built on top of [Mutative](https://mutative.js.org/) with the goal of helping with deeply nested state management in your application.
+`con-estado` is a state management library built on top of [Mutative](https://mutative.js.org/), like [Immer](https://immerjs.github.io/immer/) but faster,
+with the goal of helping with deeply nested state management in your application.
 
 ## Why Use `con-estado`?
 
@@ -134,6 +136,16 @@ Key advantages:
 - **Async action support** with automatic state updates
 - **Optimized subscriptions** through selector-based consumption
 
+## Local State
+
+Local state management.
+
+```tsx
+const [state, controls] = useCon(initialState, options?);
+```
+
+You get the advantages of `createConStore` but with local state.
+
 ## Custom Selectors
 
 Optimize renders by selecting only needed state:
@@ -149,7 +161,9 @@ function UserPreferences() {
 	const preferences = useCon( initialState, {
 		selector: props => ( {
 			theme: props.state.user.preferences.theme,
-			updateTheme: (event: ChangeEvent<HTMLSelectElement>) => props.set('state.user.preferences.theme', event.target.value),
+			updateTheme: props.setWrap(
+				'state.user.preferences.theme', ( controlsPlusHistory, event: ChangeEvent<HTMLSelectElement>, ) => event.target.value,
+			),
 		} ),
 	} );
 	return (
@@ -164,6 +178,8 @@ function UserPreferences() {
 }
 ```
 
+Selector is a function that returns the state you need. Only re-renders on non-function changes.
+
 ### Actions
 
 Define reusable actions for complex state updates:
@@ -171,20 +187,21 @@ Define reusable actions for complex state updates:
 ```tsx
 function PostList() {
 	const [state, { acts }] = useCon(initialState, {
-		acts: ({ currySet }) => {
+		acts: ({ currySet, wrapSet }) => {
+			// currySet is a function that returns a function that can be called with the state.posts array
 			const setPost = currySet('state.posts');
+
 			return {
 				addPost(post: Post) {
 					setPost(({ draft }) => {
 						draft.push(post);
 					});
 				},
-				updatePost(id: number, updates: Partial<Post>) {
-					setPost(({ draft }) => {
-						const post = draft.find(p => p.id === id);
-						if (post) Object.assign(post, updates);
-					});
-				},
+				updatePost: wrapSet('state.posts', ({draft}, id: number, updates: Partial<Post>) => {
+					// draft is a mutable object that is relative to the state.posts array
+					const post = draft.find(p => p.id === id);
+					if (post) Object.assign(post, updates);
+				}),
 				async fetchPosts() {
 					const posts = await api.getPosts();
 					setPost( posts );
@@ -233,23 +250,35 @@ function StateHistory() {
 
 ## API Reference
 
+
+### createConStore
+
+Global store for state management.
+
+```ts
+const useConSelector = createConStore(initialState, options?);
+```
+
 ### useCon
+
+Local state management.
 
 ```ts
 const [state, controls] = useCon(initialState, options?);
 ```
 
-#### Options
+#### createConStore and useCon Options
 
 - `selector`: Custom state selector function
-- `acts`: Action creators object. The action functions are defined in the `acts` property and can be called with the `controls` object.
+- `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
 - `compare`: Custom comparison function
 - `afterChange`: Callback after state changes
 
-### Controls
+### createConStore and useCon Controls
 
 - `set(path, value)`: Update state at path
 - `currySet(path)`: Get a function to specify which part of the state you want to update by currying set(path) 
+- `setWrap(path, value)`: Lets you wrap the set function in a function that will be called with the draft state and the value to update.
 - `get(path?)`: Get current state or value at path
 - `reset()`: Reset state to initial
 - `acts`: Custom defined actions
