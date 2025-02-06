@@ -1,6 +1,7 @@
 import { create, type Draft, isDraft, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
+import type { CreateConOptions, } from '../types/CreateConOptions';
 import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
 import type { EstadoRecord, } from '../types/EstadoRecord';
@@ -8,7 +9,6 @@ import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import type { Option, } from '../types/Option';
 import compareCallback, { type CompareCallbackReturn, } from './compareCallback';
 import createArrayPathProxy from './createArrayPathProxy';
 import createHistory from './createHistory';
@@ -159,7 +159,7 @@ export default function createCon<
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options: Option<State, Acts> = opts as Readonly<Option<State, Acts>>,
+	options: CreateConOptions<State, Acts> = opts as CreateConOptions<State, Acts>,
 ) {
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `createCon can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
