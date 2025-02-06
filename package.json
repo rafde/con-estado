@@ -7,7 +7,7 @@
 		"fast-equals": "^5.0.1",
 		"mutative": "^1.1.0"
 	},
-	"description": "Deeply nested react state manager",
+	"description": "Deeply nested state manager for ReactJS",
 	"devDependencies": {
 		"@eslint/compat": "1.2.6",
 		"@eslint/eslintrc": "3.2.0",
