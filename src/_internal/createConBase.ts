@@ -15,3 +15,8 @@ export default function createConBase<
 
 	return createConActs( props, options?.acts, );
 }
+
+export type CreateConBaseReturn<
+	State extends DS,
+	Acts extends ActRecord,
+> = ReturnType<typeof createConActs<State, Acts>>;
