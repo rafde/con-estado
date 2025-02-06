@@ -6,6 +6,6 @@ import type { Selector, } from './Selector';
 export type UseEstadoProps<
 	State extends DS,
 	Acts extends ActRecord,
-> = Omit<Option<State, Acts>, 'dispatcher'> & {
+> = Option<State, Acts> & {
 	selector?: Selector<State, Acts>
 };

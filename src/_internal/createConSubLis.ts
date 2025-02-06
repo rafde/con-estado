@@ -1,7 +1,7 @@
+import type { CreateConOptions, } from '../types/CreateConOptions';
 import createConBase from './createConBase';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
-import type { Option, } from '../types/Option';
 import type { Selector, } from '../types/Selector';
 
 export default function createConSubLis<
@@ -9,7 +9,7 @@ export default function createConSubLis<
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: Option<State, Acts>,
+	options?: CreateConOptions<State, Acts>,
 ) {
 	const estado = createConBase(
 		initial,
