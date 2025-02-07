@@ -16,6 +16,7 @@ import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import isPlainObject from './isPlainObject';
 
 function handleStateUpdate<
 	State extends DS,
@@ -187,14 +188,16 @@ export default function createCon<
 		return nextHistory;
 	}
 
-	function getDraft( stateHistoryPath?: unknown, ) {
+	function getDraft( stateHistoryPath: unknown = mutOptions, options = mutOptions, ) {
+		const statePath = isPlainObject( stateHistoryPath, ) ? undefined : stateHistoryPath;
+		const _options = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
 		return _getDraft(
 			history,
 			compare,
 			setHistory,
 			arrayPathMap,
-			stateHistoryPath,
-			mutOptions,
+			statePath,
+			_options,
 		);
 	}
 
