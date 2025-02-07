@@ -32,25 +32,32 @@ type CreateConStoreReturnType<
  * Creates a new store with state management and subscription capabilities.
  *
  * @param {DS} initial - The initial state object
- * @param {UseEstadoProps<DS, ActRecord>} [options] - Configuration options
- * @param {CreateActs<DS, ActRecord>} [options.acts] - A function to create a Record of action functions that modify state
- * @param {OptionCompare<DS>} [options.compare] - Custom comparison function to determine if state has changed
- * @param {OptionAfterChange<DS>} [options.afterChange] - Callback function executed asynchronously after state changes
- * @param {Selector<DS, ActRecord>} [options.selector=typeof defaultSelector<DS, ActRecord>] - Function to select and transform state values
+ * @param {UseEstadoProps} [options] - Configuration options
+ * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
+ * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
+ * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes
+ * @param {Selector} [options.selector=typeof defaultSelector<DS>] - Function to select and transform state values.
+ * Subsequent updates will ignore changes to `function` to prevent excessive re-renders.
+ * @param {MutOptions} [options.mutOptions={strict: true}] - Mutative options. {enablePatches: true} not supported
  *
  * @returns {CreateConStoreReturnType<DS, ActRecord>} A function that can be used as a hook to access and modify the store state
  *
  * @example
  * ```typescript
  * const useStore = createConStore<StoreState>({
- *   count: 0,
- *   text: ''
+ *    user: {
+ *      count: 0,
+ *      text: ''
+ *    }
  * });
  *
  * // In component:
  * const [state, controls] = useStore();
+ * controls.set( 'user.text', 'hi');
+ *
  * // With selector:
- * const [count, set] = useStore(props => [state.count, controls.set]);
+ * const [count, set] = useStore({state, set} => [state.user.count, set]);
+ * set( 'user.text', 'hi');
  * ```
  */
 export default function createConStore<
