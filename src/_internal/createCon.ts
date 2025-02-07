@@ -1,4 +1,4 @@
-import { create, type Draft, isDraft, } from 'mutative';
+import { create, type Draft, isDraft, type Options as MutOptions, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
@@ -67,12 +67,16 @@ function handleStateUpdate<
 	return finalize();
 }
 
-function _getDraft<State extends DS,>(
+function _getDraft<
+	State extends DS,
+	M extends MutOptions<false, boolean> = MutOptions<false, false>,
+>(
 	history: EstadoHistory<State>,
 	compare: CompareCallbackReturn<State>,
 	setHistory: ( nextHistory: EstadoHistory<State>, ) => EstadoHistory<State>,
 	arrayPathMap: Map<string | number, Array<string | number>>,
 	stateHistoryPath?: unknown,
+	mutOptions?: M,
 ) {
 	const [
 		_draft,
@@ -82,7 +86,10 @@ function _getDraft<State extends DS,>(
 			initial: history.initial,
 			state: history.state,
 		},
-		{ strict: true, },
+		{
+			...mutOptions,
+			strict: true,
+		},
 	);
 
 	function finalize() {
@@ -110,15 +117,15 @@ function _getDraft<State extends DS,>(
 		const {
 			changes,
 		} = findChanges(
-			initial,
-			state,
+			initial as State,
+			state as State,
 			compare as CompareCallbackReturn,
 		);
 		const nextHistory: EstadoHistory<State> = {
 			changes: changes as EstadoHistory<State>['changes'],
 			priorInitial: initial !== history.initial ? history.initial : history.priorInitial,
-			state,
-			initial,
+			state: state as State,
+			initial: initial as State,
 			priorState: state !== history.state ? history.state : history.priorState,
 		};
 
@@ -168,6 +175,7 @@ export default function createCon<
 	const {
 		afterChange = noop,
 		dispatcher = noop,
+		mutOptions,
 	} = options;
 	const compare = compareCallback( options.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
@@ -186,6 +194,7 @@ export default function createCon<
 			setHistory,
 			arrayPathMap,
 			stateHistoryPath,
+			mutOptions,
 		);
 	}
 
