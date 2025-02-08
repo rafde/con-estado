@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useRef, useState, } from 'react';
+import { useState, } from 'react';
 
 import createCon from './_internal/createCon';
 import createConActs from './_internal/createConActs';
 import defaultSelector from './_internal/defaultSelector';
-import returnOnChange from './_internal/returnOnChange';
+import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { UseEstadoProps, } from './types/UseEstadoProps';
@@ -99,25 +99,9 @@ export default function useCon<
 	initial: State,
 	options?: UseEstadoProps<State, Acts>,
 ) {
-	const _selector = useMemo(
-		() => {
-			if ( typeof options?.selector === 'function' ) {
-				return options?.selector;
-			}
-			return defaultSelector<State, Acts>;
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
-	);
-	const resultRef = useRef( null as ReturnType<typeof _selector>, );
-	const selectorCallback = useCallback(
-		( snapshot: ReturnType<typeof _selector>, ) => {
-			const result = _selector( snapshot as never, );
-			resultRef.current = returnOnChange( resultRef.current, result, ) as ReturnType<typeof _selector>;
-			return resultRef.current;
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
+	const selectorCallback = useSelectorCallback(
+		defaultSelector<State, Acts>,
+		options?.selector,
 	);
 	const [
 		state,
