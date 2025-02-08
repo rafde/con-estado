@@ -1,44 +1,17 @@
 import { renderHook, act, } from '@testing-library/react';
-import { afterEach, expect, } from 'vitest';
+import { afterEach, beforeEach, expect, } from 'vitest';
 import { createConStore, } from '../src/index';
 import { strictDeepEqual, } from 'fast-equals';
-import type { UseEstadoProps, } from 'src/types/UseEstadoProps';
-import type { ActRecord, } from 'src/types/ActRecord';
 
 const initialState = {
 	count: 0,
 	test: 'test',
 };
-function createSelector( state: typeof initialState, options?: UseEstadoProps<typeof initialState, ActRecord>, ) {
-	return createConStore(
-		state,
-		{
-			...options,
-			acts: ( { set, }, ) => ( {
-				increment() {
-					set( 'state', ( { draft, }, ) => {
-						draft.count++;
-					}, );
-				},
-				incrementBy( num: number, ) {
-					set( 'state', ( { draft, }, ) => {
-						draft.count += num;
-					}, );
-				},
-				decrement() {
-					set( 'state', ( { draft, }, ) => {
-						draft.count--;
-					}, );
-				},
-			} ),
-		},
-	);
-}
 
 describe( 'createConStore', () => {
-	let useConSelector = createSelector( initialState, );
-	afterEach( () => {
-		useConSelector = createSelector( initialState, );
+	let useConSelector = createConStore( initialState, );
+	beforeEach( () => {
+		useConSelector = createConStore( initialState, );
 	}, );
 
 	it( 'should initialize with the correct initial state', () => {
@@ -49,10 +22,12 @@ describe( 'createConStore', () => {
 	it( 'should maintain immutable state', () => {
 		const { result, } = renderHook( () => useConSelector(), );
 
-		const [initialSnapshot,] = result.current;
+		const [initialSnapshot, controls,] = result.current;
 
 		act( () => {
-			result.current[ 1 ].acts.increment();
+			controls.set( 'state', ( { draft, }, ) => {
+				draft.count++;
+			}, );
 		}, );
 
 		expect( result.current[ 0 ], ).not.toBe( initialSnapshot, );
@@ -60,6 +35,35 @@ describe( 'createConStore', () => {
 	}, );
 
 	describe( 'acts', () => {
+		function createSelector() {
+			return createConStore(
+				initialState,
+				{
+					acts: ( { set, }, ) => ( {
+						increment() {
+							set( 'state', ( { draft, }, ) => {
+								draft.count++;
+							}, );
+						},
+						incrementBy( num: number, ) {
+							set( 'state', ( { draft, }, ) => {
+								draft.count += num;
+							}, );
+						},
+						decrement() {
+							set( 'state', ( { draft, }, ) => {
+								draft.count--;
+							}, );
+						},
+					} ),
+				},
+			);
+		}
+
+		let useConSelector = createSelector();
+		afterEach( () => {
+			useConSelector = createSelector();
+		}, );
 		it( 'should update state correctly when actions are dispatched', () => {
 			const { result, } = renderHook( () => useConSelector(), );
 
@@ -78,17 +82,13 @@ describe( 'createConStore', () => {
 	}, );
 
 	describe( 'selector', () => {
-		it( 'should return the correct state based on the selector option', () => {
-			const useConSelector = createConStore(
-				initialState,
-				{
-					selector: props => ( {
-						test: props.state.test,
-						setText: ( text: string, ) => props.set( 'state.test', text, ),
-					} ),
-				},
-			);
-			const { result, } = renderHook( () => useConSelector(), );
+		it( 'should return the correct state based on the useConSelector selector', () => {
+			const { result, } = renderHook( () => useConSelector( props => ( {
+				setText: props.setWrap(
+					'state.test', ( _, text: string, ) => text,
+				),
+				test: props.state.test,
+			} ), ), );
 
 			act( () => {
 				result.current.setText( 'new text', );
@@ -97,19 +97,98 @@ describe( 'createConStore', () => {
 			expect( result.current.test, ).toBe( 'new text', );
 		}, );
 
-		it( 'should return the correct state based on the useConSelector selector', () => {
+		it( 'should return the correct state based createConStore selector', () => {
+			const useConSelector = createConStore(
+				initialState,
+				props => ( {
+					setText: props.setWrap(
+						'state.test', ( _, text: string, ) => text,
+					),
+					test: props.state.test,
+				} ),
+			);
+			const { result, } = renderHook( () => useConSelector(), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+
+		it( 'should return the correct state based useConSelector selector and not createConStore selector', () => {
+			const useConSelector = createConStore(
+				initialState,
+				props => ( {
+					test: props.state.test,
+				} ),
+			);
 			const { result, } = renderHook( () => useConSelector( props => ( {
-				test: props.state.test,
 				setText: props.setWrap(
 					'state.test', ( _, text: string, ) => text,
 				),
+				test: props.state.test,
 			} ), ), );
 
 			act( () => {
-				result.current.setText( 'new text', );
+				result.current.setText( 'world', );
 			}, );
 
-			expect( result.current.test, ).toBe( 'new text', );
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+
+		test( 'should use createConStore selector with acts', () => {
+			const useConSelector = createConStore(
+				initialState,
+				{
+					acts( { set, }, ) {
+						return {
+							setText: ( text: string, ) => {
+								set( 'state.test', text, );
+							},
+						};
+					},
+				},
+				props => ( {
+					setText: props.acts.setText,
+					test: props.state.test,
+				} ),
+			);
+			const { result, } = renderHook( () => useConSelector(), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+
+		test( 'should useConSelector with acts and not createConStore selector', () => {
+			const useConSelector = createConStore(
+				initialState,
+				{
+					acts( { set, }, ) {
+						return {
+							setText: ( text: string, ) => {
+								set( 'state.test', text, );
+							},
+						};
+					},
+				},
+				props => ( {
+					test: props.state.test,
+				} ),
+			);
+			const { result, } = renderHook( () => useConSelector( props => ( {
+				test: props.state.test,
+				setText: props.acts.setText,
+			} ), ), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
 		}, );
 	}, );
 }, );
