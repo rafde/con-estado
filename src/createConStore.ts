@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useRef, useSyncExternalStore, } from 'react';
+import { useSyncExternalStore, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
-import returnOnChange from './_internal/returnOnChange';
+import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { Selector, } from './types/Selector';
@@ -105,25 +105,9 @@ export default function createConStore<
 	>;
 	function useConSelector<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>;
 	function useConSelector<Sel extends Selector<State, Acts>,>( select?: Sel, ) {
-		const _selector = useMemo(
-			() => {
-				if ( typeof select === 'function' ) {
-					return select;
-				}
-				return selector;
-			},
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[],
-		);
-		const resultRef = useRef( null as ReturnType<typeof _selector>, );
-		const selectorCallback = useCallback(
-			( snapshot: typeof initialSnapshot, ) => {
-				const result = _selector( snapshot, );
-				resultRef.current = returnOnChange( resultRef.current, result, ) as ReturnType<typeof _selector>;
-				return resultRef.current;
-			},
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[],
+		const selectorCallback = useSelectorCallback(
+			selector,
+			select,
 		);
 		// @see {@link https://github.com/facebook/react/blob/main/packages/use-sync-external-store/src/useSyncExternalStoreShimClient.js}
 		return useSyncExternalStore(
