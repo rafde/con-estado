@@ -12,11 +12,22 @@ import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import compareCallback, { type CompareCallbackReturn, } from './compareCallback';
 import createArrayPathProxy from './createArrayPathProxy';
 import createHistory from './createHistory';
+import escapeDots from './escapeDots';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isPlainObject from './isPlainObject';
+
+function _joinPath( path: string | ( string | number )[], prefix?: 'initial' | 'state', ) {
+	const _path = typeof path === 'string' ? path : path.map( escapeDots, ).join( '.', );
+
+	if ( typeof prefix === 'string' ) {
+		return `${prefix}.${_path}`;
+	}
+
+	return _path;
+}
 
 function handleStateUpdate<
 	State extends DS,
@@ -220,11 +231,11 @@ export default function createCon<
 		) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
 	}
 
-	function setWrap( ...args: unknown[] ) {
-		const [statePath, nextState,] = args;
+	function _setWrap( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
+		const [targetStatePath, statePath, nextState,] = args;
 
 		return function wrap( ...wrapArgs: unknown[] ) {
-			const [draft, finalize,] = getDraft();
+			const [draft, finalize,] = getDraft( targetStatePath, );
 			if ( typeof statePath === 'function' ) {
 				return handleStateUpdate(
 					draft,
@@ -266,18 +277,24 @@ export default function createCon<
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
+	function _currySet( statePath: string | ( string | number )[], targetStatePath?: 'state' | 'initial', ) {
+		const path = _joinPath( statePath, targetStatePath, );
+		const curryFn = curryMap.get( path, );
+		if ( typeof curryFn === 'function' ) {
+			return curryFn;
+		}
+
+		function curriedSet( nextState: unknown, ) {
+			return _set( targetStatePath, statePath, nextState, );
+		}
+
+		curryMap.set( statePath, curriedSet, );
+		return curriedSet;
+	}
 
 	const props: CreateActsProps<State> = {
-		currySet( statePath: unknown, ) {
-			const curryFn = curryMap.get( statePath, );
-			if ( typeof curryFn === 'function' ) {
-				return curryFn;
-			}
-			function curriedSet( nextState: unknown, ) {
-				return _set( undefined, statePath, nextState, );
-			}
-			curryMap.set( statePath, curriedSet, );
-			return curriedSet;
+		currySet( statePath: Parameters<CreateActsProps<State>['currySet']>[0], ) {
+			return _currySet( statePath, );
 		},
 		get,
 		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
@@ -297,7 +314,9 @@ export default function createCon<
 		set( ...args: unknown[] ) {
 			return _set( undefined, ...args, );
 		},
-		setWrap,
+		setWrap( ...args: unknown[] ) {
+			return _setWrap( undefined, ...args, );
+		},
 	};
 
 	return props;
