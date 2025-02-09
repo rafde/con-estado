@@ -19,4 +19,4 @@ export default function createConBase<
 export type CreateConBaseReturn<
 	State extends DS,
 	Acts extends ActRecord,
-> = ReturnType<typeof createConActs<State, Acts>>;
+> = ReturnType<typeof createConBase<State, Acts>>;
