@@ -6,7 +6,7 @@ import defaultSelector from './_internal/defaultSelector';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
-import type { UseEstadoProps, } from './types/UseEstadoProps';
+import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 // @ts-expect-error -- here for tsdocs
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,13 +22,13 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
  * A React hook for managing state with history tracking and actions.
  *
  * @param {DS} initial - The initial state object
- * @param {UseEstadoProps<DS, ActRecord>} [options] - Configuration options
- * @param {CreateActs<DS, ActRecord>} [options.acts] - A function to create a Record of action functions that modify state
- * @param {OptionCompare<DS>} [options.compare] - Custom comparison function to determine if state has changed
- * @param {OptionAfterChange<DS>} [options.afterChange] - Callback function executed asynchronously after state changes
- * @param {Selector<DS, ActRecord>} [options.selector=typeof defaultSelector<DS, ActRecord>] - Function to select and transform state values
+ * @param {Option} [options] - Configuration options
+ * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
+ * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
+ * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes
  * Subsequent updates will ignore `function` changes.
  * @param {MutOptions} [options.mutOptions={strict: true}] - Mutative options. {enablePatches: true} not supported
+ * @param {Selector} selector - Function to select and transform state values
  *
  * @returns {ReturnType<Selector<DS, ActRecord>> | ReturnType<typeof defaultSelector<DS, ActRecord>>}
  * Returns either:
@@ -83,32 +83,59 @@ export default function useCon<
 	Sel extends Selector<State, Acts>,
 >(
 	initial: State,
-	options: UseEstadoProps<State, Acts> & { selector: Sel }
+	options: Option<State, Acts>,
+	selector: Sel
+): ReturnType<Sel>;
+export default function useCon<
+	State extends DS,
+>(
+	initial: State,
+	options?: never,
+	selector?: never
+): ReturnType<typeof defaultSelector<State, Record<never, never>>>;
+export default function useCon<
+	State extends DS,
+	Sel extends Selector<State, Record<never, never>>,
+>(
+	initial: State,
+	selector: Sel,
+	_?: never
 ): ReturnType<Sel>;
 export default function useCon<
 	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: UseEstadoProps<State, Acts>
+	options?: Option<State, Acts>,
+	_?: never
 ): ReturnType<typeof defaultSelector<State, Acts>>;
 export default function useCon<
 	State extends DS,
 	Acts extends ActRecord,
 >(
 	initial: State,
-	options?: UseEstadoProps<State, Acts>,
+	options?: unknown,
+	selector?: unknown,
 ) {
-	const selectorCallback = useSelectorCallback(
+	const _options = options && typeof options === 'object'
+		? options as Option<State, Acts>
+		: {} as Option<State, Acts>;
+	const _selector = typeof options === 'function'
+		? options as Selector<State, Acts>
+		: typeof selector === 'function'
+			? selector as Selector<State, Acts>
+			: undefined;
+
+	const selectorCallback = useSelectorCallback<State, Acts>(
 		defaultSelector<State, Acts>,
-		options?.selector,
+		_selector,
 	);
 	const [
 		state,
 		setState,
 	] = useState(
 		() => {
-			const conProps = createCon( initial, options, );
+			const conProps = createCon( initial, _options, );
 			function updateStateIfChanged<T,>( operation: () => T, ): T {
 				const oldHistory = conProps.get();
 				const results = operation();
@@ -164,7 +191,7 @@ export default function useCon<
 					return ( ...wrapProps: unknown[] ) => updateStateIfChanged( () => wrapped( ...wrapProps, ), );
 				},
 			} as typeof conProps;
-			const propsConActs = createConActs( conActProps, options?.acts, );
+			const propsConActs = createConActs( conActProps, _options?.acts, );
 
 			return selectorCallback( {
 				...propsConActs,
