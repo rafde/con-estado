@@ -109,7 +109,7 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setText: props.currySet( 'state.text', ),
+					setText: props.currySetHistory( 'state.text', ),
 				} ),
 			), );
 

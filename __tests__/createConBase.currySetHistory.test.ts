@@ -1,6 +1,6 @@
 import createConBase from '../src/_internal/createConBase';
 
-describe( 'createConBase - currySet', () => {
+describe( 'createConBase - currySetHistory', () => {
 	it( 'should return a curried setHistory function', () => {
 		// Arrange
 		const initial = {
@@ -12,7 +12,7 @@ describe( 'createConBase - currySet', () => {
 		const con = createConBase( initial, );
 
 		// Act
-		const setUserName = con.currySet( 'state.user.name', );
+		const setUserName = con.currySetHistory( 'state.user.name', );
 		const result = setUserName( 'Jane', );
 		const history = con.get();
 
@@ -31,7 +31,7 @@ describe( 'createConBase - currySet', () => {
 		const con = createConBase( initial, );
 
 		// Act
-		const setFirstUser = con.currySet( ['state', 'users', 0,], );
+		const setFirstUser = con.currySetHistory( ['state', 'users', 0,], );
 		const result = setFirstUser( 'Jim', );
 		const history = con.get();
 
@@ -47,7 +47,7 @@ describe( 'createConBase - currySet', () => {
 		const con = createConBase( initial, );
 
 		// Act
-		const setCount = con.currySet( 'state.count', );
+		const setCount = con.currySetHistory( 'state.count', );
 		const result = setCount( ( props, ) => {
 			props.draft += 1;
 		}, );
@@ -66,7 +66,7 @@ describe( 'createConBase - currySet', () => {
 		const con = createConBase( initial, );
 
 		// Act
-		const setNestedValue = con.currySet( 'state.nested.value', );
+		const setNestedValue = con.currySetHistory( 'state.nested.value', );
 		const originalState = con.get();
 		setNestedValue( 100, );
 		const newState = con.get();
