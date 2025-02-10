@@ -280,12 +280,13 @@ describe( 'useCon', () => {
 				result.current[ 1 ].set( 'state', { count: 1, }, );
 			}, );
 
+			expect( result.current[ 0 ].count, ).toBe( 1, );
+
 			act( () => {
 				result.current[ 1 ].reset();
 			}, );
 
-			const updatedState = result.current[ 0 ];
-			expect( updatedState.count, ).toBe( 0, );
+			expect( result.current[ 0 ].count, ).toBe( 0, );
 		}, );
 
 		it( 'should not update state when history remains unchanged after reset', () => {

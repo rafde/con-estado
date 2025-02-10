@@ -1,7 +1,6 @@
 import { useState, } from 'react';
 
-import createCon from './_internal/createCon';
-import createConActs from './_internal/createConActs';
+import createConBase from './_internal/createConBase';
 import defaultSelector from './_internal/defaultSelector';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
@@ -135,67 +134,21 @@ export default function useCon<
 		setState,
 	] = useState(
 		() => {
-			const conProps = createCon( initial, _options, );
-			function updateStateIfChanged<T,>( operation: () => T, ): T {
-				const oldHistory = conProps.get();
-				const results = operation();
-				const newHistory = conProps.get();
-
-				if ( oldHistory !== newHistory ) {
-					setState( selectorCallback( {
-						...propsConActs.get(),
-						...propsConActs,
-					}, ), );
-				}
-
-				return results;
-			}
-
-			const wm = new WeakMap();
-			const conActProps = {
-				...conProps,
-				currySet( ...args: Parameters<typeof conProps.currySet> ) {
-					const curried = conProps.currySet( ...args, );
-					const wmFn = wm.get( curried, );
-					if ( typeof wmFn === 'function' ) {
-						return wmFn;
-					}
-
-					const curriedSet = ( nextValue: Parameters<typeof curried>[0], ) => updateStateIfChanged( () => curried( nextValue, ), );
-					wm.set( curried, curriedSet, );
-					return curriedSet;
+			const conProps = createConBase(
+				initial, {
+					..._options,
+					dispatcher() {
+						setState( selectorCallback( {
+							...conProps.get(),
+							...conProps,
+						}, ), );
+					},
 				},
-				getDraft( ...args: Parameters<typeof conProps.getDraft> ) {
-					const [
-						draft,
-						_finalize,
-					] = conProps.getDraft( ...args, );
-
-					function finalize() {
-						return updateStateIfChanged( () => _finalize(), );
-					}
-
-					return [
-						draft,
-						finalize,
-					];
-				},
-				reset() {
-					return updateStateIfChanged( () => conProps.reset(), );
-				},
-				set( ...args: Parameters<typeof conProps.set> ) {
-					return updateStateIfChanged( () => conProps.set( ...args, ), );
-				},
-				setWrap( ...args: Parameters<typeof conProps.setWrap> ) {
-					const wrapped = conProps.setWrap( ...args, );
-					return ( ...wrapProps: unknown[] ) => updateStateIfChanged( () => wrapped( ...wrapProps, ), );
-				},
-			} as typeof conProps;
-			const propsConActs = createConActs( conActProps, _options?.acts, );
+			);
 
 			return selectorCallback( {
-				...propsConActs,
-				...conActProps.get(),
+				...conProps.get(),
+				...conProps,
 			}, );
 		},
 	);
