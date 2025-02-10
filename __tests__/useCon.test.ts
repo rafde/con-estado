@@ -18,15 +18,15 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 
 		act( () => {
-			result.current[ 1 ].set( 'state', ( { state, }, ) => {
-				state.count++;
+			result.current[ 1 ].set( 'state', ( { draft, }, ) => {
+				draft.count++;
 			}, );
 		}, );
 		expect( result.current[ 0 ].count, ).toBe( 1, );
 
 		act( () => {
-			result.current[ 1 ].set( 'state', ( { state, }, ) => {
-				state.count--;
+			result.current[ 1 ].set( 'state', ( { draft, }, ) => {
+				draft.count--;
 			}, );
 		}, );
 
@@ -127,7 +127,9 @@ describe( 'useCon', () => {
 					test: props.state.text,
 					setText: props.setWrap(
 						'state.text',
-						( _, text: string, ) => text,
+						( props, text: string, ) => {
+							props.draft = text;
+						},
 					),
 				} ),
 			), );

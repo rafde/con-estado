@@ -65,10 +65,9 @@ function handleStateUpdate<
 		}
 		else if ( parent && typeof parent === 'object' && typeof penPath !== 'undefined' && penPath in parent ) {
 			if ( typeof nextState === 'function' ) {
-				const result = nextState(
-					createArrayPathProxy( parent, history, arrayPath.slice( 1, ), ),
+				nextState(
+					createArrayPathProxy( parent, history, arrayPath.slice( 1, ), penPath, ),
 				);
-				Reflect.set( parent, penPath, result, );
 			}
 			else {
 				Reflect.set( parent, penPath, nextState, );
@@ -192,7 +191,7 @@ export default function createCon<
 	const compare = compareCallback( options.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
-	function setHistory( nextHistory: EstadoHistory<State>, ) {
+	function _dispatch( nextHistory: EstadoHistory<State>, ) {
 		history = nextHistory;
 		dispatcher( history as Immutable<EstadoHistory<State>>, );
 		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
@@ -201,14 +200,14 @@ export default function createCon<
 
 	function getDraft( stateHistoryPath: unknown = mutOptions, options = mutOptions, ) {
 		const statePath = isPlainObject( stateHistoryPath, ) ? undefined : stateHistoryPath;
-		const _options = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
+		const _mutOptions = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
 		return _getDraft(
 			history,
 			compare,
-			setHistory,
+			_dispatch,
 			arrayPathMap,
 			statePath,
-			_options,
+			_mutOptions,
 		);
 	}
 
@@ -231,7 +230,7 @@ export default function createCon<
 		) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
 	}
 
-	function _setWrap( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
+	function _setHistoryWrap( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
 		const [targetStatePath, statePath, nextState,] = args;
 
 		return function wrap( ...wrapArgs: unknown[] ) {
@@ -265,7 +264,7 @@ export default function createCon<
 		};
 	}
 
-	function _set( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
+	function _setHistory( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
 		const [targetStatePath, ...props] = args;
 		const [draft, finalize,] = getDraft( targetStatePath, );
 
@@ -277,7 +276,7 @@ export default function createCon<
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
-	function _currySet( statePath: string | ( string | number )[], targetStatePath?: 'state' | 'initial', ) {
+	function _currySetHistory( statePath: string | ( string | number )[], targetStatePath?: 'state' | 'initial', ) {
 		const path = _joinPath( statePath, targetStatePath, );
 		const curryFn = curryMap.get( path, );
 		if ( typeof curryFn === 'function' ) {
@@ -285,7 +284,7 @@ export default function createCon<
 		}
 
 		function curriedSet( nextState: unknown, ) {
-			return _set( targetStatePath, statePath, nextState, );
+			return _setHistory( targetStatePath, statePath, nextState, );
 		}
 
 		curryMap.set( statePath, curriedSet, );
@@ -294,7 +293,7 @@ export default function createCon<
 
 	const props: CreateActsProps<State> = {
 		currySet( statePath: Parameters<CreateActsProps<State>['currySet']>[0], ) {
-			return _currySet( statePath, );
+			return _currySetHistory( statePath, );
 		},
 		get,
 		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
@@ -303,7 +302,7 @@ export default function createCon<
 				return history;
 			}
 
-			return setHistory( {
+			return _dispatch( {
 				initial: history.initial,
 				changes: undefined,
 				priorInitial: history.priorInitial == null ? undefined : history.initial,
@@ -312,10 +311,10 @@ export default function createCon<
 			}, );
 		},
 		set( ...args: unknown[] ) {
-			return _set( undefined, ...args, );
+			return _setHistory( undefined, ...args, );
 		},
 		setWrap( ...args: unknown[] ) {
-			return _setWrap( undefined, ...args, );
+			return _setHistoryWrap( undefined, ...args, );
 		},
 	};
 

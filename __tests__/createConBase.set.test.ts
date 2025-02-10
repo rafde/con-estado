@@ -168,7 +168,12 @@ describe( 'createConBase.set', () => {
 			}, );
 
 			it( 'should set primitive value using callback', () => {
-				const next = estado.set( 'state.n', ( { stateProp, }, ) => stateProp + 1, );
+				const next = estado.set(
+					'state.n',
+					( props, ) => {
+						props.draft += 1;
+					},
+				);
 				expect( next.state.n, ).toBe( 2, );
 			}, );
 		}, );
@@ -220,7 +225,9 @@ describe( 'createConBase.set', () => {
 			it( 'should set first element in array with callback value', () => {
 				const next = estado.set(
 					['state', 'oo', 'ooa', 0,],
-					( { stateProp, }, ) => stateProp + 1,
+					( props, ) => {
+						props.draft += 1;
+					},
 				);
 				expect( next.state.oo.ooa[ 0 ], ).toBe( 2, );
 			}, );
