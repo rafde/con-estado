@@ -6,6 +6,6 @@ import type { Immutable, } from './Immutable';
 
 export type Selector<
 	State extends DS,
-	Acts extends ActRecord,
+	Acts extends ActRecord | Record<never, never>,
 	R = unknown,
 > = ( selectorProps: CreateConBaseReturn<State, Acts> & Immutable<EstadoHistory<State>> ) => R;

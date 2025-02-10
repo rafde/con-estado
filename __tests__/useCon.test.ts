@@ -50,12 +50,10 @@ describe( 'useCon', () => {
 		test( 'should use a custom selector', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
-				{
-					selector: props => ( {
-						test: props.state.text,
-						set: props.set,
-					} ),
-				},
+				props => ( {
+					test: props.state.text,
+					set: props.set,
+				} ),
 			), );
 
 			act( () => {
@@ -65,15 +63,22 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with custom setter', () => {
+		test( 'should use a custom selector with acts', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
-					selector: props => ( {
-						test: props.state.text,
-						setText: ( text: string, ) => props.set( 'state.text', text, ),
-					} ),
+					acts( { set, }, ) {
+						return {
+							setText: ( text: string, ) => {
+								set( 'state.text', text, );
+							},
+						};
+					},
 				},
+				props => ( {
+					setText: props.acts.setText,
+					test: props.state.text,
+				} ),
 			), );
 
 			act( () => {
@@ -82,15 +87,30 @@ describe( 'useCon', () => {
 
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
+
+		test( 'should use a custom selector with custom setter', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				props => ( {
+					test: props.state.text,
+					setText: ( text: string, ) => props.set( 'state.text', text, ),
+				} ),
+			), );
+
+			act( () => {
+				result.current.setText( 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+
 		test( 'should use a custom selector with curry setter', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
-				{
-					selector: props => ( {
-						test: props.state.text,
-						setText: props.currySet( 'state.text', ),
-					} ),
-				},
+				props => ( {
+					test: props.state.text,
+					setText: props.currySet( 'state.text', ),
+				} ),
 			), );
 
 			act( () => {
@@ -103,15 +123,13 @@ describe( 'useCon', () => {
 		test( 'should use a custom selector with setWrap', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
-				{
-					selector: props => ( {
-						test: props.state.text,
-						setText: props.setWrap(
-							'state.text',
-							( _, text: string, ) => text,
-						),
-					} ),
-				},
+				props => ( {
+					test: props.state.text,
+					setText: props.setWrap(
+						'state.text',
+						( _, text: string, ) => text,
+					),
+				} ),
 			), );
 
 			act( () => {
