@@ -98,8 +98,5 @@
 	"sideEffects": false,
 	"source": "src/index.ts",
 	"types": "dist/types.d.ts",
-	"version": "0.0.1",
-	"workspaces": [
-		"./site"
-	]
+	"version": "0.0.1"
 }
