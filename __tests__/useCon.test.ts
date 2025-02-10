@@ -13,19 +13,19 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
-	test( 'should set count correctly', () => {
+	test( 'should setHistory count correctly', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 
 		act( () => {
-			result.current[ 1 ].set( 'state', ( { draft, }, ) => {
+			result.current[ 1 ].setHistory( 'state', ( { draft, }, ) => {
 				draft.count++;
 			}, );
 		}, );
 		expect( result.current[ 0 ].count, ).toBe( 1, );
 
 		act( () => {
-			result.current[ 1 ].set( 'state', ( { draft, }, ) => {
+			result.current[ 1 ].setHistory( 'state', ( { draft, }, ) => {
 				draft.count--;
 			}, );
 		}, );
@@ -38,7 +38,7 @@ describe( 'useCon', () => {
 		const oldHistory = result.current[ 1 ].get();
 		const oldState = result.current[ 0 ];
 		act( () => {
-			result.current[ 1 ].set( 'state.count', 0, );
+			result.current[ 1 ].setHistory( 'state.count', 0, );
 		}, );
 		const newHistory = result.current[ 1 ].get();
 		const newState = result.current[ 0 ];
@@ -52,12 +52,12 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					set: props.set,
+					setHistory: props.setHistory,
 				} ),
 			), );
 
 			act( () => {
-				result.current.set( 'state.text', 'world', );
+				result.current.setHistory( 'state.text', 'world', );
 			}, );
 
 			expect( result.current.test, ).toBe( 'world', );
@@ -67,10 +67,10 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
-					acts( { set, }, ) {
+					acts( { setHistory, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								set( 'state.text', text, );
+								setHistory( 'state.text', text, );
 							},
 						};
 					},
@@ -93,7 +93,7 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setText: ( text: string, ) => props.set( 'state.text', text, ),
+					setText: ( text: string, ) => props.setHistory( 'state.text', text, ),
 				} ),
 			), );
 
@@ -153,25 +153,25 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
-					acts: ( { set, }, ) => ( {
+					acts: ( { setHistory, }, ) => ( {
 						increment() {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count++;
 							}, );
 						},
 						decrement() {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count--;
 							}, );
 						},
 						incrementBy( num: number, ) {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count += num;
 							}, );
 						},
 						asyncIncrement() {
 							return Promise.resolve().then( () => {
-								set( 'state', ( { draft, }, ) => {
+								setHistory( 'state', ( { draft, }, ) => {
 									draft.count++;
 								}, );
 							}, );
@@ -212,17 +212,17 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				{ value: 0, },
 				{
-					acts: ( { set, }, ) => ( {
+					acts: ( { setHistory, }, ) => ( {
 						complexOperation( multiplier: number, ) {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.value = draft.value * multiplier + 1;
 							}, );
 						},
 						chainedOperation() {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.value += 5;
 							}, );
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.value *= 2;
 							}, );
 						},
@@ -279,7 +279,7 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon( initialState, ), );
 
 			act( () => {
-				result.current[ 1 ].set( 'state', { count: 1, }, );
+				result.current[ 1 ].setHistory( 'state', { count: 1, }, );
 			}, );
 
 			expect( result.current[ 0 ].count, ).toBe( 1, );

@@ -25,7 +25,7 @@ describe( 'createConStore', () => {
 		const [initialSnapshot, controls,] = result.current;
 
 		act( () => {
-			controls.set( 'state', ( { draft, }, ) => {
+			controls.setHistory( 'state', ( { draft, }, ) => {
 				draft.count++;
 			}, );
 		}, );
@@ -39,19 +39,19 @@ describe( 'createConStore', () => {
 			return createConStore(
 				initialState,
 				{
-					acts: ( { set, }, ) => ( {
+					acts: ( { setHistory, }, ) => ( {
 						increment() {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count++;
 							}, );
 						},
 						incrementBy( num: number, ) {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count += num;
 							}, );
 						},
 						decrement() {
-							set( 'state', ( { draft, }, ) => {
+							setHistory( 'state', ( { draft, }, ) => {
 								draft.count--;
 							}, );
 						},
@@ -150,10 +150,10 @@ describe( 'createConStore', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{
-					acts( { set, }, ) {
+					acts( { setHistory, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								set( 'state.test', text, );
+								setHistory( 'state.test', text, );
 							},
 						};
 					},
@@ -176,10 +176,10 @@ describe( 'createConStore', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{
-					acts( { set, }, ) {
+					acts( { setHistory, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								set( 'state.test', text, );
+								setHistory( 'state.test', text, );
 							},
 						};
 					},

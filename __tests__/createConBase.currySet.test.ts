@@ -1,7 +1,7 @@
 import createConBase from '../src/_internal/createConBase';
 
 describe( 'createConBase - currySet', () => {
-	it( 'should return a curried set function', () => {
+	it( 'should return a curried setHistory function', () => {
 		// Arrange
 		const initial = {
 			user: {
@@ -20,7 +20,7 @@ describe( 'createConBase - currySet', () => {
 		expect( history.state.user.name, ).toBe( 'Jane', );
 		expect( history.state.user.age, ).toBe( 25, ); // Other values unchanged
 		expect( history, ).toBe( result, ); // Other values unchanged
-		expect( result, ).toBeDefined(); // Should return result from set
+		expect( result, ).toBeDefined(); // Should return result from setHistory
 	}, );
 
 	it( 'should work with array paths', () => {

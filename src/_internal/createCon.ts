@@ -310,7 +310,7 @@ export default function createCon<
 				state: history.initial,
 			}, );
 		},
-		set( ...args: unknown[] ) {
+		setHistory( ...args: unknown[] ) {
 			return _setHistory( undefined, ...args, );
 		},
 		setWrap( ...args: unknown[] ) {

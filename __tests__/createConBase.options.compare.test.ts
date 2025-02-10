@@ -43,7 +43,7 @@ describe( 'createConBase - options.compare', () => {
 	it( 'should use custom compare function to detect changes', () => {
 		const test1 = new CompareTest( 'update', );
 		// Modify the state
-		const nextHistory = estado.set( ( { draft, }, ) => {
+		const nextHistory = estado.setHistory( ( { draft, }, ) => {
 			draft.state.test1 = test1; // Change the counter value
 		}, );
 
@@ -63,7 +63,7 @@ describe( 'createConBase - options.compare', () => {
 	it( 'should detect changes when custom compare function returns false for state', () => {
 		// Modify the state
 		const test1 = new CompareTest( 'test', );
-		const nextHistory = estado.set( ( { draft, }, ) => {
+		const nextHistory = estado.setHistory( ( { draft, }, ) => {
 			draft.state.test1 = test1; // Change the counter value
 		}, );
 
@@ -78,7 +78,7 @@ describe( 'createConBase - options.compare', () => {
 	it( 'should detect changes when custom compare function returns false for initial', () => {
 		// Modify the state
 		const test1 = new CompareTest( 'test', );
-		const nextHistory = estado.set( ( { draft, }, ) => {
+		const nextHistory = estado.setHistory( ( { draft, }, ) => {
 			draft.initial.test1 = test1; // Change the counter value
 		}, );
 
@@ -93,7 +93,7 @@ describe( 'createConBase - options.compare', () => {
 	it( 'should detect changes when custom compare function returns false for initial and state', () => {
 		// Modify the state
 		const test1 = new CompareTest( 'test', );
-		const nextHistory = estado.set( ( { draft, }, ) => {
+		const nextHistory = estado.setHistory( ( { draft, }, ) => {
 			draft.state.test1 = test1; // Change the counter value
 			draft.initial.test1 = test1; // Change the counter value
 		}, );
@@ -119,7 +119,7 @@ describe( 'createConBase - options.compare', () => {
 		const history = estado.get();
 
 		// Modify the state
-		estado.set( ( { draft, }, ) => {
+		estado.setHistory( ( { draft, }, ) => {
 			draft.state.counter = 1; // Change the counter value
 		}, );
 
@@ -150,7 +150,7 @@ describe( 'createConBase - options.compare', () => {
 		const history = estado.get();
 
 		// Modify the state
-		estado.set( ( { draft, }, ) => {
+		estado.setHistory( ( { draft, }, ) => {
 			draft.state.list.push( 'item2', ); // Add an item to the list
 		}, );
 

@@ -15,7 +15,7 @@ describe( 'createConBase - option.afterChange()', () => {
 	}, );
 
 	it( 'should call the afterChange callback after the state is updated', async() => {
-		estado.set( ( { draft, }, ) => {
+		estado.setHistory( ( { draft, }, ) => {
 			draft.state.counter = 10;
 			draft.state.list.push( 'item2', );
 		}, );

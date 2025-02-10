@@ -92,48 +92,17 @@ type CallbackDraftProps<
 	draft: Draft<NS>
 }>;
 
-type EstadoSet<
+type SetHistory<
 	S extends DS,
 	NS extends NextState<S> = NextState<S>,
-	OK extends NestedObjectKeys<NS> = NestedObjectKeys<NS>,
 	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
-	set(
+	setHistory(
 		nextState: NS | ( (
 			props: CallbackDraftProps<S, NS>,
 		) => void )
 	): EstadoHistory<S>
-	set<
-		StatePath extends OK,
-	>(
-		statePath: StatePath,
-		nextState: GetStringPathValue<NS, StatePath> | (
-			(
-				props: StringPathDraftProps<
-					S,
-					NS,
-					StatePath,
-					SubStringPath<S, StatePath>
-				>,
-			) => void
-		),
-	): EstadoHistory<S>
-	set<
-		StatePath extends StringPathToArray<OK>,
-	>(
-		statePath: StatePath,
-		nextState: GetArrayPathValue<NS, StatePath> | (
-			(
-				props: ArrayPathDraftProps<
-					S,
-					NS,
-					StatePath,
-					SubArrayPath<S, StatePath>
-				>,
-			) => void
-		),
-	): EstadoHistory<S>
-	set<
+	setHistory<
 		StatePath extends RK,
 	>(
 		statePath: StatePath,
@@ -143,7 +112,7 @@ type EstadoSet<
 			) => void
 		),
 	): EstadoHistory<S>
-	set<
+	setHistory<
 		StatePath extends StringPathToArray<RK>,
 	>(
 		statePath: StatePath,
@@ -282,6 +251,6 @@ export type EstadoSetters<
 > = {
 	reset(): EstadoHistory<State>
 }
-& EstadoSet<State>
+& SetHistory<State>
 & EstadoCurrySet<State>
 & EstadoSetWrap<State>;
