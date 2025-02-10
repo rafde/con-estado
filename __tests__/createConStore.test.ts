@@ -85,7 +85,10 @@ describe( 'createConStore', () => {
 		it( 'should return the correct state based on the useConSelector selector', () => {
 			const { result, } = renderHook( () => useConSelector( props => ( {
 				setText: props.setWrap(
-					'state.test', ( _, text: string, ) => text,
+					'state.test',
+					( props, text: string, ) => {
+						props.draft = text;
+					},
 				),
 				test: props.state.test,
 			} ), ), );
@@ -102,7 +105,10 @@ describe( 'createConStore', () => {
 				initialState,
 				props => ( {
 					setText: props.setWrap(
-						'state.test', ( _, text: string, ) => text,
+						'state.test',
+						( props, text: string, ) => {
+							props.draft = text;
+						},
 					),
 					test: props.state.test,
 				} ),
@@ -125,7 +131,10 @@ describe( 'createConStore', () => {
 			);
 			const { result, } = renderHook( () => useConSelector( props => ( {
 				setText: props.setWrap(
-					'state.test', ( _, text: string, ) => text,
+					'state.test',
+					( props, text: string, ) => {
+						props.draft = text;
+					},
 				),
 				test: props.state.test,
 			} ), ), );

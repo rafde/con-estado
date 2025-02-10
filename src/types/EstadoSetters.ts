@@ -4,6 +4,7 @@ import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { GetStringPathValue, } from './GetStringPathValue';
+import type { Immutable, } from './Immutable';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
@@ -34,29 +35,32 @@ type StringPathProps<
 	State extends DS,
 	NS extends NextState<State>,
 	StatePath extends NestedRecordKeys<NS>,
-> = EstadoHistory<State> & {
-	changesProp: GetStringPathValue<NS, StatePath> | undefined
-	initialProp: GetStringPathValue<NS, StatePath>
-	priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
-	priorStateProp: GetStringPathValue<NS, StatePath> | undefined
-	stateProp: GetStringPathValue<NS, StatePath>
-};
+> = Immutable<
+	EstadoHistory<State> & {
+		changesProp: GetStringPathValue<NS, StatePath> | undefined
+		initialProp: GetStringPathValue<NS, StatePath>
+		priorInitialProp: GetStringPathValue<NS, StatePath> | undefined
+		priorStateProp: GetStringPathValue<NS, StatePath> | undefined
+		stateProp: GetStringPathValue<NS, StatePath>
+	}> & {
+		draft: GetStringPathValue<NS, StatePath>
+	};
 
 type StringPathDraftProps<
 	State extends DS,
 	TargetState extends DS,
 	StatePath extends NestedObjectKeys<TargetState>,
 	Sub extends NestedObjectKeys<State>,
-> = {
-	changesProp: GetStringPathPropValue<State, 'changes', Sub>
-	initialProp: GetStringPathValue<EstadoHistory<State>['initial'], Sub>
-	priorInitialProp: GetStringPathValue<EstadoHistory<State>['priorInitial'], Sub>
-	priorStateProp: GetStringPathValue<EstadoHistory<State>['priorState'], Sub>
-	stateProp: GetStringPathValue<EstadoHistory<State>['state'], Sub>
-} & Readonly<{
-	draft: GetStringPathValue<Draft<TargetState>, StatePath>
-}>
-& EstadoHistory<State>;
+> = Immutable<
+	EstadoHistory<State> & {
+		changesProp: GetStringPathPropValue<State, 'changes', Sub>
+		initialProp: GetStringPathValue<EstadoHistory<State>['initial'], Sub>
+		priorInitialProp: GetStringPathValue<EstadoHistory<State>['priorInitial'], Sub>
+		priorStateProp: GetStringPathValue<EstadoHistory<State>['priorState'], Sub>
+		stateProp: GetStringPathValue<EstadoHistory<State>['state'], Sub>
+	}> & Readonly<{
+		draft: GetStringPathValue<Draft<TargetState>, StatePath>
+	}>;
 
 type SubArrayPath<
 	State extends DS,
@@ -71,12 +75,14 @@ type ArrayPathProps<
 	State extends DS,
 	NS extends NextState<State>,
 	StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
-> = EstadoHistory<State> & {
+> = Immutable<EstadoHistory<State> & {
 	changesProp: GetArrayPathValue<NS, StatePath> | undefined
 	initialProp: GetArrayPathValue<NS, StatePath>
 	priorInitialProp: GetArrayPathValue<NS, StatePath> | undefined
 	priorStateProp: GetArrayPathValue<NS, StatePath> | undefined
 	stateProp: GetArrayPathValue<NS, StatePath>
+}> & {
+	draft: GetArrayPathValue<NS, StatePath>
 };
 
 type CallbackDraftProps<
@@ -87,16 +93,16 @@ type CallbackDraftProps<
 }>;
 
 type EstadoSet<
-	State extends DS,
-	NS extends NextState<State> = NextState<State>,
+	S extends DS,
+	NS extends NextState<S> = NextState<S>,
 	OK extends NestedObjectKeys<NS> = NestedObjectKeys<NS>,
 	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
 	set(
 		nextState: NS | ( (
-			props: CallbackDraftProps<State, NS>,
+			props: CallbackDraftProps<S, NS>,
 		) => void )
-	): EstadoHistory<State>
+	): EstadoHistory<S>
 	set<
 		StatePath extends OK,
 	>(
@@ -104,14 +110,14 @@ type EstadoSet<
 		nextState: GetStringPathValue<NS, StatePath> | (
 			(
 				props: StringPathDraftProps<
-					State,
+					S,
 					NS,
 					StatePath,
-					SubStringPath<State, StatePath>
+					SubStringPath<S, StatePath>
 				>,
 			) => void
 		),
-	): EstadoHistory<State>
+	): EstadoHistory<S>
 	set<
 		StatePath extends StringPathToArray<OK>,
 	>(
@@ -119,34 +125,34 @@ type EstadoSet<
 		nextState: GetArrayPathValue<NS, StatePath> | (
 			(
 				props: ArrayPathDraftProps<
-					State,
+					S,
 					NS,
 					StatePath,
-					SubArrayPath<State, StatePath>
+					SubArrayPath<S, StatePath>
 				>,
 			) => void
 		),
-	): EstadoHistory<State>
+	): EstadoHistory<S>
 	set<
 		StatePath extends RK,
 	>(
 		statePath: StatePath,
 		nextState: GetStringPathValue<NS, StatePath> | (
 			(
-				props: StringPathProps<State, NS, StatePath>
-			) => GetStringPathValue<NS, StatePath>
+				props: StringPathProps<S, NS, StatePath>
+			) => void
 		),
-	): EstadoHistory<State>
+	): EstadoHistory<S>
 	set<
 		StatePath extends StringPathToArray<RK>,
 	>(
 		statePath: StatePath,
 		nextState: GetArrayPathValue<NS, StatePath> | (
 			(
-				props: ArrayPathProps<State, NS, StatePath>
-			) => GetArrayPathValue<NS, StatePath>
+				props: ArrayPathProps<S, NS, StatePath>
+			) => void
 		),
-	): EstadoHistory<State>
+	): EstadoHistory<S>
 };
 
 type EstadoCurrySet<
@@ -189,7 +195,7 @@ type EstadoCurrySet<
 		nextState: GetStringPathValue<NS, StatePath> | (
 			(
 				props: StringPathProps<State, NS, StatePath>
-			) => GetStringPathValue<NextState<State>, StatePath>
+			) => void
 		)
 	) => EstadoHistory<State>
 	currySet<
@@ -198,7 +204,7 @@ type EstadoCurrySet<
 		nextState: GetArrayPathValue<NS, StatePath> | (
 			(
 				props: ArrayPathProps<State, NS, StatePath>
-			) => GetArrayPathValue<NS, StatePath>
+			) => void
 		)
 	) => EstadoHistory<State>
 };
@@ -254,7 +260,7 @@ type EstadoSetWrap<
 			(
 				props: ArrayPathProps<State, NS, StatePath>,
 				...args: Args
-			) => GetArrayPathValue<NS, StatePath>
+			) => void
 		),
 	): ( ...args: Args ) => EstadoHistory<State>
 	setWrap<
@@ -266,7 +272,7 @@ type EstadoSetWrap<
 			(
 				props: StringPathProps<State, NS, StatePath>,
 				...args: Args
-			) => GetStringPathValue<NS, StatePath>
+			) => void
 		),
 	): ( ...args: Args ) => EstadoHistory<State>
 };

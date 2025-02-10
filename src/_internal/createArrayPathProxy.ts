@@ -12,6 +12,7 @@ export default function createArrayPathProxy<
 	targetState: TargetState,
 	history: EstadoHistory<State>,
 	arrayPath: string[],
+	stateProp?: string,
 ) {
 	return new Proxy(
 		{
@@ -20,9 +21,6 @@ export default function createArrayPathProxy<
 		} as ArrayPathDraftProps<State, DS, StringPathToArray<NestedObjectKeys<DS>>>,
 		{
 			get( target, prop, ) {
-				if ( prop in target ) {
-					return Reflect.get( target, prop, );
-				}
 				switch ( prop ) {
 					case 'changesProp': {
 						const [
@@ -59,9 +57,21 @@ export default function createArrayPathProxy<
 						target.stateProp = prop as never;
 						return prop;
 					}
+					case 'draft': {
+						if ( typeof stateProp !== 'undefined' ) {
+							return Reflect.get( target.draft, stateProp, );
+						}
+						return Reflect.get( target, prop, );
+					}
 					default:
 						return Reflect.get( target, prop, );
 				}
+			},
+			set( target, prop, value, ) {
+				if ( prop === 'draft' && typeof stateProp !== 'undefined' ) {
+					return Reflect.set( target.draft, stateProp, value, );
+				}
+				return false;
 			},
 		},
 	);

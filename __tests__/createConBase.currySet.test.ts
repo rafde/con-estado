@@ -48,7 +48,9 @@ describe( 'createConBase - currySet', () => {
 
 		// Act
 		const setCount = con.currySet( 'state.count', );
-		const result = setCount( ( { stateProp, }, ) => stateProp + 1, );
+		const result = setCount( ( props, ) => {
+			props.draft += 1;
+		}, );
 		const history = con.get();
 
 		// Assert
