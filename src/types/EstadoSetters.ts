@@ -149,49 +149,18 @@ type CurrySetHistory<
 	) => EstadoHistory<State>
 };
 
-type EstadoSetWrap<
+type SetHistoryWrap<
 	State extends DS,
 	NS extends NextState<State> = NextState<State>,
-	OK extends NestedObjectKeys<NS> = NestedObjectKeys<NS>,
 	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
-	setWrap<Args extends unknown[],>(
+	setHistoryWrap<Args extends unknown[],>(
 		nextState: (
 			props: CallbackDraftProps<State, NS>,
 			...args: Args
 		) => void
 	): ( ...args: Args ) => EstadoHistory<State>
-	setWrap<
-		StatePath extends OK,
-		Args extends unknown[],
-	>(
-		statePath: StatePath,
-		nextState: (
-			props: StringPathDraftProps<
-				State,
-				NS,
-				StatePath,
-				SubStringPath<State, StatePath>
-			>,
-			...args: Args
-		) => void,
-	): ( ...args: Args ) => EstadoHistory<State>
-	setWrap<
-		StatePath extends StringPathToArray<OK>,
-		Args extends unknown[],
-	>(
-		statePath: StatePath,
-		nextState: (
-			props: ArrayPathDraftProps<
-				State,
-				NS,
-				StatePath,
-				SubArrayPath<State, StatePath>
-			>,
-			...args: Args
-		) => void,
-	): ( ...args: Args ) => EstadoHistory<State>
-	setWrap<
+	setHistoryWrap<
 		StatePath extends StringPathToArray<RK>,
 		Args extends unknown[],
 	>(
@@ -203,7 +172,7 @@ type EstadoSetWrap<
 			) => void
 		),
 	): ( ...args: Args ) => EstadoHistory<State>
-	setWrap<
+	setHistoryWrap<
 		StatePath extends RK,
 		Args extends unknown[],
 	>(
@@ -224,4 +193,4 @@ export type EstadoSetters<
 }
 & CurrySetHistory<State>
 & SetHistory<State>
-& EstadoSetWrap<State>;
+& SetHistoryWrap<State>;
