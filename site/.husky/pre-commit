@@ -1,0 +1,3 @@
+echo "Starting Husky pre-commit";
+npx lint-staged
+echo "Husky pre-commit done.";

@@ -1,0 +1,3 @@
+echo "Starting Husky post-checkout";
+npm i --legacy-peer-deps
+echo "Husky post-checkout done";

@@ -1,0 +1,3 @@
+echo "Running typescript";
+npm run tsc
+echo "Husky pre-push done";

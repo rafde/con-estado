@@ -55,10 +55,12 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd site
           npm ci --legacy-peer-deps --workspace=site
 
       - name: Build with Next.js
         run: |
+          cd site
           npx --no-install --workspace=site next build
 
       - name: Upload artifact
