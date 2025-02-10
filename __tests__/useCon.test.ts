@@ -120,12 +120,12 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with setWrap', () => {
+		test( 'should use a custom selector with setHistoryWrap', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setText: props.setWrap(
+					setText: props.setHistoryWrap(
 						'state.text',
 						( props, text: string, ) => {
 							props.draft = text;

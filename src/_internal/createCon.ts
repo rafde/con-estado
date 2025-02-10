@@ -313,7 +313,7 @@ export default function createCon<
 		setHistory( ...args: unknown[] ) {
 			return _setHistory( undefined, ...args, );
 		},
-		setWrap( ...args: unknown[] ) {
+		setHistoryWrap( ...args: unknown[] ) {
 			return _setHistoryWrap( undefined, ...args, );
 		},
 	};
