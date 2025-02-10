@@ -66,7 +66,7 @@ function MyComponent() {
 	const [ state, { set, } ] = useCon( initialState, );
 	// Update deeply nested state
 	const toggleEmailNotifications = () => {
-		set( 'state.user.preferences.notifications.email', !state.user.preferences.notifications.email, );
+		set( 'user.preferences.notifications.email', !state.user.preferences.notifications.email, );
 	};
 	return (
 		<div>
@@ -96,18 +96,24 @@ const useSelector = createConStore<CounterState>({
 }, {
   acts: ({ set }) => ({
 	increment() {
-		set('state', ({stateProp}) => {stateProp.count++});
+		set(({ draft, }, ) => {
+			draft.count++;
+		}, );
 	},
 	asyncIncrement() {
 	  return new Promise(resolve => {
 		setTimeout(() => {
-		  set('state', ({stateProp}) => {stateProp.count++});
+		  set('state', ({ draft, }, ) => {
+			draft.count++;
+		  }, );
 		  resolve();
 		}, 100);
 	  });
 	},
 	incrementBy(amount: number) {
-		set('state', ({stateProp}) => {stateProp.count+= amount});
+		set(({ draft, }, ) => {
+			draft.count += amount;
+		}, );
 	},
   }),
 });
@@ -162,7 +168,7 @@ function UserPreferences() {
 		selector: props => ( {
 			theme: props.state.user.preferences.theme,
 			updateTheme: props.setWrap(
-				'state.user.preferences.theme', ( controlsPlusHistory, event: ChangeEvent<HTMLSelectElement>, ) => event.target.value,
+				'user.preferences.theme', ( controlsPlusHistory, event: ChangeEvent<HTMLSelectElement>, ) => event.target.value,
 			),
 		} ),
 	} );
@@ -188,8 +194,8 @@ Define reusable actions for complex state updates:
 function PostList() {
 	const [state, { acts }] = useCon(initialState, {
 		acts: ({ currySet, wrapSet }) => {
-			// currySet is a function that returns a function that can be called with the state.posts array
-			const setPost = currySet('state.posts');
+			// currySet is a function that returns a function that can be called with the posts array
+			const setPost = currySet('posts');
 
 			return {
 				addPost(post: Post) {
@@ -197,7 +203,7 @@ function PostList() {
 						draft.push(post);
 					});
 				},
-				updatePost: wrapSet('state.posts', ({draft}, id: number, updates: Partial<Post>) => {
+				updatePost: wrapSet('posts', ({draft}, id: number, updates: Partial<Post>) => {
 					// draft is a mutable object that is relative to the state.posts array
 					const post = draft.find(p => p.id === id);
 					if (post) Object.assign(post, updates);
@@ -257,6 +263,8 @@ Global store for state management.
 
 ```ts
 const useConSelector = createConStore(initialState, options?);
+
+const [state, controls] = useConSelector(selector?);
 ```
 
 ### useCon
@@ -269,20 +277,26 @@ const [state, controls] = useCon(initialState, options?);
 
 #### createConStore and useCon Options
 
-- `selector`: Custom state selector function
-- `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
-- `compare`: Custom comparison function
-- `afterChange`: Callback after state changes
+1. `options`: Configuration options for `createConStore` and `useCon`.
+- `options.acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
+- `options.compare`: Custom comparison function
+- `options.afterChange`: Async callback after state changes
+- `options.mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options)
+
+2. `selector`: Custom state selector function
 
 ### createConStore and useCon Controls
 
-- `set(path, value)`: Update state at path
-- `currySet(path)`: Get a function to specify which part of the state you want to update by currying set(path) 
-- `setWrap(path, value)`: Lets you wrap the set function in a function that will be called with the draft state and the value to update.
 - `get(path?)`: Get current state or value at path
 - `reset()`: Reset state to initial
 - `acts`: Custom defined actions
 - `getDraft()`: Get mutable draft state
+- `set(path, value)`: A function to update `state` properties
+- `currySet(path)`: Get a function to specify which part of `state` you want to update by currying `set(path)`
+- `setWrap(path, value)`: Lets you wrap the `set` function in a function that will be called with the draft value to update.
+- `setHistory(path, value)`: A function to update `state` and/or `initial` properties
+- `currySetHistory(path)`: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
+- `setHistoryWrap(path, value)`: Lets you wrap the `setHistory` function in a function that will be called with the draft value to update.
 
 ## TypeScript Support
 
