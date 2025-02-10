@@ -283,16 +283,16 @@ export default function createCon<
 			return curryFn;
 		}
 
-		function curriedSet( nextState: unknown, ) {
+		function curried( nextState: unknown, ) {
 			return _setHistory( targetStatePath, statePath, nextState, );
 		}
 
-		curryMap.set( statePath, curriedSet, );
-		return curriedSet;
+		curryMap.set( statePath, curried, );
+		return curried;
 	}
 
 	const props: CreateActsProps<State> = {
-		currySet( statePath: Parameters<CreateActsProps<State>['currySet']>[0], ) {
+		currySetHistory( statePath: Parameters<CreateActsProps<State>['currySetHistory']>[0], ) {
 			return _currySetHistory( statePath, );
 		},
 		get,

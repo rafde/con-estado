@@ -124,41 +124,12 @@ type SetHistory<
 	): EstadoHistory<S>
 };
 
-type EstadoCurrySet<
+type CurrySetHistory<
 	State extends DS,
 	NS extends NextState<State> = NextState<State>,
-	OK extends NestedObjectKeys<NS> = NestedObjectKeys<NS>,
 	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
-	currySet<
-		StatePath extends OK,
-	>( statePath: StatePath, ): (
-		nextState: GetStringPathValue<NS, StatePath> | (
-			(
-				props: StringPathDraftProps<
-					State,
-					NS,
-					StatePath,
-					SubStringPath<State, StatePath>
-				>,
-			) => void
-		)
-	) => EstadoHistory<State>
-	currySet<
-		StatePath extends StringPathToArray<OK>,
-	>( statePath: StatePath, ): (
-		nextState: GetArrayPathValue<NS, StatePath> | (
-			(
-				props: ArrayPathDraftProps<
-					State,
-					NS,
-					StatePath,
-					SubArrayPath<State, StatePath>
-				>,
-			) => void
-		),
-	) => EstadoHistory<State>
-	currySet<
+	currySetHistory<
 		StatePath extends RK,
 	>( statePath: StatePath, ): (
 		nextState: GetStringPathValue<NS, StatePath> | (
@@ -167,7 +138,7 @@ type EstadoCurrySet<
 			) => void
 		)
 	) => EstadoHistory<State>
-	currySet<
+	currySetHistory<
 		StatePath extends StringPathToArray<RK>,
 	>( statePath: StatePath, ): (
 		nextState: GetArrayPathValue<NS, StatePath> | (
@@ -251,6 +222,6 @@ export type EstadoSetters<
 > = {
 	reset(): EstadoHistory<State>
 }
+& CurrySetHistory<State>
 & SetHistory<State>
-& EstadoCurrySet<State>
 & EstadoSetWrap<State>;
