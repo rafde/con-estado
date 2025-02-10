@@ -14,20 +14,20 @@ describe( 'createConBase -  options.acts', () => {
 		const estado = createConBase(
 			initialState,
 			{
-				acts: ( { set, }, ) => ( {
+				acts: ( { setHistory, }, ) => ( {
 					increment() {
-						set( ( { draft, }, ) => {
+						setHistory( ( { draft, }, ) => {
 							draft.state.counter += 1;
 						}, );
 					},
 					addItem( item: string, ) {
-						set( ( { draft, }, ) => {
+						setHistory( ( { draft, }, ) => {
 							draft.state.list.push( item, );
 						}, );
 					},
 					async asyncIncrement() {
 						return Promise.resolve().then( () => {
-							set( ( { draft, }, ) => {
+							setHistory( ( { draft, }, ) => {
 								draft.state.counter += 10;
 							}, );
 						}, );

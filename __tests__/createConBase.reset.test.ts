@@ -24,8 +24,8 @@ describe( 'createConBase - reset', () => {
 			counter: 10,
 			list: ['item1', 'item2',],
 		};
-		// Modify the state using createActProps.set()
-		estado.set( 'state', ( { draft, }, ) => {
+
+		estado.setHistory( 'state', ( { draft, }, ) => {
 			draft.counter = 10;
 			draft.list.push( 'item2', );
 		}, );
@@ -57,7 +57,7 @@ describe( 'createConBase - reset', () => {
 			list: ['new', 'initial',],
 		};
 
-		estado.set( 'initial', newInitial, );
+		estado.setHistory( 'initial', newInitial, );
 		estado.reset();
 		const testHistory = estado.get();
 
