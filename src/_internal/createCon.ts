@@ -19,14 +19,8 @@ import getDeepArrayPath from './getDeepArrayPath';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isPlainObject from './isPlainObject';
 
-function _joinPath( path: string | ( string | number )[], prefix?: 'initial' | 'state', ) {
-	const _path = typeof path === 'string' ? path : path.map( escapeDots, ).join( '.', );
-
-	if ( typeof prefix === 'string' ) {
-		return `${prefix}.${_path}`;
-	}
-
-	return _path;
+function _joinPath( path: string | ( string | number )[], ) {
+	return typeof path === 'string' ? path : path.map( escapeDots, ).join( '.', );
 }
 
 function handleStateUpdate<
@@ -230,11 +224,11 @@ export default function createCon<
 		) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
 	}
 
-	function _setHistoryWrap( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
-		const [targetStatePath, statePath, nextState,] = args;
+	function _setHistoryWrap( ...args: unknown[] ) {
+		const [statePath, nextState,] = args;
 
 		return function wrap( ...wrapArgs: unknown[] ) {
-			const [draft, finalize,] = getDraft( targetStatePath, );
+			const [draft, finalize,] = getDraft();
 			if ( typeof statePath === 'function' ) {
 				return handleStateUpdate(
 					draft,
@@ -264,27 +258,26 @@ export default function createCon<
 		};
 	}
 
-	function _setHistory( ...args: [targetStatePath?: 'state' | 'initial', unknown?, unknown?,] ) {
-		const [targetStatePath, ...props] = args;
-		const [draft, finalize,] = getDraft( targetStatePath, );
+	function _setHistory( ...args: unknown[] ) {
+		const [draft, finalize,] = getDraft();
 
-		if ( props.length === 0 ) {
+		if ( args.length === 0 ) {
 			return finalize();
 		}
 
-		return handleStateUpdate( draft, history, props, arrayPathMap, finalize, );
+		return handleStateUpdate( draft, history, args, arrayPathMap, finalize, );
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
-	function _currySetHistory( statePath: string | ( string | number )[], targetStatePath?: 'state' | 'initial', ) {
-		const path = _joinPath( statePath, targetStatePath, );
+	function _currySetHistory( statePath: string | ( string | number )[], ) {
+		const path = _joinPath( statePath, );
 		const curryFn = curryMap.get( path, );
 		if ( typeof curryFn === 'function' ) {
 			return curryFn;
 		}
 
 		function curried( nextState: unknown, ) {
-			return _setHistory( targetStatePath, statePath, nextState, );
+			return _setHistory( statePath, nextState, );
 		}
 
 		curryMap.set( statePath, curried, );
@@ -311,10 +304,10 @@ export default function createCon<
 			}, );
 		},
 		setHistory( ...args: unknown[] ) {
-			return _setHistory( undefined, ...args, );
+			return _setHistory( ...args, );
 		},
 		setHistoryWrap( ...args: unknown[] ) {
-			return _setHistoryWrap( undefined, ...args, );
+			return _setHistoryWrap( ...args, );
 		},
 	};
 
