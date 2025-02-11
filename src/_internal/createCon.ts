@@ -53,22 +53,35 @@ function handleStateUpdate<
 			? getCacheStringPathToArray( arrayPathMap, statePath, )
 			: statePath as ( string | number )[];
 
-		const penPath = arrayPath.at( -1, );
+		const valuePath = arrayPath.at( -1, );
 		const [value, parent,] = getDeepValueParentByArray( draft, arrayPath, );
 
 		if ( typeof nextState === 'function' && value && typeof value === 'object' ) {
 			nextState(
-				createArrayPathProxy( value, history, arrayPath.slice( 1, ), ),
+				createArrayPathProxy(
+					value,
+					history,
+					arrayPath.slice( 1, ),
+					{
+						parentDraft: parent,
+						draftProp: valuePath,
+					},
+				),
 			);
 		}
-		else if ( parent && typeof parent === 'object' && typeof penPath !== 'undefined' && penPath in parent ) {
+		else if ( parent && typeof parent === 'object' && typeof valuePath !== 'undefined' && valuePath in parent ) {
 			if ( typeof nextState === 'function' ) {
 				nextState(
-					createArrayPathProxy( parent, history, arrayPath.slice( 1, ), penPath, ),
+					createArrayPathProxy(
+						parent,
+						history,
+						arrayPath.slice( 1, ),
+						{ valueProp: valuePath, },
+					),
 				);
 			}
 			else {
-				Reflect.set( parent, penPath, nextState, );
+				Reflect.set( parent, valuePath, nextState, );
 			}
 		}
 	}
@@ -322,7 +335,6 @@ export default function createCon<
 				state: history.initial,
 			}, );
 		},
-
 		set( ...args: unknown[] ) {
 			const [statePath, nextState,] = args;
 			let _args: unknown[] = [];
@@ -345,6 +357,29 @@ export default function createCon<
 				];
 			}
 			return _setHistory( ..._args, );
+		},
+		setWrap( ...args: unknown[] ) {
+			const [statePath, nextState,] = args;
+			let _args: unknown[] = [];
+			if ( typeof nextState === 'undefined' ) {
+				_args = [
+					'state',
+					statePath,
+				];
+			}
+			else if ( typeof statePath === 'string' ) {
+				_args = [
+					`state.${statePath}`,
+					nextState,
+				];
+			}
+			else if ( Array.isArray( statePath, ) ) {
+				_args = [
+					['state', ...statePath,],
+					nextState,
+				];
+			}
+			return _setHistoryWrap( ..._args, );
 		},
 		setHistory( ...args: unknown[] ) {
 			return _setHistory( ...args, );

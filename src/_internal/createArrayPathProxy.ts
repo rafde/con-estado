@@ -1,3 +1,4 @@
+import type { Draft, } from 'mutative';
 import type { ArrayPathDraftProps, } from '../types/ArrayPathDraftProps';
 import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
@@ -12,8 +13,21 @@ export default function createArrayPathProxy<
 	targetState: TargetState,
 	history: EstadoHistory<State>,
 	arrayPath: ( string | number )[],
-	stateProp?: string | number,
+	props: {
+		draftProp?: string | number
+		parentDraft?: Draft<unknown>
+		valueProp?: never
+	} | {
+		draftProp?: never
+		parentDraft?: never
+		valueProp?: string | number
+	} = {},
 ) {
+	const {
+		draftProp,
+		parentDraft,
+		valueProp,
+	} = props;
 	return new Proxy(
 		{
 			...history,
@@ -58,8 +72,8 @@ export default function createArrayPathProxy<
 						return prop;
 					}
 					case 'draft': {
-						if ( typeof stateProp !== 'undefined' ) {
-							return Reflect.get( target.draft, stateProp, );
+						if ( typeof valueProp !== 'undefined' ) {
+							return Reflect.get( target.draft, valueProp, );
 						}
 						return Reflect.get( target, prop, );
 					}
@@ -68,8 +82,14 @@ export default function createArrayPathProxy<
 				}
 			},
 			set( target, prop, value, ) {
-				if ( prop === 'draft' && typeof stateProp !== 'undefined' ) {
-					return Reflect.set( target.draft, stateProp, value, );
+				if ( prop === 'draft' ) {
+					if ( typeof valueProp !== 'undefined' ) {
+						return Reflect.set( target.draft, valueProp, value, );
+					}
+					if ( parentDraft && typeof parentDraft === 'object' && typeof draftProp !== 'undefined' ) {
+						return Reflect.set( parentDraft, draftProp, value, );
+					}
+					return Reflect.set( target, prop, value, );
 				}
 				return false;
 			},
