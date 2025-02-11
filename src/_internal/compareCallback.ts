@@ -1,6 +1,6 @@
 import { strictDeepEqual, } from 'fast-equals';
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { HistoryState, } from '../types/HistoryState';
 import type { NestedKeyArray, } from '../types/NestedKeyArray';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { OptionCompare, } from '../types/OptionCompare';
@@ -19,8 +19,8 @@ export default function compareCallback<
 	return function cmp(
 		previousValue: unknown,
 		nextValue: unknown,
-		key: NestedRecordKeys<S> | NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>,
-		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>>,
+		key: NestedRecordKeys<S> | NestedRecordKeys<HistoryState<S>>,
+		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<HistoryState<S>>>,
 	) {
 		return Boolean( compare(
 			previousValue,

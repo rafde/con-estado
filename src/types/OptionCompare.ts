@@ -1,6 +1,6 @@
 import type { strictDeepEqual, } from 'fast-equals';
 import type { DS, } from './DS';
-import type { EstadoHistory, } from './EstadoHistory';
+import type { HistoryState, } from './HistoryState';
 import type { NestedKeyArray, } from './NestedKeyArray';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
@@ -25,7 +25,7 @@ export type OptionCompare<S extends DS,> = (
 	nextValue: unknown,
 	extra: {
 		cmp: typeof strictDeepEqual
-		key: NestedRecordKeys<S> | NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>
-		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>>
+		key: NestedRecordKeys<S> | NestedRecordKeys<HistoryState<S>>
+		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<HistoryState<S>>>
 	}
 ) => boolean;
