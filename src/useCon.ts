@@ -4,6 +4,7 @@ import defaultSelector from './_internal/defaultSelector';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
+import type { Initial, } from './types/Initial';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 // @ts-expect-error -- here for tsdocs
@@ -80,14 +81,14 @@ export default function useCon<
 	A extends ActRecord,
 	Sel extends Selector<S, A>,
 >(
-	initial: S | ( () => S ),
+	initial: Initial<S>,
 	options: Option<S, A>,
 	selector: Sel
 ): ReturnType<Sel>;
 export default function useCon<
 	S extends DS,
 >(
-	initial: S | ( () => S ),
+	initial: Initial<S>,
 	options?: never,
 	selector?: never
 ): ReturnType<typeof defaultSelector<S, Record<never, never>>>;
@@ -95,7 +96,7 @@ export default function useCon<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
 >(
-	initial: S | ( () => S ),
+	initial: Initial<S>,
 	selector: Sel,
 	_?: never
 ): ReturnType<Sel>;
@@ -103,7 +104,7 @@ export default function useCon<
 	S extends DS,
 	AR extends ActRecord,
 >(
-	initial: S | ( () => S ),
+	initial: Initial<S>,
 	options?: Option<S, AR>,
 	_?: never
 ): ReturnType<typeof defaultSelector<S, AR>>;
@@ -111,7 +112,7 @@ export default function useCon<
 	S extends DS,
 	AR extends ActRecord,
 >(
-	initial: S | ( () => S ),
+	initial: Initial<S>,
 	options?: unknown,
 	selector?: unknown,
 ) {

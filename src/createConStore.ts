@@ -5,6 +5,7 @@ import createConSubLis from './_internal/createConSubLis';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
+import type { Initial, } from './types/Initial';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
 
@@ -61,7 +62,7 @@ export default function createConStore<
 	AR extends ActRecord,
 	Sel extends Selector<S, AR>,
 >(
-	initial: S,
+	initial: Initial<S>,
 	options: Option<S, AR>,
 	selector: Sel
 ): CreateConStoreReturnType<
@@ -72,7 +73,7 @@ export default function createConStore<
 export default function createConStore<
 	S extends DS,
 >(
-	initial: S,
+	initial: Initial<S>,
 	options?: never,
 	selector?: never
 ): CreateConStoreReturnType<
@@ -84,7 +85,7 @@ export default function createConStore<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
 >(
-	initial: S,
+	initial: Initial<S>,
 	selector: Sel,
 	_?: never
 ): CreateConStoreReturnType<
@@ -96,7 +97,7 @@ export default function createConStore<
 	S extends DS,
 	AR extends ActRecord,
 >(
-	initial: S,
+	initial: Initial<S>,
 	options?: Option<S, AR>,
 	_?: never
 ): CreateConStoreReturnType<
@@ -108,7 +109,7 @@ export default function createConStore<
 	S extends DS,
 	AR extends ActRecord,
 >(
-	initial: S,
+	initial: Initial<S>,
 	options?: unknown,
 	selector?: unknown,
 ) {
@@ -122,7 +123,7 @@ export default function createConStore<
 			: defaultSelector<S, AR>;
 
 	const estadoSubLis = createConSubLis(
-		initial,
+		typeof initial === 'function' ? initial() : initial,
 		{
 			..._options,
 			dispatcher( nextHistory, ) {
