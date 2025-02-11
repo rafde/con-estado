@@ -1,9 +1,9 @@
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function getDeepArrayPath<
-	State extends object,
-	ArrayPath extends Array<string | number>,
->( state: State, arrayPath: ArrayPath, ) {
+	S extends object,
+	AP extends Array<string | number>,
+>( state: S, arrayPath: AP, ) {
 	const [
 		value,
 	] = getDeepValueParentByArray(

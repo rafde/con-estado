@@ -7,14 +7,14 @@ import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 
 export type CreateActsProps<
-	State extends DS,
+	S extends DS,
 > = {
 	get(
 		stateHistoryPath?: undefined
-	): Immutable<EstadoHistory<State>>
-	get<StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
-		stateHistoryPath: StateHistoryPath
-	): Immutable<GetStringPathValue<EstadoHistory<State>, StateHistoryPath>>
+	): Immutable<EstadoHistory<S>>
+	get<SHP extends NestedRecordKeys<EstadoHistory<S>>,>(
+		stateHistoryPath: SHP
+	): Immutable<GetStringPathValue<EstadoHistory<S>, SHP>>
 }
-& GetDraftRecord<State>
-& EstadoSetters<State>;
+& GetDraftRecord<S>
+& EstadoSetters<S>;

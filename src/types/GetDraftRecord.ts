@@ -5,21 +5,21 @@ import type { GetStringPathValue, } from './GetStringPathValue';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
 
 export type GetDraftRecord<
-	State extends DS,
-	M extends MutOptions<false, boolean> = MutOptions<false, false>,
+	S extends DS,
+	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
 > = {
-	getDraft( stateHistoryPath?: M, options?: never ): [
-		Draft<Pick<EstadoHistory<State>, 'state' | 'initial'>>,
-		() => EstadoHistory<State>,
+	getDraft( stateHistoryPath?: MO, options?: never ): [
+		Draft<Pick<EstadoHistory<S>, 'state' | 'initial'>>,
+		() => EstadoHistory<S>,
 	]
 	getDraft<
-		StateHistoryPath extends NestedObjectKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>,
-		M extends MutOptions<false, boolean> = MutOptions<false, false>,
-	>( stateHistoryPath: StateHistoryPath, options?: M ): [
+		SHP extends NestedObjectKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>,
+		MO extends MutOptions<false, boolean> = MutOptions<false, false>,
+	>( stateHistoryPath: SHP, options?: MO ): [
 		GetStringPathValue<
-			Draft<Pick<EstadoHistory<State>, 'state' | 'initial'>>,
-			StateHistoryPath
+			Draft<Pick<EstadoHistory<S>, 'state' | 'initial'>>,
+			SHP
 		>,
-		() => EstadoHistory<State>,
+		() => EstadoHistory<S>,
 	]
 };

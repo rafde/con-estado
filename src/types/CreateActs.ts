@@ -3,6 +3,6 @@ import type { DS, } from './DS';
 import type { CreateActsProps, } from './CreateActsProps';
 
 export type CreateActs<
-	State extends DS,
-	Acts extends ActRecord,
-> = ( createActsProps: CreateActsProps<State> ) => Acts;
+	S extends DS,
+	AR extends ActRecord,
+> = ( createActsProps: CreateActsProps<S> ) => AR;

@@ -5,8 +5,8 @@ import type { Immutable, } from './Immutable';
 import type { Option, } from './Option';
 
 export type CreateConOptions<
-	State extends DS,
-	Acts extends ActRecord,
-> = Option<State, Acts> & {
-	dispatcher?: ( history: Immutable<EstadoHistory<State>> ) => void
+	S extends DS,
+	AR extends ActRecord,
+> = Option<S, AR> & {
+	dispatcher?: ( history: Immutable<EstadoHistory<S>> ) => void
 };

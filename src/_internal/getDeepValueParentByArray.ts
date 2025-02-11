@@ -4,11 +4,11 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import isPlainObject from './isPlainObject';
 
 export default function getDeepValueParentByArray<
-	State extends object,
-	ArrayPath extends StringPathToArray<NestedRecordKeys<State>> | Array<string | number>,
+	S extends object,
+	AP extends StringPathToArray<NestedRecordKeys<S>> | Array<string | number>,
 >(
-	state: State | null | undefined,
-	arrayPath: ArrayPath,
+	state: S | null | undefined,
+	arrayPath: AP,
 ) {
 	if ( state == null ) {
 		return [undefined, undefined,];
@@ -27,7 +27,7 @@ export default function getDeepValueParentByArray<
 	}
 
 	return [
-		value as GetArrayPathValue<State, ArrayPath>,
+		value as GetArrayPathValue<S, AP>,
 		parent,
 	];
 }

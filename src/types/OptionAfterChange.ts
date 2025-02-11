@@ -3,7 +3,7 @@ import type { EstadoHistory, } from './EstadoHistory';
 import type { Immutable, } from './Immutable';
 
 export type OptionAfterChange<
-	State extends DS,
+	S extends DS,
 > = (
-	estadoHistory: Immutable<EstadoHistory<State>>,
+	estadoHistory: Immutable<EstadoHistory<S>>,
 ) => Promise<void> | void;

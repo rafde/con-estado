@@ -20,13 +20,15 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
 /**
  * A React hook for managing state with history tracking and actions.
  *
- * @param {DS | () => DS} initial - The initial state object
+ * @template {DS} S
+ *
+ * @param {Initial<S>} initial - The initial state object
  * @param {Option} [options] - Configuration options
  * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
  * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
  * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes
  * Subsequent updates will ignore `function` changes.
- * @param {MutOptions} [options.mutOptions={strict: true}] - Mutative options. {enablePatches: true} not supported
+ * @param {MutOptions} [options.mutOptions] - Mutative options. {enablePatches: true} not supported
  * @param {Selector} selector - Function to select and transform state values
  *
  * @returns {ReturnType<Selector<DS, ActRecord>> | ReturnType<typeof defaultSelector<DS, ActRecord>>}

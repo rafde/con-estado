@@ -1,14 +1,14 @@
 import type { DS, } from './DS';
 
-export type EstadoHistory<State extends DS,> = {
-	changes: ( State extends Array<infer U>
+export type EstadoHistory<S extends DS,> = {
+	changes: ( S extends Array<infer U>
 		? Array<U | undefined>
-		: State extends Record<string | number, unknown>
-			? Partial<State>
+		: S extends Record<string | number, unknown>
+			? Partial<S>
 			: never
 	) | undefined
-	initial: State
-	priorState: State | undefined
-	priorInitial: State | undefined
-	state: State
+	initial: S
+	priorState: S | undefined
+	priorInitial: S | undefined
+	state: S
 };

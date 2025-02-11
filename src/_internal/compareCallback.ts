@@ -7,9 +7,9 @@ import type { OptionCompare, } from '../types/OptionCompare';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 
 export default function compareCallback<
-	State extends DS,
+	S extends DS,
 >(
-	compare?: OptionCompare<State>,
+	compare?: OptionCompare<S>,
 ) {
 	if ( typeof compare !== 'function' ) {
 		return function cmp( previousValue: unknown, nextValue: unknown, ) {
@@ -19,8 +19,8 @@ export default function compareCallback<
 	return function cmp(
 		previousValue: unknown,
 		nextValue: unknown,
-		key: NestedRecordKeys<State> | NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>,
-		keys: NestedKeyArray<State> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>>,
+		key: NestedRecordKeys<S> | NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>,
+		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>>,
 	) {
 		return Boolean( compare(
 			previousValue,
@@ -35,5 +35,5 @@ export default function compareCallback<
 }
 
 export type CompareCallbackReturn<
-	State extends DS = DS,
-> = ReturnType<typeof compareCallback<State>>;
+	S extends DS = DS,
+> = ReturnType<typeof compareCallback<S>>;

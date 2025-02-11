@@ -20,12 +20,12 @@ import type { StringPathToArray, } from './StringPathToArray';
  * @param extra.keys - An array of keys that lead to a nested state's value.
  * @returns `true` if the previous and next values are considered equal, `false` otherwise.
  */
-export type OptionCompare<State extends DS,> = (
+export type OptionCompare<S extends DS,> = (
 	previousValue: unknown,
 	nextValue: unknown,
 	extra: {
 		cmp: typeof strictDeepEqual
-		key: NestedRecordKeys<State> | NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>
-		keys: NestedKeyArray<State> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<State>, 'state' | 'initial'>>>
+		key: NestedRecordKeys<S> | NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>
+		keys: NestedKeyArray<S> | StringPathToArray<NestedRecordKeys<Pick<EstadoHistory<S>, 'state' | 'initial'>>>
 	}
 ) => boolean;

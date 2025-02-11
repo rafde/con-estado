@@ -5,18 +5,18 @@ import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
 
 export default function createConSubLis<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
-	options?: CreateConOptions<State, Acts>,
+	initial: S,
+	options?: CreateConOptions<S, AR>,
 ) {
 	const estado = createCon(
 		initial,
 		options,
 	);
-	const listeners = new Set<Selector<State, Acts>>();
-	function subscribe( listener: Selector<State, Acts>, ) {
+	const listeners = new Set<Selector<S, AR>>();
+	function subscribe( listener: Selector<S, AR>, ) {
 		listeners.add( listener, );
 		return () => {
 			listeners.delete( listener, );

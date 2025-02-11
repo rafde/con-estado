@@ -6,16 +6,16 @@ import type { NestedObjectKeys, } from './NestedObjectKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
 export type ArrayPathDraftProps<
-	State extends DS,
-	TargetState extends DS,
-	StatePath extends StringPathToArray<NestedObjectKeys<TargetState>>,
-	Sub extends StringPathToArray<NestedObjectKeys<State>> = StringPathToArray<NestedObjectKeys<State>>,
+	S extends DS,
+	TS extends DS,
+	SP extends StringPathToArray<NestedObjectKeys<TS>>,
+	Sub extends StringPathToArray<NestedObjectKeys<S>> = StringPathToArray<NestedObjectKeys<S>>,
 > = {
-	changesProp: GetArrayPathValue<EstadoHistory<State>['changes'], Sub>
-	initialProp: GetArrayPathValue<EstadoHistory<State>['initial'], Sub>
-	priorInitialProp: GetArrayPathValue<EstadoHistory<State>['priorInitial'], Sub>
-	priorStateProp: GetArrayPathValue<EstadoHistory<State>['priorState'], Sub>
-	stateProp: GetArrayPathValue<EstadoHistory<State>['state'], Sub>
+	changesProp: GetArrayPathValue<EstadoHistory<S>['changes'], Sub>
+	initialProp: GetArrayPathValue<EstadoHistory<S>['initial'], Sub>
+	priorInitialProp: GetArrayPathValue<EstadoHistory<S>['priorInitial'], Sub>
+	priorStateProp: GetArrayPathValue<EstadoHistory<S>['priorState'], Sub>
+	stateProp: GetArrayPathValue<EstadoHistory<S>['state'], Sub>
 } & Readonly<{
-	draft: GetArrayPathValue<Draft<TargetState>, StatePath>
-}> & EstadoHistory<State>;
+	draft: GetArrayPathValue<Draft<TS>, SP>
+}> & EstadoHistory<S>;
