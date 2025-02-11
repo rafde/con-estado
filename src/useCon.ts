@@ -20,7 +20,7 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
 /**
  * A React hook for managing state with history tracking and actions.
  *
- * @param {DS} initial - The initial state object
+ * @param {DS | () => DS} initial - The initial state object
  * @param {Option} [options] - Configuration options
  * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
  * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
@@ -77,56 +77,56 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
  * ```
  */
 export default function useCon<
-	State extends DS,
-	Acts extends ActRecord,
-	Sel extends Selector<State, Acts>,
+	S extends DS,
+	A extends ActRecord,
+	Sel extends Selector<S, A>,
 >(
-	initial: State,
-	options: Option<State, Acts>,
+	initial: S | ( () => S ),
+	options: Option<S, A>,
 	selector: Sel
 ): ReturnType<Sel>;
 export default function useCon<
-	State extends DS,
+	S extends DS,
 >(
-	initial: State,
+	initial: S | ( () => S ),
 	options?: never,
 	selector?: never
-): ReturnType<typeof defaultSelector<State, Record<never, never>>>;
+): ReturnType<typeof defaultSelector<S, Record<never, never>>>;
 export default function useCon<
-	State extends DS,
-	Sel extends Selector<State, Record<never, never>>,
+	S extends DS,
+	Sel extends Selector<S, Record<never, never>>,
 >(
-	initial: State,
+	initial: S | ( () => S ),
 	selector: Sel,
 	_?: never
 ): ReturnType<Sel>;
 export default function useCon<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
-	options?: Option<State, Acts>,
+	initial: S | ( () => S ),
+	options?: Option<S, AR>,
 	_?: never
-): ReturnType<typeof defaultSelector<State, Acts>>;
+): ReturnType<typeof defaultSelector<S, AR>>;
 export default function useCon<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
+	initial: S | ( () => S ),
 	options?: unknown,
 	selector?: unknown,
 ) {
 	const _options = options && typeof options === 'object'
-		? options as Option<State, Acts>
-		: {} as Option<State, Acts>;
+		? options as Option<S, AR>
+		: {} as Option<S, AR>;
 	const _selector = typeof options === 'function'
-		? options as Selector<State, Acts>
+		? options as Selector<S, AR>
 		: typeof selector === 'function'
-			? selector as Selector<State, Acts>
+			? selector as Selector<S, AR>
 			: undefined;
 
-	const selectorCallback = useSelectorCallback<State, Acts>(
-		defaultSelector<State, Acts>,
+	const selectorCallback = useSelectorCallback<S, AR>(
+		defaultSelector<S, AR>,
 		_selector,
 	);
 	const [
@@ -135,7 +135,8 @@ export default function useCon<
 	] = useState(
 		() => {
 			const conProps = createConBase(
-				initial, {
+				typeof initial === 'function' ? initial() : initial,
+				{
 					..._options,
 					dispatcher() {
 						setState( selectorCallback( {
