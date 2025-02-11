@@ -1,35 +1,15 @@
 import type { Draft, } from 'mutative';
-import type { ArrayPathDraftProps, } from './ArrayPathDraftProps';
 import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
-import type { NestedObjectKeys, } from './NestedObjectKeys';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
 type NextState<
 	State extends DS,
 > = Pick<EstadoHistory<State>, 'state' | 'initial'>;
-
-type SubStringPath<
-	State extends DS,
-	Path,
-> = Path extends `${'state' | 'initial'}.${infer Sub}`
-	? Sub extends NestedObjectKeys<State>
-		? Sub
-		: never
-	: never;
-
-type GetStringPathPropValue<
-	State extends DS,
-	EHK extends keyof EstadoHistory<State>,
-	Sub extends NestedObjectKeys<State>,
-> = GetStringPathValue<
-	EstadoHistory<State>[EHK],
-	Sub
->;
 
 type StringPathProps<
 	State extends DS,
@@ -45,31 +25,6 @@ type StringPathProps<
 	}> & {
 		draft: GetStringPathValue<NS, StatePath>
 	};
-
-type StringPathDraftProps<
-	State extends DS,
-	TargetState extends DS,
-	StatePath extends NestedObjectKeys<TargetState>,
-	Sub extends NestedObjectKeys<State>,
-> = Immutable<
-	EstadoHistory<State> & {
-		changesProp: GetStringPathPropValue<State, 'changes', Sub>
-		initialProp: GetStringPathValue<EstadoHistory<State>['initial'], Sub>
-		priorInitialProp: GetStringPathValue<EstadoHistory<State>['priorInitial'], Sub>
-		priorStateProp: GetStringPathValue<EstadoHistory<State>['priorState'], Sub>
-		stateProp: GetStringPathValue<EstadoHistory<State>['state'], Sub>
-	}> & Readonly<{
-		draft: GetStringPathValue<Draft<TargetState>, StatePath>
-	}>;
-
-type SubArrayPath<
-	State extends DS,
-	Path,
-> = Path extends ['state' | 'initial', ...infer Sub,]
-	? Sub extends StringPathToArray<NestedObjectKeys<State>>
-		? Sub
-		: never
-	: never;
 
 type ArrayPathProps<
 	State extends DS,
