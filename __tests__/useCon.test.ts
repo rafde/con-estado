@@ -13,6 +13,11 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
+	test( 'should initialize using callback', () => {
+		const { result, } = renderHook( () => useCon( () => initialState, ), );
+		expect( result.current[ 0 ], ).toEqual( initialState, );
+	}, );
+
 	test( 'should setHistory count correctly', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
