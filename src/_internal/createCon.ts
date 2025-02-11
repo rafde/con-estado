@@ -26,7 +26,10 @@ function _joinPath( path: string | ( string | number )[], ) {
 function handleStateUpdate<
 	State extends DS,
 >(
-	draft: object,
+	draft: Draft<{
+		initial: State
+		state: State
+	}>,
 	history: EstadoHistory<State>,
 	args: unknown[],
 	arrayPathMap: Map<string | number, Array<string | number>>,
@@ -46,9 +49,10 @@ function handleStateUpdate<
 
 	// Handle path-based updates
 	if ( typeof statePath === 'string' || Array.isArray( statePath, ) ) {
-		const arrayPath = ( typeof statePath === 'string'
+		const arrayPath = typeof statePath === 'string'
 			? getCacheStringPathToArray( arrayPathMap, statePath, )
-			: statePath ) as string[];
+			: statePath as ( string | number )[];
+
 		const penPath = arrayPath.at( -1, );
 		const [value, parent,] = getDeepValueParentByArray( draft, arrayPath, );
 
@@ -67,6 +71,9 @@ function handleStateUpdate<
 				Reflect.set( parent, penPath, nextState, );
 			}
 		}
+	}
+	else if ( typeof nextState === 'undefined' && isPlainObject( statePath, ) ) {
+		Object.assign( draft, statePath, );
 	}
 
 	return finalize();
@@ -93,7 +100,6 @@ function _getDraft<
 		},
 		{
 			...mutOptions,
-			strict: true,
 		},
 	);
 
@@ -302,6 +308,30 @@ export default function createCon<
 				priorState: history.priorState == null ? undefined : history.state,
 				state: history.initial,
 			}, );
+		},
+
+		set( ...args: unknown[] ) {
+			const [statePath, nextState,] = args;
+			let _args: unknown[] = [];
+			if ( typeof nextState === 'undefined' ) {
+				_args = [
+					'state',
+					statePath,
+				];
+			}
+			else if ( typeof statePath === 'string' ) {
+				_args = [
+					`state.${statePath}`,
+					nextState,
+				];
+			}
+			else if ( Array.isArray( statePath, ) ) {
+				_args = [
+					['state', ...statePath,],
+					nextState,
+				];
+			}
+			return _setHistory( ..._args, );
 		},
 		setHistory( ...args: unknown[] ) {
 			return _setHistory( ...args, );
