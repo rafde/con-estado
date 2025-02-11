@@ -196,6 +196,42 @@ type CurrySet<
 	) => EstadoHistory<S>
 };
 
+type SetWrap<
+	S extends DS,
+	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
+> = {
+	setWrap<Args extends unknown[],>(
+		nextState: (
+			props: CallbackDraftProps<S, S>,
+			...args: Args
+		) => void
+	): ( ...args: Args ) => EstadoHistory<S>
+	setWrap<
+		SP extends StringPathToArray<RK>,
+		Args extends unknown[],
+	>(
+		statePath: SP,
+		nextState: (
+			(
+				props: ArrayPathProps<S, S, SP>,
+				...args: Args
+			) => void
+		),
+	): ( ...args: Args ) => EstadoHistory<S>
+	setWrap<
+		SP extends NestedRecordKeys<S>,
+		Args extends unknown[],
+	>(
+		statePath: SP,
+		nextState: (
+			(
+				props: StringPathProps<S, S, SP>,
+				...args: Args
+			) => void
+		),
+	): ( ...args: Args ) => EstadoHistory<S>
+};
+
 export type EstadoSetters<
 	State extends DS,
 > = {
@@ -205,4 +241,5 @@ export type EstadoSetters<
 & CurrySetHistory<State>
 & SetHistory<State>
 & SetHistoryWrap<State>
-& SetState<State>;
+& SetState<State>
+& SetWrap<State>;
