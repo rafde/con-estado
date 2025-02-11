@@ -37,7 +37,7 @@ Managing deeply nested state in React often becomes cumbersome with traditional 
 - **Optimized selectors** - Prevent component re-renders by selecting only relevant state fragments
 - **Type-safe mutations** - Full TypeScript support for state paths and updates
 
-Built on `Mutative`'s efficient immutable updates, `con-estado` is particularly useful for applications with:
+Built on [Mutative](https://mutative.js.org/)'s efficient immutable updates, `con-estado` is particularly useful for applications with:
 - Complex nested state structures
 - Performance-sensitive state operations
 - Frequent partial state updates
@@ -63,17 +63,14 @@ const initialState = {
 };
 
 function MyComponent() {
-	const [ state, { set, } ] = useCon( initialState, );
-	// Update deeply nested state
-	const toggleEmailNotifications = () => {
-		set( 'user.preferences.notifications.email', !state.user.preferences.notifications.email, );
-	};
+	const [ state, { setWrap, } ] = useCon( initialState, );
+
 	return (
 		<div>
 			<h1>
 				Welcome {state.user.name}
 			</h1>
-			<button onClick={toggleEmailNotifications}>
+			<button onClick={setWrap('user.preferences.notifications.email', (props) => props.draft = !props.stateProp)}>
 				Toggle Email Notifications
 			</button>
 		</div>
@@ -121,14 +118,16 @@ const useSelector = createConStore<CounterState>({
 // In component
 function Counter() {
   const { count } = useSelector(props => props.state);
-  const { increment, asyncIncrement } = useSelector(props => props.acts);
+  const { increment, asyncIncrement, incBy5 } = useSelector(
+	({acts: {increment, asyncIncrement, incrementBy}}) => ({increment, asyncIncrement, incBy5(){ incrementBy(5) }})
+  );
 
   return (
 	<div>
 	  <h2>Count: {count}</h2>
 	  <button onClick={increment}>Increment</button>
 	  <button onClick={asyncIncrement}>Async Increment</button>
-	  <button onClick={() => counterStore.acts.incrementBy(5)}>
+	  <button onClick={incBy5}>
 		Add 5
 	  </button>
 	</div>
@@ -152,10 +151,6 @@ const [state, controls] = useCon(initialState, options?);
 
 You get the advantages of `createConStore` but with local state.
 
-## Custom Selectors
-
-Optimize renders by selecting only needed state:
-
 ## Advanced Usage
 
 ### Custom Selectors
@@ -168,7 +163,7 @@ function UserPreferences() {
 		selector: props => ( {
 			theme: props.state.user.preferences.theme,
 			updateTheme: props.setWrap(
-				'user.preferences.theme', ( controlsPlusHistory, event: ChangeEvent<HTMLSelectElement>, ) => event.target.value,
+				'user.preferences.theme', ( props, event: ChangeEvent<HTMLSelectElement>, ) => props.draft = event.target.value,
 			),
 		} ),
 	} );
@@ -277,23 +272,25 @@ const [state, controls] = useCon(initialState, options?);
 
 #### createConStore and useCon Options
 
-1. `options`: Configuration options for `createConStore` and `useCon`.
-- `options.acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
-- `options.compare`: Custom comparison function
-- `options.afterChange`: Async callback after state changes
-- `options.mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options)
+1. `initial`: `Record<string | number, unknown>` or `Array<unknown>`
+   - `useCon` can accept a callback 
+2. `options`: Configuration options for `createConStore` and `useCon`.
+   - `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
+   - `compare`: Custom comparison function to let you handle what is considered a change.
+   - `afterChange`: Async callback after state changes
+   - `mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options)
+3. `selector`: Custom state selector function that lets you shape what is returned from `useCon` and `createConStore`
 
-2. `selector`: Custom state selector function
 
 ### createConStore and useCon Controls
 
-- `get(path?)`: Get current state or value at path
-- `reset()`: Reset state to initial
-- `acts`: Custom defined actions
-- `getDraft()`: Get mutable draft state
 - `set(path, value)`: A function to update `state` properties
 - `currySet(path)`: Get a function to specify which part of `state` you want to update by currying `set(path)`
 - `setWrap(path, value)`: Lets you wrap the `set` function in a function that will be called with the draft value to update.
+- `acts`: Custom defined actions
+- `get(path?)`: Get current state or value at path
+- `reset()`: Reset state to initial
+- `getDraft(path?, mutOptions?)`: Get mutable draft of `state` and/or `initial` properties
 - `setHistory(path, value)`: A function to update `state` and/or `initial` properties
 - `currySetHistory(path)`: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
 - `setHistoryWrap(path, value)`: Lets you wrap the `setHistory` function in a function that will be called with the draft value to update.
