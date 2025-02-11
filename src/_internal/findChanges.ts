@@ -1,16 +1,16 @@
+import { strictDeepEqual, } from 'fast-equals';
 import type { DS, } from '../types/DS';
-import type { CompareCallbackReturn, } from './compareCallback';
 import isPlainObject from './isPlainObject';
 
-function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, compare: CompareCallbackReturn, ): boolean {
-	if ( !compare( a, b, key as string, [key as string,], ) ) {
+function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boolean {
+	if ( !strictDeepEqual( a, b, ) ) {
 		Reflect.set( changes, key, b, );
 		return true;
 	}
 	return false;
 }
 
-export default function findChanges<T extends DS,>( a: T, b: T, compare: CompareCallbackReturn, ) {
+export default function findChanges<T extends DS,>( a: T, b: T, ) {
 	let changes: Record<string, unknown> | Array<unknown> = {};
 	let hasChanges = false;
 	if ( Array.isArray( a, ) && Array.isArray( b, ) ) {
@@ -24,7 +24,6 @@ export default function findChanges<T extends DS,>( a: T, b: T, compare: Compare
 				Reflect.get( b, key, ),
 				changes,
 				key,
-				compare,
 			);
 			if ( _hasChanges ) {
 				hasChanges = true;
@@ -38,7 +37,6 @@ export default function findChanges<T extends DS,>( a: T, b: T, compare: Compare
 				Reflect.get( b, key, ),
 				changes,
 				key,
-				compare,
 			);
 			if ( _hasChanges ) {
 				hasChanges = true;

@@ -7,7 +7,6 @@ import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import compareCallback from './compareCallback';
 import createHistory from './createHistory';
 import escapeDots from './escapeDots';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
@@ -71,7 +70,6 @@ export default function createCon<
 		dispatcher = noop,
 		mutOptions,
 	} = options;
-	const compare = compareCallback( options.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
 	function _dispatch( nextHistory: EstadoHistory<S>, ) {
@@ -86,7 +84,6 @@ export default function createCon<
 		const _mutOptions = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
 		return getHistoryDraft(
 			history,
-			compare,
 			_dispatch,
 			arrayPathMap,
 			statePath,

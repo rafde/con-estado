@@ -1,7 +1,7 @@
+import { strictDeepEqual, } from 'fast-equals';
 import { create, isDraft, type Draft, type Options as MutOptions, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
-import type { CompareCallbackReturn, } from './compareCallback';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
@@ -11,7 +11,6 @@ export default function getHistoryDraft<
 	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
 >(
 	history: EstadoHistory<S>,
-	compare: CompareCallbackReturn<S>,
 	setHistory: ( nextHistory: EstadoHistory<S>, ) => EstadoHistory<S>,
 	arrayPathMap: Map<string | number, Array<string | number>>,
 	stateHistoryPath?: unknown,
@@ -37,8 +36,8 @@ export default function getHistoryDraft<
 			state,
 		} = next;
 
-		const hasNoStateChanges = compare( history.state, state, 'state', ['state',], );
-		const hasNoInitialChanges = compare( history.initial, initial, 'initial', ['initial',], );
+		const hasNoStateChanges = strictDeepEqual( history.state, state, );
+		const hasNoInitialChanges = strictDeepEqual( history.initial, initial, );
 
 		if ( hasNoStateChanges && hasNoInitialChanges ) {
 			return history;
@@ -57,7 +56,6 @@ export default function getHistoryDraft<
 		} = findChanges(
 			initial as S,
 			state as S,
-			compare as CompareCallbackReturn,
 		);
 		const nextHistory: EstadoHistory<S> = {
 			changes: changes as EstadoHistory<S>['changes'],
