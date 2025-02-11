@@ -13,7 +13,7 @@ type NextState<
 
 type StringPathProps<
 	State extends DS,
-	NS extends NextState<State>,
+	NS extends NextState<State> | State,
 	StatePath extends NestedRecordKeys<NS>,
 > = Immutable<
 	EstadoHistory<State> & {
@@ -28,7 +28,7 @@ type StringPathProps<
 
 type ArrayPathProps<
 	State extends DS,
-	NS extends NextState<State>,
+	NS extends NextState<State> | State,
 	StatePath extends StringPathToArray<NestedRecordKeys<NS>>,
 > = Immutable<EstadoHistory<State> & {
 	changesProp: GetArrayPathValue<NS, StatePath> | undefined
@@ -42,7 +42,7 @@ type ArrayPathProps<
 
 type CallbackDraftProps<
 	State extends DS,
-	NS extends NextState<State>,
+	NS extends NextState<State> | State,
 > = EstadoHistory<State> & Readonly<{
 	draft: Draft<NS>
 }>;
@@ -141,6 +141,37 @@ type SetHistoryWrap<
 	): ( ...args: Args ) => EstadoHistory<State>
 };
 
+type SetState<
+	S extends DS,
+	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
+> = {
+	set(
+		nextState: S | ( (
+			props: CallbackDraftProps<S, S>,
+		) => void )
+	): EstadoHistory<S>
+	set<
+		StatePath extends RK,
+	>(
+		statePath: StatePath,
+		nextState: GetStringPathValue<S, StatePath> | (
+			(
+				props: StringPathProps<S, S, StatePath>
+			) => void
+			),
+	): EstadoHistory<S>
+	set<
+		StatePath extends StringPathToArray<RK>,
+	>(
+		statePath: StatePath,
+		nextState: GetArrayPathValue<S, StatePath> | (
+			(
+				props: ArrayPathProps<S, S, StatePath>
+			) => void
+			),
+	): EstadoHistory<S>
+};
+
 export type EstadoSetters<
 	State extends DS,
 > = {
@@ -148,4 +179,5 @@ export type EstadoSetters<
 }
 & CurrySetHistory<State>
 & SetHistory<State>
-& SetHistoryWrap<State>;
+& SetHistoryWrap<State>
+& SetState<State>;
