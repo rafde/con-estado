@@ -275,7 +275,11 @@ export default function createCon<
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
-	function _currySetHistory( statePath: string | ( string | number )[], ) {
+	function _currySetHistory( statePath?: string | ( string | number )[], ) {
+		if ( statePath == null ) {
+			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
+		}
+
 		const path = _joinPath( statePath, );
 		const curryFn = curryMap.get( path, );
 		if ( typeof curryFn === 'function' ) {
@@ -291,6 +295,15 @@ export default function createCon<
 	}
 
 	const props: CreateActsProps<State> = {
+		currySet( statePath: Parameters<CreateActsProps<State>['currySet']>[0], ) {
+			const _statePath = Array.isArray( statePath, )
+				? ['state', ...statePath,]
+				: typeof statePath === 'string'
+					? `state.${statePath}`
+					: undefined;
+
+			return _currySetHistory( _statePath, );
+		},
 		currySetHistory( statePath: Parameters<CreateActsProps<State>['currySetHistory']>[0], ) {
 			return _currySetHistory( statePath, );
 		},

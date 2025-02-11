@@ -172,11 +172,36 @@ type SetState<
 	): EstadoHistory<S>
 };
 
+type CurrySet<
+	S extends DS,
+	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
+> = {
+	currySet<
+		SP extends NestedRecordKeys<S>,
+	>( statePath: SP, ): (
+		nextState: GetStringPathValue<S, SP> | (
+			(
+				props: StringPathProps<S, S, SP>
+			) => void
+			)
+	) => EstadoHistory<S>
+	currySet<
+		SP extends StringPathToArray<RK>,
+	>( statePath: SP, ): (
+		nextState: GetArrayPathValue<S, SP> | (
+			(
+				props: ArrayPathProps<S, S, SP>
+			) => void
+			)
+	) => EstadoHistory<S>
+};
+
 export type EstadoSetters<
 	State extends DS,
 > = {
 	reset(): EstadoHistory<State>
 }
+& CurrySet<State>
 & CurrySetHistory<State>
 & SetHistory<State>
 & SetHistoryWrap<State>
