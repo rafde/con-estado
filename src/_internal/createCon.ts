@@ -92,6 +92,32 @@ function handleStateUpdate<
 	return finalize();
 }
 
+function returnStateArgs( args: unknown[], ) {
+	const [statePath, nextState,] = args;
+	if ( typeof nextState === 'undefined' ) {
+		return [
+			'state',
+			statePath,
+		];
+	}
+
+	if ( typeof statePath === 'string' ) {
+		return [
+			`state.${statePath}`,
+			nextState,
+		];
+	}
+
+	if ( Array.isArray( statePath, ) ) {
+		return [
+			['state', ...statePath,],
+			nextState,
+		];
+	}
+
+	return [];
+}
+
 function _getDraft<
 	State extends DS,
 	M extends MutOptions<false, boolean> = MutOptions<false, false>,
@@ -243,7 +269,7 @@ export default function createCon<
 		) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
 	}
 
-	function _setHistoryWrap( ...args: unknown[] ) {
+	function setHistoryWrap( ...args: unknown[] ) {
 		const [statePath, nextState,] = args;
 
 		return function wrap( ...wrapArgs: unknown[] ) {
@@ -277,7 +303,7 @@ export default function createCon<
 		};
 	}
 
-	function _setHistory( ...args: unknown[] ) {
+	function setHistory( ...args: unknown[] ) {
 		const [draft, finalize,] = getDraft();
 
 		if ( args.length === 0 ) {
@@ -288,7 +314,7 @@ export default function createCon<
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
-	function _currySetHistory( statePath?: string | ( string | number )[], ) {
+	function currySetHistory( statePath?: string | ( string | number )[], ) {
 		if ( statePath == null ) {
 			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
 		}
@@ -300,7 +326,7 @@ export default function createCon<
 		}
 
 		function curried( nextState: unknown, ) {
-			return _setHistory( statePath, nextState, );
+			return setHistory( statePath, nextState, );
 		}
 
 		curryMap.set( statePath, curried, );
@@ -315,11 +341,9 @@ export default function createCon<
 					? `state.${statePath}`
 					: undefined;
 
-			return _currySetHistory( _statePath, );
+			return currySetHistory( _statePath, );
 		},
-		currySetHistory( statePath: Parameters<CreateActsProps<State>['currySetHistory']>[0], ) {
-			return _currySetHistory( statePath, );
-		},
+		currySetHistory,
 		get,
 		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
 		reset() {
@@ -336,56 +360,12 @@ export default function createCon<
 			}, );
 		},
 		set( ...args: unknown[] ) {
-			const [statePath, nextState,] = args;
-			let _args: unknown[] = [];
-			if ( typeof nextState === 'undefined' ) {
-				_args = [
-					'state',
-					statePath,
-				];
-			}
-			else if ( typeof statePath === 'string' ) {
-				_args = [
-					`state.${statePath}`,
-					nextState,
-				];
-			}
-			else if ( Array.isArray( statePath, ) ) {
-				_args = [
-					['state', ...statePath,],
-					nextState,
-				];
-			}
-			return _setHistory( ..._args, );
+			return setHistory( ...returnStateArgs( args, ), );
 		},
+		setHistory,
+		setHistoryWrap,
 		setWrap( ...args: unknown[] ) {
-			const [statePath, nextState,] = args;
-			let _args: unknown[] = [];
-			if ( typeof nextState === 'undefined' ) {
-				_args = [
-					'state',
-					statePath,
-				];
-			}
-			else if ( typeof statePath === 'string' ) {
-				_args = [
-					`state.${statePath}`,
-					nextState,
-				];
-			}
-			else if ( Array.isArray( statePath, ) ) {
-				_args = [
-					['state', ...statePath,],
-					nextState,
-				];
-			}
-			return _setHistoryWrap( ..._args, );
-		},
-		setHistory( ...args: unknown[] ) {
-			return _setHistory( ...args, );
-		},
-		setHistoryWrap( ...args: unknown[] ) {
-			return _setHistoryWrap( ...args, );
+			return setHistoryWrap( ...returnStateArgs( args, ), );
 		},
 	};
 
