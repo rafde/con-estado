@@ -19,6 +19,12 @@ describe( 'createConStore', () => {
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
+	it( 'should initialize with the correct initial state', () => {
+		const { result: uCS, } = renderHook( () => createConStore( () => initialState, ), );
+		const { result, } = renderHook( () => uCS.current(), );
+		expect( result.current[ 0 ], ).toEqual( initialState, );
+	}, );
+
 	it( 'should maintain immutable state', () => {
 		const { result, } = renderHook( () => useConSelector(), );
 
