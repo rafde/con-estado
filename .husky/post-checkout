@@ -1,4 +1,4 @@
 echo "Starting Husky post-checkout";
-npm i --legacy-peer-deps --workspace=site
+npm i --legacy-peer-deps
 npm i
 echo "Husky post-checkout done";
