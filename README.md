@@ -276,7 +276,6 @@ const [state, controls] = useCon(initialState, options?);
    - `useCon` can accept a callback 
 2. `options`: Configuration options for `createConStore` and `useCon`.
    - `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
-   - `compare`: Custom comparison function to let you handle what is considered a change.
    - `afterChange`: Async callback after state changes
    - `mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options)
 3. `selector`: Custom state selector function that lets you shape what is returned from `useCon` and `createConStore`
