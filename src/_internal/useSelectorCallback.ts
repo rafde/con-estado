@@ -1,8 +1,29 @@
+import { createCustomEqual, } from 'fast-equals';
 import { useCallback, useMemo, useRef, } from 'react';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
-import returnOnChange from './returnOnChange';
+
+const isEqual = createCustomEqual( {
+	strict: true,
+	createCustomConfig() {
+		return {
+			areFunctionsEqual: () => true,
+		};
+	},
+}, );
+
+function returnOnChange( prev: unknown, next: unknown, ) {
+	if ( prev == null ) {
+		return next;
+	}
+
+	if ( !isEqual( prev, next, ) ) {
+		return next;
+	}
+
+	return prev;
+}
 
 export default function useSelectorCallback<
 	S extends DS,
