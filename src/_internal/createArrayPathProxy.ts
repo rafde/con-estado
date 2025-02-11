@@ -11,8 +11,8 @@ export default function createArrayPathProxy<
 >(
 	targetState: TargetState,
 	history: EstadoHistory<State>,
-	arrayPath: string[],
-	stateProp?: string,
+	arrayPath: ( string | number )[],
+	stateProp?: string | number,
 ) {
 	return new Proxy(
 		{
