@@ -1,16 +1,16 @@
 import { afterEach, expect, } from 'vitest';
-import createConBase from '../src/_internal/createConBase';
+import createCon from '../src/_internal/createCon';
 
-describe( 'createConBase - reset', () => {
+describe( 'createCon - reset', () => {
 	// Define the initial state
 	const initialState = {
 		counter: 0,
 		list: ['item1',],
 	};
-	let estado = createConBase( initialState, );
+	let estado = createCon( initialState, );
 	let history = estado.get();
 	afterEach( () => {
-		estado = createConBase( initialState, );
+		estado = createCon( initialState, );
 		history = estado.get();
 	}, );
 
