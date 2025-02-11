@@ -1,6 +1,5 @@
 import { useState, } from 'react';
-
-import createConBase from './_internal/createConBase';
+import createCon from './_internal/createCon';
 import defaultSelector from './_internal/defaultSelector';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
@@ -134,7 +133,7 @@ export default function useCon<
 		setState,
 	] = useState(
 		() => {
-			const conProps = createConBase(
+			const conProps = createCon(
 				typeof initial === 'function' ? initial() : initial,
 				{
 					..._options,
