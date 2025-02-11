@@ -1,4 +1,5 @@
 import { useSyncExternalStore, } from 'react';
+import type { CreateConReturnType, } from './_internal/createCon';
 import defaultSelector, { type DefaultSelector, } from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import useSelectorCallback from './_internal/useSelectorCallback';
@@ -6,7 +7,6 @@ import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
-import type createConBase from './_internal/createConBase';
 
 /**
  * Type definition for the return value of createConStore.
@@ -16,12 +16,12 @@ import type createConBase from './_internal/createConBase';
  * @typeParam {ActRecord} A - The type of the actions record
  */
 type CreateConStoreReturnType<
-	State extends DS,
-	Acts extends ActRecord,
-	Sel extends Selector<State, Acts>,
-> = ReturnType<typeof createConBase<State, Acts>> & {
-	(): ReturnType<Sel extends Selector<State, Acts> ? Sel : DefaultSelector<State, Acts>>
-	<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>
+	S extends DS,
+	AR extends ActRecord,
+	Sel extends Selector<S, AR>,
+> = CreateConReturnType<S, AR> & {
+	(): ReturnType<Sel extends Selector<S, AR> ? Sel : DefaultSelector<S, AR>>
+	<Sel extends Selector<S, AR>,>( select: Sel ): ReturnType<Sel>
 };
 
 /**
@@ -57,69 +57,69 @@ type CreateConStoreReturnType<
  * ```
  */
 export default function createConStore<
-	State extends DS,
-	Acts extends ActRecord,
-	Sel extends Selector<State, Acts>,
+	S extends DS,
+	AR extends ActRecord,
+	Sel extends Selector<S, AR>,
 >(
-	initial: State,
-	options: Option<State, Acts>,
+	initial: S,
+	options: Option<S, AR>,
 	selector: Sel
 ): CreateConStoreReturnType<
-	State,
-	Acts,
+	S,
+	AR,
 	Sel
 >;
 export default function createConStore<
-	State extends DS,
+	S extends DS,
 >(
-	initial: State,
+	initial: S,
 	options?: never,
 	selector?: never
 ): CreateConStoreReturnType<
-	State,
+	S,
 	Record<never, never>,
-	typeof defaultSelector<State, Record<never, never>>
+	typeof defaultSelector<S, Record<never, never>>
 >;
 export default function createConStore<
-	State extends DS,
-	Sel extends Selector<State, Record<never, never>>,
+	S extends DS,
+	Sel extends Selector<S, Record<never, never>>,
 >(
-	initial: State,
+	initial: S,
 	selector: Sel,
 	_?: never
 ): CreateConStoreReturnType<
-	State,
+	S,
 	Record<never, never>,
 	Sel
 >;
 export default function createConStore<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
-	options?: Option<State, Acts>,
+	initial: S,
+	options?: Option<S, AR>,
 	_?: never
 ): CreateConStoreReturnType<
-	State,
-	Acts,
-	typeof defaultSelector<State, Acts>
+	S,
+	AR,
+	typeof defaultSelector<S, AR>
 >;
 export default function createConStore<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
+	initial: S,
 	options?: unknown,
 	selector?: unknown,
 ) {
 	const _options = options && typeof options === 'object'
-		? options as Option<State, Acts>
-		: {} as Option<State, Acts>;
+		? options as Option<S, AR>
+		: {} as Option<S, AR>;
 	const _selector = typeof options === 'function'
-		? options as Selector<State, Acts>
+		? options as Selector<S, AR>
 		: typeof selector === 'function'
-			? selector as Selector<State, Acts>
-			: defaultSelector<State, Acts>;
+			? selector as Selector<S, AR>
+			: defaultSelector<S, AR>;
 
 	const estadoSubLis = createConSubLis(
 		initial,
@@ -145,9 +145,9 @@ export default function createConStore<
 	};
 	let snapshot = initialSnapshot;
 	function useConSelector(): ReturnType<typeof _selector>;
-	function useConSelector<Sel extends Selector<State, Acts>,>( select: Sel ): ReturnType<Sel>;
-	function useConSelector<Sel extends Selector<State, Acts>,>( select?: Sel, ) {
-		const selectorCallback = useSelectorCallback<State, Acts>(
+	function useConSelector<Sel extends Selector<S, AR>,>( select: Sel ): ReturnType<Sel>;
+	function useConSelector<Sel extends Selector<S, AR>,>( select?: Sel, ) {
+		const selectorCallback = useSelectorCallback<S, AR>(
 			_selector,
 			select,
 		);

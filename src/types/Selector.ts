@@ -1,4 +1,4 @@
-import type { CreateConBaseReturn, } from '../_internal/createConBase';
+import type { CreateConReturnType, } from '../_internal/createCon';
 import type { ActRecord, } from './ActRecord';
 import type { DS, } from './DS';
 import type { EstadoHistory, } from './EstadoHistory';
@@ -8,4 +8,4 @@ export type Selector<
 	State extends DS,
 	Acts extends ActRecord | Record<never, never>,
 	R = unknown,
-> = ( selectorProps: CreateConBaseReturn<State, Acts> & Immutable<EstadoHistory<State>> ) => R;
+> = ( selectorProps: CreateConReturnType<State, Acts> & Immutable<EstadoHistory<State>> ) => R;

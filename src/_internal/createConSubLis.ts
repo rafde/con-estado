@@ -1,5 +1,5 @@
 import type { CreateConOptions, } from '../types/CreateConOptions';
-import createConBase from './createConBase';
+import createCon from './createCon';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
@@ -11,7 +11,7 @@ export default function createConSubLis<
 	initial: State,
 	options?: CreateConOptions<State, Acts>,
 ) {
-	const estado = createConBase(
+	const estado = createCon(
 		initial,
 		options,
 	);

@@ -1,5 +1,4 @@
 import type { CreateConOptions, } from '../types/CreateConOptions';
-import createConActs from './createConActs';
 import createCon from './createCon';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
@@ -11,9 +10,7 @@ export default function createConBase<
 	initial: State,
 	options?: CreateConOptions<State, Acts>,
 ) {
-	const props = createCon( initial, options, );
-
-	return createConActs( props, options?.acts, );
+	return createCon( initial, options, );
 }
 
 export type CreateConBaseReturn<
