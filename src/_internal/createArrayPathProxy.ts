@@ -7,11 +7,11 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function createArrayPathProxy<
-	State extends DS,
-	TargetState extends object,
+	S extends DS,
+	TS extends object,
 >(
-	targetState: TargetState,
-	history: EstadoHistory<State>,
+	targetState: TS,
+	history: EstadoHistory<S>,
 	arrayPath: ( string | number )[],
 	props: {
 		draftProp?: string | number
@@ -32,7 +32,7 @@ export default function createArrayPathProxy<
 		{
 			...history,
 			draft: targetState,
-		} as ArrayPathDraftProps<State, DS, StringPathToArray<NestedObjectKeys<DS>>>,
+		} as ArrayPathDraftProps<S, DS, StringPathToArray<NestedObjectKeys<DS>>>,
 		{
 			get( target, prop, ) {
 				switch ( prop ) {

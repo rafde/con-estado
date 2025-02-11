@@ -7,16 +7,16 @@ import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isPlainObject from './isPlainObject';
 
 export default function handleStateUpdate<
-	State extends DS,
+	S extends DS,
 >(
 	draft: Draft<{
-		initial: State
-		state: State
+		initial: S
+		state: S
 	}>,
-	history: EstadoHistory<State>,
+	history: EstadoHistory<S>,
 	args: unknown[],
 	arrayPathMap: Map<string | number, Array<string | number>>,
-	finalize: () => EstadoHistory<State>,
+	finalize: () => EstadoHistory<S>,
 ) {
 	const [statePath, nextState,] = args;
 

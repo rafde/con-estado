@@ -7,15 +7,15 @@ import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
 
 export default function getHistoryDraft<
-	State extends DS,
-	M extends MutOptions<false, boolean> = MutOptions<false, false>,
+	S extends DS,
+	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
 >(
-	history: EstadoHistory<State>,
-	compare: CompareCallbackReturn<State>,
-	setHistory: ( nextHistory: EstadoHistory<State>, ) => EstadoHistory<State>,
+	history: EstadoHistory<S>,
+	compare: CompareCallbackReturn<S>,
+	setHistory: ( nextHistory: EstadoHistory<S>, ) => EstadoHistory<S>,
 	arrayPathMap: Map<string | number, Array<string | number>>,
 	stateHistoryPath?: unknown,
-	mutOptions?: M,
+	mutOptions?: MO,
 ) {
 	const [
 		_draft,
@@ -55,15 +55,15 @@ export default function getHistoryDraft<
 		const {
 			changes,
 		} = findChanges(
-			initial as State,
-			state as State,
+			initial as S,
+			state as S,
 			compare as CompareCallbackReturn,
 		);
-		const nextHistory: EstadoHistory<State> = {
-			changes: changes as EstadoHistory<State>['changes'],
+		const nextHistory: EstadoHistory<S> = {
+			changes: changes as EstadoHistory<S>['changes'],
 			priorInitial: initial !== history.initial ? history.initial : history.priorInitial,
-			state: state as State,
-			initial: initial as State,
+			state: state as S,
+			initial: initial as S,
 			priorState: state !== history.state ? history.state : history.priorState,
 		};
 
@@ -71,8 +71,8 @@ export default function getHistoryDraft<
 	}
 
 	const draft: Draft<{
-		initial: State
-		state: State
+		initial: S
+		state: S
 	}> = _draft;
 
 	if ( typeof stateHistoryPath === 'string' ) {

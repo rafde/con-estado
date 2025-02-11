@@ -6,7 +6,7 @@ function unescapeDots( path: string | number, ) {
 	return path;
 }
 
-export default function splitPath<Path extends string | number,>( path: Path, ) {
+export default function splitPath<P extends string | number,>( path: P, ) {
 	if ( typeof path === 'number' ) {
 		return [path,];
 	}

@@ -6,12 +6,12 @@ import type { OptionCompare, } from './OptionCompare';
 import type { DS, } from './DS';
 
 export type Option<
-	State extends DS,
-	Acts extends ActRecord,
-	M extends MutOptions<false, boolean> = MutOptions<false, false>,
+	S extends DS,
+	AR extends ActRecord,
+	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
 > = {
-	afterChange?: OptionAfterChange<State>
-	acts?: CreateActs<State, Acts>
-	compare?: OptionCompare<State>
-	mutOptions?: M
+	afterChange?: OptionAfterChange<S>
+	acts?: CreateActs<S, AR>
+	compare?: OptionCompare<S>
+	mutOptions?: MO
 };

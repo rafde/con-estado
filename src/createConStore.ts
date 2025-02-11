@@ -28,13 +28,15 @@ type CreateConStoreReturnType<
 /**
  * Creates a new store with state management and subscription capabilities.
  *
- * @param {DS} initial - The initial state object
+ * @template {DS} S
+ *
+ * @param {Initial<S>} initial - The initial state object
  * @param {Option} [options] - Configuration options
  * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
  * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
  * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes.
  * Subsequent updates will ignore changes to `function` to prevent excessive re-renders.
- * @param {MutOptions} [options.mutOptions={strict: true}] - Mutative options. {enablePatches: true} not supported
+ * @param {MutOptions} [options.mutOptions] - Mutative options. {enablePatches: true} not supported
  * @param {Selector} [selector=typeof defaultSelector] - Function to select and transform state values
  *
  * @returns {CreateConStoreReturnType<DS, ActRecord>} A function that can be used as a hook to access and modify the store state
