@@ -1,4 +1,1 @@
-import type { EstadoArray, } from './EstadoArray';
-import type { EstadoRecord, } from './EstadoRecord';
-
-export type DS = EstadoRecord | EstadoArray;
+export type DS = Record<string | number, unknown> | Array<unknown>;

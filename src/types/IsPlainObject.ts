@@ -1,6 +1,4 @@
-import type { RecordKeys, } from './RecordKeys';
-
-export type IsPlainObject<T,> = T extends Record<RecordKeys, unknown>
+export type IsPlainObject<T,> = T extends Record<string | number | symbol, unknown>
 	? T extends Array<unknown>
 		? false
 		: T extends Date

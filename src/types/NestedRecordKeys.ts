@@ -1,7 +1,5 @@
 import type { EscapeDots, } from './EscapeDots';
-import type { EstadoArray, } from './EstadoArray';
 import type { DS, } from './DS';
-import type { EstadoRecordKeyTypes, } from './EstadoRecordKeyTypes';
 import type { IsPlainObject, } from './IsPlainObject';
 
 type ArrayIndexKey<T,> = {
@@ -9,11 +7,11 @@ type ArrayIndexKey<T,> = {
 }[keyof T & number];
 
 type RecordKey<T,> = {
-	[K in keyof T & ( EstadoRecordKeyTypes )]: EscapeDots<K> | `${EscapeDots<K>}.${NestedRecordKeys<T[K]>}`;
-}[keyof T & ( EstadoRecordKeyTypes )];
+	[K in keyof T & ( string | number )]: EscapeDots<K> | `${EscapeDots<K>}.${NestedRecordKeys<T[K]>}`;
+}[keyof T & ( string | number )];
 
 export type NestedRecordKeys<T,> = T extends DS
-	? T extends EstadoArray
+	? T extends Array<unknown>
 		? ArrayIndexKey<T>
 		: IsPlainObject<T> extends true
 			? RecordKey<T>
