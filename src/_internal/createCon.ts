@@ -50,18 +50,23 @@ const opts = Object.freeze( {}, );
 function noop(): void {
 }
 
+const fo = <
+	AR extends ActRecord,
+>() => opts as AR;
+
 export default function createCon<
-	State extends DS,
-	Acts extends ActRecord,
+	S extends DS,
+	AR extends ActRecord,
 >(
-	initial: State,
-	options: CreateConOptions<State, Acts> = opts as CreateConOptions<State, Acts>,
+	initial: S,
+	options: CreateConOptions<S, AR> = opts as CreateConOptions<S, AR>,
 ) {
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `createCon can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history = createHistory( { initial, }, );
 	const {
+		acts = fo,
 		afterChange = noop,
 		dispatcher = noop,
 		mutOptions,
@@ -69,10 +74,10 @@ export default function createCon<
 	const compare = compareCallback( options.compare, );
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
-	function _dispatch( nextHistory: EstadoHistory<State>, ) {
+	function _dispatch( nextHistory: EstadoHistory<S>, ) {
 		history = nextHistory;
-		dispatcher( history as Immutable<EstadoHistory<State>>, );
-		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<State>>, ), );
+		dispatcher( history as Immutable<EstadoHistory<S>>, );
+		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<S>>, ), );
 		return nextHistory;
 	}
 
@@ -89,23 +94,23 @@ export default function createCon<
 		);
 	}
 
-	function get<State extends DS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
-		stateHistoryPath?: StateHistoryPath,
+	function get<S extends DS, SHP extends NestedRecordKeys<EstadoHistory<S>>,>(
+		stateHistoryPath?: SHP,
 	): {
-		readonly changes: Immutable<State extends ( infer U )[] ? ( U | undefined )[] : State extends Record<string | number, unknown> ? Partial<State> : never> | undefined
-		readonly initial: Immutable<State>
-		readonly priorState: Immutable<State> | undefined
-		readonly priorInitial: Immutable<State> | undefined
-		readonly state: Immutable<State>
-	} | Immutable<GetStringPathValue<State, StateHistoryPath>> {
+		readonly changes: Immutable<S extends ( infer U )[] ? ( U | undefined )[] : S extends Record<string | number, unknown> ? Partial<S> : never> | undefined
+		readonly initial: Immutable<S>
+		readonly priorState: Immutable<S> | undefined
+		readonly priorInitial: Immutable<S> | undefined
+		readonly state: Immutable<S>
+	} | Immutable<GetStringPathValue<S, SHP>> {
 		if ( stateHistoryPath == null ) {
 			// No argument version
-			return history as Immutable<EstadoHistory<State>>;
+			return history as Immutable<EstadoHistory<S>>;
 		}
 		return getDeepArrayPath(
 			history,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
-		) as Immutable<GetStringPathValue<State, typeof stateHistoryPath>>;
+		) as Immutable<GetStringPathValue<S, typeof stateHistoryPath>>;
 	}
 
 	function setHistoryWrap( ...args: unknown[] ) {
@@ -152,7 +157,7 @@ export default function createCon<
 		return handleStateUpdate( draft, history, args, arrayPathMap, finalize, );
 	}
 
-	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<State>>();
+	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<S>>();
 	function currySetHistory( statePath?: string | ( string | number )[], ) {
 		if ( statePath == null ) {
 			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
@@ -172,8 +177,8 @@ export default function createCon<
 		return curried;
 	}
 
-	const props: CreateActsProps<State> = {
-		currySet( statePath: Parameters<CreateActsProps<State>['currySet']>[0], ) {
+	const props: CreateActsProps<S> = {
+		currySet( statePath: Parameters<CreateActsProps<S>['currySet']>[0], ) {
 			const _statePath = Array.isArray( statePath, )
 				? ['state', ...statePath,]
 				: typeof statePath === 'string'
@@ -184,7 +189,7 @@ export default function createCon<
 		},
 		currySetHistory,
 		get,
-		getDraft: getDraft as GetDraftRecord<State>['getDraft'],
+		getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
 			if ( history.changes == null ) {
 				return history;
@@ -208,5 +213,13 @@ export default function createCon<
 		},
 	};
 
-	return props;
+	return Object.freeze( {
+		...props,
+		acts: acts( props, ),
+	}, );
 }
+
+export type CreateConReturnType<
+	S extends DS,
+	AR extends ActRecord,
+> = ReturnType<typeof createCon<S, AR>>;

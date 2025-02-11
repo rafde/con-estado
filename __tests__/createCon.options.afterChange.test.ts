@@ -1,6 +1,6 @@
 import { waitFor, } from '@testing-library/react';
 import { afterEach, describe, } from 'vitest';
-import createConBase from '../src/_internal/createConBase';
+import createCon from '../src/_internal/createCon';
 
 describe( 'createConBase - option.afterChange()', () => {
 	const initialState = {
@@ -8,10 +8,10 @@ describe( 'createConBase - option.afterChange()', () => {
 		list: ['item1',],
 	};
 	let afterChange = vi.fn();
-	let estado = createConBase( initialState, { afterChange, }, );
+	let estado = createCon( initialState, { afterChange, }, );
 	afterEach( () => {
 		afterChange = vi.fn();
-		estado = createConBase( initialState, { afterChange, }, );
+		estado = createCon( initialState, { afterChange, }, );
 	}, );
 
 	it( 'should call the afterChange callback after the state is updated', async() => {

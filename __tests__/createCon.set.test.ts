@@ -1,7 +1,7 @@
 import { afterEach, describe, } from 'vitest';
-import createConBase from '../src/_internal/createConBase';
+import createCon from '../src/_internal/createCon';
 
-describe( 'createConBase.setHistory', () => {
+describe( 'createCon - set', () => {
 	const initialObject = {
 		n: 1,
 		o: {
@@ -22,40 +22,21 @@ describe( 'createConBase.setHistory', () => {
 	};
 
 	describe( 'object', () => {
-		let estado = createConBase( initialObject, );
+		let estado = createCon( initialObject, );
 		let history = estado.get();
 
 		afterEach( () => {
-			estado = createConBase( initialObject, );
+			estado = createCon( initialObject, );
 			history = estado.get();
 		}, );
 
-		describe( 'setHistory(object)', () => {
+		describe( 'set(object)', () => {
 			it( 'should have no changes when setting the same state', () => {
-				const next = estado.setHistory( {
-					state: initialObject,
-					initial: initialObject,
-				}, );
+				const next = estado.set( initialObject, );
 				expect( history, ).toStrictEqual( next, );
 			}, );
 
-			it( 'should have changes', () => {
-				const changes = {
-					state: {
-						...initialObject,
-						n: 11,
-					},
-					initial: initialObject,
-				};
-				const next = estado.setHistory( changes, );
-				expect( next.state, ).toStrictEqual( changes.state, );
-				expect( next.initial, ).toStrictEqual( changes.initial, );
-				expect( next.priorState, ).toBe( initialObject, );
-				expect( next.priorInitial, ).toBe( undefined, );
-				expect( next.changes, ).toStrictEqual( { n: 11, }, );
-			}, );
-
-			it( 'should setHistory state object', () => {
+			it( 'should set state object', () => {
 				const state = {
 					n: 7,
 					o: {
@@ -74,7 +55,7 @@ describe( 'createConBase.setHistory', () => {
 						],
 					},
 				};
-				const next = estado.setHistory( 'state', state, );
+				const next = estado.set( state, );
 
 				expect( next.state, ).toStrictEqual( state, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -84,10 +65,10 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(function)', () => {
-			it( 'should setHistory a new value by callback', () => {
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state.n = 11;
+		describe( 'set(function)', () => {
+			it( 'should set a new value by callback', () => {
+				const next = estado.set( ( { draft, }, ) => {
+					draft.n = 11;
 				}, );
 
 				expect( next.state, ).toStrictEqual( {
@@ -101,12 +82,12 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(stringPathToValue, non-function)', () => {
-			it( 'should setHistory a new value by path', () => {
+		describe( 'set(stringPathToValue, non-function)', () => {
+			it( 'should set a new value by path', () => {
 				const changes = {
 					n: 3,
 				};
-				const next = estado.setHistory( 'state.n', changes.n, );
+				const next = estado.set( 'n', changes.n, );
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -117,13 +98,13 @@ describe( 'createConBase.setHistory', () => {
 				expect( next.priorState, ).toBe( history.state, );
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
-			it( 'should setHistory a new nested value by path', () => {
+			it( 'should set a new nested value by path', () => {
 				const changes = {
 					o: {
 						on: 7,
 					},
 				};
-				const next = estado.setHistory( 'state.o.on', changes.o.on, );
+				const next = estado.set( 'o.on', changes.o.on, );
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -136,7 +117,7 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(stringPathToValue, function)', () => {
+		describe( 'set(stringPathToValue, function)', () => {
 			it( 'should push a new nested draft value by callback', () => {
 				const changes = {
 					oo: {
@@ -146,7 +127,7 @@ describe( 'createConBase.setHistory', () => {
 						],
 					},
 				};
-				const next = estado.setHistory( 'state.oo.ooa', ( { draft, }, ) => {
+				const next = estado.set( 'oo.ooa', ( { draft, }, ) => {
 					draft.push( 99, );
 				}, );
 
@@ -169,7 +150,7 @@ describe( 'createConBase.setHistory', () => {
 						],
 					},
 				};
-				const next = estado.setHistory( 'state.ooo.oooa', ( { draft, stateProp, }, ) => {
+				const next = estado.set( 'ooo.oooa', ( { draft, stateProp, }, ) => {
 					draft.push( ...stateProp, );
 				}, );
 
@@ -183,9 +164,9 @@ describe( 'createConBase.setHistory', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			it( 'should setHistory primitive value using callback', () => {
-				const next = estado.setHistory(
-					'state.n',
+			it( 'should set primitive value using callback', () => {
+				const next = estado.set(
+					'n',
 					( props, ) => {
 						props.draft += 1;
 					},
@@ -194,14 +175,14 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(["array", "path", "to", "value"], non-function)', () => {
-			it( 'should setHistory a new array value by path array', () => {
+		describe( 'set(["array", "path", "to", "value"], non-function)', () => {
+			it( 'should set a new array value by path array', () => {
 				const changes = {
 					oo: {
 						ooa: [11,],
 					},
 				};
-				const next = estado.setHistory( ['state', 'oo', 'ooa',], [11,], );
+				const next = estado.set( ['oo', 'ooa',], [11,], );
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -214,15 +195,15 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(["array", "path", "to", "value"], function)', () => {
+		describe( 'set(["array", "path", "to", "value"], function)', () => {
 			it( 'should modify draft array by callback using path array', () => {
 				const changes = {
 					oo: {
 						ooa: [1, 100,],
 					},
 				};
-				const next = estado.setHistory(
-					['state', 'oo', 'ooa',],
+				const next = estado.set(
+					['oo', 'ooa',],
 					( { draft, }, ) => {
 						draft.push( 100, );
 					},
@@ -238,9 +219,9 @@ describe( 'createConBase.setHistory', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			it( 'should setHistory first element in array with callback value', () => {
-				const next = estado.setHistory(
-					['state', 'oo', 'ooa', 0,],
+			it( 'should set first element in array with callback value', () => {
+				const next = estado.set(
+					['oo', 'ooa', 0,],
 					( props, ) => {
 						props.draft += 1;
 					},
@@ -255,51 +236,46 @@ describe( 'createConBase.setHistory', () => {
 			initialObject,
 		];
 
-		let estado = createConBase( initialArray, );
+		let estado = createCon( initialArray, );
 		let history = estado.get();
 		afterEach( () => {
-			estado = createConBase( initialArray, );
+			estado = createCon( initialArray, );
 			history = estado.get();
 		}, );
 
-		describe( 'setHistory(array)', () => {
+		describe( 'set(array)', () => {
 			it( 'should have no changes when setting the same array state', () => {
-				const next = estado.setHistory( {
-					state: initialArray,
-					initial: initialArray,
-				}, );
+				const next = estado.set( initialArray, );
 				expect( history, ).toStrictEqual( next, );
 			}, );
 		}, );
 
 		it( 'should have changes', () => {
-			const changes = {
-				state: [
-					{
-						...initialArray[ 0 ],
-						n: 11,
-					},
-				],
-				initial: initialArray,
-			};
-			const next = estado.setHistory( changes, );
-			expect( next.state, ).toStrictEqual( changes.state, );
-			expect( next.initial, ).toStrictEqual( changes.initial, );
+			const changes = [
+				{
+					...initialArray[ 0 ],
+					n: 11,
+				},
+			];
+			const next = estado.set( changes, );
+			expect( next.state, ).toStrictEqual( changes, );
+			expect( next.initial, ).toStrictEqual( initialArray, );
 			expect( next.priorState, ).toBe( initialArray, );
 			expect( next.priorInitial, ).toBe( undefined, );
-			expect( next.changes, ).toStrictEqual( changes.state, );
+			expect( next.changes, ).toStrictEqual( changes, );
 		}, );
 
-		describe( 'setHistory(function)', () => {
-			it( 'should setHistory a new value by callback in array', () => {
+		describe( 'set(function)', () => {
+			it( 'should set a new value by callback in array', () => {
+				const estado = createCon( initialArray, );
 				const changes = [
 					{
 						...initialArray[ 0 ],
 						n: 11,
 					},
 				];
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state[ 0 ].n = changes[ 0 ].n;
+				const next = estado.set( ( { draft, }, ) => {
+					draft[ 0 ].n = 11;
 				}, );
 
 				expect( next.state, ).toStrictEqual( changes, );
@@ -321,8 +297,8 @@ describe( 'createConBase.setHistory', () => {
 					...initialArray,
 					item,
 				];
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state.push( item, );
+				const next = estado.set( ( { draft, }, ) => {
+					draft.push( item, );
 				}, );
 
 				expect( next.state, ).toStrictEqual( changes, );
@@ -336,8 +312,8 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(stringPathToValue, non-function)', () => {
-			it( 'should setHistory a new array value by string path', () => {
+		describe( 'set(stringPathToValue, non-function)', () => {
+			it( 'should set a new array value by string path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -347,8 +323,8 @@ describe( 'createConBase.setHistory', () => {
 						},
 					},
 				];
-				const estado = createConBase( initialArray, );
-				const next = estado.setHistory( 'state', changes, );
+				const estado = createCon( initialArray, );
+				const next = estado.set( changes, );
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -358,8 +334,8 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory(stringPathToValue, function)', () => {
-			it( 'should setHistory draft with a new array value by string path', () => {
+		describe( 'set(stringPathToValue, function)', () => {
+			it( 'should set draft with a new array value by string path', () => {
 				const changes = {
 					...initialArray[ 0 ],
 					n: 7,
@@ -367,7 +343,7 @@ describe( 'createConBase.setHistory', () => {
 						on: 0,
 					},
 				};
-				const next = estado.setHistory( 'state', ( { draft, }, ) => {
+				const next = estado.set( ( { draft, }, ) => {
 					draft[ 1 ] = changes;
 				}, );
 
@@ -379,15 +355,15 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory([number, "path", "to", "value"], non-function)', () => {
-			it( 'should setHistory a new value by array index path', () => {
+		describe( 'set([number, "path", "to", "value"], non-function)', () => {
+			it( 'should set a new value by array index path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
 						n: 3,
 					},
 				];
-				const next = estado.setHistory( ['state', 0, 'n',], changes[ 0 ].n, );
+				const next = estado.set( [0, 'n',], changes[ 0 ].n, );
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -396,7 +372,7 @@ describe( 'createConBase.setHistory', () => {
 				expect( next.priorInitial, ).toBe( history.priorInitial, );
 			}, );
 
-			it( 'should setHistory a new nested value by array index path', () => {
+			it( 'should set a new nested value by array index path', () => {
 				const changes = [
 					{
 						...initialArray[ 0 ],
@@ -406,7 +382,7 @@ describe( 'createConBase.setHistory', () => {
 						},
 					},
 				];
-				const next = estado.setHistory( ['state', 0, 'o', 'on',], changes[ 0 ].o.on, );
+				const next = estado.set( [0, 'o', 'on',], changes[ 0 ].o.on, );
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -416,8 +392,8 @@ describe( 'createConBase.setHistory', () => {
 			}, );
 		}, );
 
-		describe( 'setHistory([number, "path", "to", "value"], function)', () => {
-			it( 'should setHistory a new nested value by callback in array', () => {
+		describe( 'set([number, "path", "to", "value"], function)', () => {
+			it( 'should set a new nested value by callback in array', () => {
 				const item = {
 					...initialArray[ 0 ],
 					o: {
@@ -426,8 +402,8 @@ describe( 'createConBase.setHistory', () => {
 					},
 				};
 
-				const next = estado.setHistory(
-					['state', 0, 'o',],
+				const next = estado.set(
+					[0, 'o',],
 					( { draft, }, ) => {
 						draft.on = item.o.on;
 					},

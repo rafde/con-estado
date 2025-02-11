@@ -1,8 +1,8 @@
 import { waitFor, } from '@testing-library/react';
-import createConBase from '../src/_internal/createConBase';
+import createCon from '../src/_internal/createCon';
 import { describe, } from 'vitest';
 
-describe( 'createConBase -  options.acts', () => {
+describe( 'createCon -  options.acts', () => {
 	it( 'should add custom actions via options.acts', async() => {
 		// Define the initial state
 		const initialState = {
@@ -11,7 +11,7 @@ describe( 'createConBase -  options.acts', () => {
 		};
 
 		// Create the estado instance with custom actions
-		const estado = createConBase(
+		const estado = createCon(
 			initialState,
 			{
 				acts: ( { setHistory, }, ) => ( {

@@ -1,5 +1,5 @@
 import { describe, expect, } from 'vitest';
-import createConBase from '../src/_internal/createConBase';
+import createCon from '../src/_internal/createCon';
 
 describe( 'createConBase', () => {
 	it( 'should create a new base from object', () => {
@@ -21,7 +21,7 @@ describe( 'createConBase', () => {
 				],
 			},
 		};
-		const estado = createConBase( initial, );
+		const estado = createCon( initial, );
 		expect( estado.get( 'state', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'initial', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'changes', ), ).toBe( undefined, );
@@ -38,7 +38,7 @@ describe( 'createConBase', () => {
 				},
 			},
 		];
-		const estado = createConBase( initial, );
+		const estado = createCon( initial, );
 		expect( estado.get( 'state', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'initial', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'changes', ), ).toBe( undefined, );
@@ -48,14 +48,14 @@ describe( 'createConBase', () => {
 
 	it( 'should handle undefined or null initial state', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( null, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( null, ), ).toThrowError( /createCon can only work with/, );
 
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( undefined, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( undefined, ), ).toThrowError( /createCon can only work with/, );
 	}, );
 
 	it( 'should handle invalid selector functions', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createConBase( null as unknown, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( null as unknown, ), ).toThrowError( /createCon can only work with/, );
 	}, );
 }, );
