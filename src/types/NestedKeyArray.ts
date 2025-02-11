@@ -1,4 +1,3 @@
-import type { EstadoArray, } from './EstadoArray';
 import type { DS, } from './DS';
 import type { IsPlainObject, } from './IsPlainObject';
 
@@ -11,7 +10,7 @@ type RecordArrayKeys<T,> = {
 }[keyof T];
 
 export type NestedKeyArray<T,> = T extends DS
-	? T extends EstadoArray
+	? T extends Array<unknown>
 		? ArrayKeys<T>
 		: IsPlainObject<T> extends true
 			? RecordArrayKeys<T>

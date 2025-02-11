@@ -4,7 +4,6 @@ import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
 import type { DS, } from '../types/DS';
 import type { EstadoHistory, } from '../types/EstadoHistory';
-import type { EstadoRecord, } from '../types/EstadoRecord';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
@@ -253,7 +252,7 @@ export default function createCon<
 	function get<State extends DS, StateHistoryPath extends NestedRecordKeys<EstadoHistory<State>>,>(
 		stateHistoryPath?: StateHistoryPath,
 	): {
-		readonly changes: Immutable<State extends ( infer U )[] ? ( U | undefined )[] : State extends EstadoRecord ? Partial<State> : never> | undefined
+		readonly changes: Immutable<State extends ( infer U )[] ? ( U | undefined )[] : State extends Record<string | number, unknown> ? Partial<State> : never> | undefined
 		readonly initial: Immutable<State>
 		readonly priorState: Immutable<State> | undefined
 		readonly priorInitial: Immutable<State> | undefined

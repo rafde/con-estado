@@ -1,10 +1,9 @@
 import type { DS, } from './DS';
-import type { EstadoRecord, } from './EstadoRecord';
 
 export type EstadoHistory<State extends DS,> = {
 	changes: ( State extends Array<infer U>
 		? Array<U | undefined>
-		: State extends EstadoRecord
+		: State extends Record<string | number, unknown>
 			? Partial<State>
 			: never
 	) | undefined
