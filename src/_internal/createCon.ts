@@ -1,3 +1,4 @@
+import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
@@ -9,6 +10,7 @@ import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import createHistory from './createHistory';
 import escapeDots from './escapeDots';
+import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepArrayPath from './getDeepArrayPath';
 import handleStateUpdate from './handleStateUpdate';
@@ -68,6 +70,7 @@ export default function createCon<
 		acts = fo,
 		afterChange = noop,
 		dispatcher = noop,
+		transform = noop,
 		mutOptions,
 	} = options;
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
@@ -86,6 +89,8 @@ export default function createCon<
 			history,
 			_dispatch,
 			arrayPathMap,
+			transform,
+			'set',
 			statePath,
 			_mutOptions,
 		);
@@ -192,12 +197,42 @@ export default function createCon<
 				return history;
 			}
 
+			let initial = history.initial;
+			let state = history.initial;
+			let changes: undefined | EstadoHistory<S>['changes'];
+			if ( transform !== noop ) {
+				let hasChanges = false;
+				const res = create(
+					{
+						initial,
+						state,
+					},
+					( draft, ) => {
+						transform( draft, history, 'reset', );
+					},
+				);
+				if ( res.initial !== initial ) {
+					hasChanges = true;
+					initial = res.initial;
+				}
+				if ( res.state !== state ) {
+					hasChanges = true;
+					state = res.state;
+				}
+				if ( hasChanges ) {
+					changes = findChanges(
+						initial,
+						state,
+					) as EstadoHistory<S>['changes'];
+				}
+			}
+
 			return _dispatch( {
-				initial: history.initial,
-				changes: undefined,
+				initial,
+				changes,
 				priorInitial: history.priorInitial == null ? undefined : history.initial,
 				priorState: history.priorState == null ? undefined : history.state,
-				state: history.initial,
+				state,
 			}, );
 		},
 		set( ...args: unknown[] ) {

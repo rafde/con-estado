@@ -3,6 +3,7 @@ import type { CreateActs, } from './CreateActs';
 import type { Options as MutOptions, } from 'mutative';
 import type { OptionAfterChange, } from './OptionAfterChange';
 import type { DS, } from './DS';
+import type { OptionTransform, } from './OptionTransform';
 
 export type Option<
 	S extends DS,
@@ -12,4 +13,5 @@ export type Option<
 	acts?: CreateActs<S, AR>
 	afterChange?: OptionAfterChange<S>
 	mutOptions?: MO
+	transform?: OptionTransform<S>
 };

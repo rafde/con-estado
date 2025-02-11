@@ -45,8 +45,8 @@ export default function findChanges<T extends DS,>( a: T, b: T, ) {
 	}
 
 	if ( !hasChanges ) {
-		return { changes: undefined, };
+		return;
 	}
 
-	return { changes, };
+	return changes;
 }
