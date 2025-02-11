@@ -1,5 +1,5 @@
 import { renderHook, act, } from '@testing-library/react';
-import { afterEach, beforeEach, expect, } from 'vitest';
+import { afterEach, beforeEach, expect, it, } from 'vitest';
 import { createConStore, } from '../src/index';
 import { strictDeepEqual, } from 'fast-equals';
 
@@ -152,7 +152,7 @@ describe( 'createConStore', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use createConStore selector with acts', () => {
+		it( 'should use createConStore selector with acts', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{
@@ -178,7 +178,7 @@ describe( 'createConStore', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should useConSelector with acts and not createConStore selector', () => {
+		it( 'should useConSelector with acts and not createConStore selector', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{

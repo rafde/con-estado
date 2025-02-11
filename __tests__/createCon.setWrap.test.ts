@@ -1,4 +1,4 @@
-import { describe, expect, test, } from 'vitest';
+import { describe, expect, it, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 
 describe( 'createCon - setWrap', () => {
@@ -13,28 +13,28 @@ describe( 'createCon - setWrap', () => {
 		},
 	};
 
-	test( 'wraps state updates with multiple arguments', () => {
+	it( 'wraps state updates with multiple arguments', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap( 'count', ( props, increment: number, ) => props.draft += increment, );
 		wrapped( 5, );
 		expect( con.get().state.count, ).toBe( 5, );
 	}, );
 
-	test( 'handles nested path updates', () => {
+	it( 'handles nested path updates', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap( 'nested.value', ( props, multiplier: number, ) => props.draft *= multiplier, );
 		wrapped( 2, );
 		expect( con.get().state.nested.value, ).toBe( 20, );
 	}, );
 
-	test( 'supports array path with nested updates', () => {
+	it( 'supports array path with nested updates', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap( ['nested', 'value',], props => props.draft *= 3, );
 		wrapped();
 		expect( con.get().state.nested.value, ).toBe( 30, );
 	}, );
 
-	test( 'handles function-based updates with context', () => {
+	it( 'handles function-based updates with context', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap( ( { draft, }, multiplier: number, ) => {
 			draft.nested.value *= multiplier;
@@ -43,7 +43,7 @@ describe( 'createCon - setWrap', () => {
 		expect( con.get().state.nested.value, ).toBe( 40, );
 	}, );
 
-	test( 'mutate array elements in nested structures', () => {
+	it( 'mutate array elements in nested structures', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap(
 			'nested.items',
@@ -55,7 +55,7 @@ describe( 'createCon - setWrap', () => {
 		expect( con.get().state.nested.items, ).toEqual( ['test_a', 'test_b', 'test_c',], );
 	}, );
 
-	test( 'update array in nested structures', () => {
+	it( 'update array in nested structures', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap(
 			'nested.items',
@@ -65,14 +65,14 @@ describe( 'createCon - setWrap', () => {
 		expect( con.get().state.nested.items, ).toEqual( ['test_a', 'test_b', 'test_c',], );
 	}, );
 
-	test( 'handles boolean toggles with wrapped functions', () => {
+	it( 'handles boolean toggles with wrapped functions', () => {
 		const con = createCon( initial, );
 		const wrapped = con.setWrap( 'flags.active', props => props.draft = !props.stateProp, );
 		wrapped();
 		expect( con.get().state.flags.active, ).toBe( false, );
 	}, );
 
-	test( 'chains multiple wrapped updates', () => {
+	it( 'chains multiple wrapped updates', () => {
 		const con = createCon( initial, );
 		const wrapCount = con.setWrap( 'count', ( props, inc: number, ) => props.draft += inc, );
 		const wrapValue = con.setWrap( 'nested.value', ( props, mult: number, ) => props.draft *= mult, );

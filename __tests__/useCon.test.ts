@@ -1,5 +1,5 @@
 import { renderHook, act, } from '@testing-library/react';
-import { describe, expect, } from 'vitest';
+import { describe, expect, it, } from 'vitest';
 import useCon from '../src/useCon';
 
 const initialState = {
@@ -8,17 +8,17 @@ const initialState = {
 };
 
 describe( 'useCon', () => {
-	test( 'should initialize with the correct initial state', () => {
+	it( 'should initialize with the correct initial state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
-	test( 'should initialize using callback', () => {
+	it( 'should initialize using callback', () => {
 		const { result, } = renderHook( () => useCon( () => initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 	}, );
 
-	test( 'should setHistory count correctly', () => {
+	it( 'should setHistory count correctly', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 
@@ -38,7 +38,7 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ].count, ).toBe( 0, );
 	}, );
 
-	test( 'should not return a new state', () => {
+	it( 'should not return a new state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		const oldHistory = result.current[ 1 ].get();
 		const oldState = result.current[ 0 ];
@@ -52,7 +52,7 @@ describe( 'useCon', () => {
 	}, );
 
 	describe( 'selector', () => {
-		test( 'should use a custom selector', () => {
+		it( 'should use a custom selector', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
@@ -68,7 +68,7 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with acts', () => {
+		it( 'should use a custom selector with acts', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
@@ -93,7 +93,7 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with custom setter', () => {
+		it( 'should use a custom selector with custom setter', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
@@ -109,7 +109,7 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with curry setter', () => {
+		it( 'should use a custom selector with curry setter', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
@@ -125,7 +125,7 @@ describe( 'useCon', () => {
 			expect( result.current.test, ).toBe( 'world', );
 		}, );
 
-		test( 'should use a custom selector with setHistoryWrap', () => {
+		it( 'should use a custom selector with setHistoryWrap', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
