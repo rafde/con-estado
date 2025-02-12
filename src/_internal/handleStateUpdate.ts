@@ -22,11 +22,10 @@ export default function handleStateUpdate<
 
 	// Handle function-based root update
 	if ( typeof statePath === 'function' ) {
-		const callBackProps = {
+		statePath( {
 			...history,
 			draft,
-		};
-		statePath( callBackProps, );
+		}, );
 		return finalize();
 	}
 
@@ -38,13 +37,14 @@ export default function handleStateUpdate<
 
 		const valuePath = arrayPath.at( -1, );
 		const [value, parent,] = getDeepValueParentByArray( draft, arrayPath, );
+		const slicedPath = arrayPath.slice( 1, );
 
-		if ( typeof nextState === 'function' && value && typeof value === 'object' ) {
+		if ( typeof nextState === 'function' && isPlainObject( value, ) ) {
 			nextState(
 				createArrayPathProxy(
 					value,
 					history,
-					arrayPath.slice( 1, ),
+					slicedPath,
 					{
 						parentDraft: parent,
 						draftProp: valuePath,
@@ -52,13 +52,13 @@ export default function handleStateUpdate<
 				),
 			);
 		}
-		else if ( parent && typeof parent === 'object' && typeof valuePath !== 'undefined' && valuePath in parent ) {
+		else if ( typeof parent === 'object' && typeof valuePath !== 'undefined' && valuePath in parent ) {
 			if ( typeof nextState === 'function' ) {
 				nextState(
 					createArrayPathProxy(
 						parent,
 						history,
-						arrayPath.slice( 1, ),
+						slicedPath,
 						{ valueProp: valuePath, },
 					),
 				);
