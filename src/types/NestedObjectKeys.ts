@@ -1,5 +1,5 @@
 import type { EscapeDots, } from './EscapeDots';
-import type { DS, } from './DS';
+import type { ADS, DS, } from './DS';
 import type { IsPlainObject, } from './IsPlainObject';
 
 type ArrayIndexKey<T,> = {
@@ -15,7 +15,7 @@ type RecordKey<T,> = {
 }[keyof T & ( string | number )];
 
 export type NestedObjectKeys<T,> = T extends DS
-	? T extends Array<unknown>
+	? T extends ADS
 		? ArrayIndexKey<T>
 		: IsPlainObject<T> extends true
 			? RecordKey<T>
