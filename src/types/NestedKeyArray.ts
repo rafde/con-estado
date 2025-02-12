@@ -1,4 +1,4 @@
-import type { DS, } from './DS';
+import type { ADS, DS, } from './DS';
 import type { IsPlainObject, } from './IsPlainObject';
 
 type ArrayKeys<T,> = {
@@ -10,7 +10,7 @@ type RecordArrayKeys<T,> = {
 }[keyof T];
 
 export type NestedKeyArray<T,> = T extends DS
-	? T extends Array<unknown>
+	? T extends ADS
 		? ArrayKeys<T>
 		: IsPlainObject<T> extends true
 			? RecordArrayKeys<T>

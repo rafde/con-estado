@@ -1,9 +1,9 @@
-import type { DS, } from './DS';
+import type { DS, RDS, } from './DS';
 
 export type EstadoHistory<S extends DS,> = {
 	changes: ( S extends Array<infer U>
 		? Array<U | undefined>
-		: S extends Record<string | number, unknown>
+		: S extends RDS
 			? Partial<S>
 			: never
 	) | undefined
