@@ -88,7 +88,7 @@
 		"test": "vitest",
 		"test:coverage": "vitest --coverage",
 		"tsc": "tsc",
-		"version": "node util/versioning.cjs && git add jsr.json && npm run build && git add -A dist",
+		"version": "node util/versioning.cjs && git add jsr.json && npm run build",
 		"postversion": "git push && git push --follow-tags",
 		"version:major": "npm version major",
 		"version:minor": "npm version minor",
