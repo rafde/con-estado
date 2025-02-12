@@ -82,14 +82,14 @@
 		"url": "git+https://github.com/rafde/con-estado.git"
 	},
 	"scripts": {
-		"build": "rimraf dist && parcel build --log-level verbose --no-cache",
+		"build": "rimraf dist && parcel build --log-level verbose",
 		"lint": "eslint --cache --fix src/ __tests__/",
 		"prepare": "husky",
 		"test": "vitest",
 		"test:coverage": "vitest --coverage",
 		"tsc": "tsc",
-		"version": "node util/versioning.cjs && git add jsr.json && npm run build && git add -A dist",
-		"postversion": "HUSKY=0 git push --follow-tags",
+		"version": "node util/versioning.cjs && git add jsr.json",
+		"postversion": "HUSKY=0 git push && git push --follow-tags",
 		"version:major": "npm version major",
 		"version:minor": "npm version minor",
 		"version:patch": "npm version patch",
