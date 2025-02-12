@@ -59,8 +59,8 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( state, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.priorState, ).toStrictEqual( history.initial, );
-				expect( next.priorInitial, ).toBe( undefined, );
+				expect( next.prev, ).toStrictEqual( history.initial, );
+				expect( next.prevInitial, ).toBe( undefined, );
 				expect( next.changes, ).toStrictEqual( state, );
 			}, );
 		}, );
@@ -77,8 +77,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( { n: 11, }, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toStrictEqual( history.prevInitial, );
 			}, );
 		}, );
 
@@ -95,8 +95,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 			it( 'should set a new nested value by path', () => {
 				const changes = {
@@ -112,8 +112,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toStrictEqual( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toStrictEqual( history.prevInitial, );
 			}, );
 		}, );
 
@@ -137,8 +137,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
 			it( 'should push stateProp draft value by callback', () => {
@@ -160,8 +160,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
 			it( 'should set primitive value using callback', () => {
@@ -190,8 +190,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 		}, );
 
@@ -215,8 +215,8 @@ describe( 'createCon - set', () => {
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
 			it( 'should set first element in array with callback value', () => {
@@ -260,8 +260,8 @@ describe( 'createCon - set', () => {
 			const next = estado.set( changes, );
 			expect( next.state, ).toStrictEqual( changes, );
 			expect( next.initial, ).toStrictEqual( initialArray, );
-			expect( next.priorState, ).toBe( initialArray, );
-			expect( next.priorInitial, ).toBe( undefined, );
+			expect( next.prev, ).toBe( initialArray, );
+			expect( next.prevInitial, ).toBe( undefined, );
 			expect( next.changes, ).toStrictEqual( changes, );
 		}, );
 
@@ -281,8 +281,8 @@ describe( 'createCon - set', () => {
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
 			it( 'should push a new value by callback in array', () => {
@@ -307,8 +307,8 @@ describe( 'createCon - set', () => {
 					undefined,
 					item,
 				], );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 		}, );
 
@@ -329,8 +329,8 @@ describe( 'createCon - set', () => {
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.initial, );
-				expect( next.priorInitial, ).toBe( undefined, );
+				expect( next.prev, ).toBe( history.initial, );
+				expect( next.prevInitial, ).toBe( undefined, );
 			}, );
 		}, );
 
@@ -349,8 +349,8 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( [...initialArray, changes,], );
 				expect( next.initial, ).toBe( initialArray, );
-				expect( next.priorState, ).toBe( history.initial, );
-				expect( next.priorInitial, ).toBe( undefined, );
+				expect( next.prev, ).toBe( history.initial, );
+				expect( next.prevInitial, ).toBe( undefined, );
 				expect( next.changes, ).toStrictEqual( [undefined, changes,], );
 			}, );
 		}, );
@@ -368,8 +368,8 @@ describe( 'createCon - set', () => {
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
 			it( 'should set a new nested value by array index path', () => {
@@ -387,8 +387,8 @@ describe( 'createCon - set', () => {
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 		}, );
 
@@ -416,8 +416,8 @@ describe( 'createCon - set', () => {
 				expect( next.changes, ).toStrictEqual( [
 					item,
 				], );
-				expect( next.priorState, ).toBe( history.state, );
-				expect( next.priorInitial, ).toBe( history.priorInitial, );
+				expect( next.prev, ).toBe( history.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 		}, );
 	}, );

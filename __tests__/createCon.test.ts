@@ -26,8 +26,8 @@ describe( 'createConBase', () => {
 		expect( estado.get( 'state', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'initial', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'changes', ), ).toBe( undefined, );
-		expect( estado.get( 'priorInitial', ), ).toBe( undefined, );
-		expect( estado.get( 'priorState', ), ).toBe( undefined, );
+		expect( estado.get( 'prevInitial', ), ).toBe( undefined, );
+		expect( estado.get( 'prev', ), ).toBe( undefined, );
 	}, );
 
 	it( 'should create a new base with array initial state', () => {
@@ -43,8 +43,8 @@ describe( 'createConBase', () => {
 		expect( estado.get( 'state', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'initial', ), ).toStrictEqual( initial, );
 		expect( estado.get( 'changes', ), ).toBe( undefined, );
-		expect( estado.get( 'priorInitial', ), ).toBe( undefined, );
-		expect( estado.get( 'priorState', ), ).toBe( undefined, );
+		expect( estado.get( 'prevInitial', ), ).toBe( undefined, );
+		expect( estado.get( 'prev', ), ).toBe( undefined, );
 	}, );
 
 	it( 'should handle undefined or null initial state', () => {

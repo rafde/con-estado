@@ -16,8 +16,8 @@ type StringPathProps<
 	History<S> & {
 		changesProp: GetStringPathValue<NS, SP> | undefined
 		initialProp: GetStringPathValue<NS, SP>
-		priorInitialProp: GetStringPathValue<NS, SP> | undefined
-		priorStateProp: GetStringPathValue<NS, SP> | undefined
+		prevInitialProp: GetStringPathValue<NS, SP> | undefined
+		prevProp: GetStringPathValue<NS, SP> | undefined
 		stateProp: GetStringPathValue<NS, SP>
 	}> & {
 		draft: GetStringPathValue<NS, SP>
@@ -30,8 +30,8 @@ type ArrayPathProps<
 > = Immutable<History<S> & {
 	changesProp: GetArrayPathValue<NS, SP> | undefined
 	initialProp: GetArrayPathValue<NS, SP>
-	priorInitialProp: GetArrayPathValue<NS, SP> | undefined
-	priorStateProp: GetArrayPathValue<NS, SP> | undefined
+	prevInitialProp: GetArrayPathValue<NS, SP> | undefined
+	prevProp: GetArrayPathValue<NS, SP> | undefined
 	stateProp: GetArrayPathValue<NS, SP>
 }> & {
 	draft: GetArrayPathValue<NS, SP>

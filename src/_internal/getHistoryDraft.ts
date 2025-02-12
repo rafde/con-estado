@@ -62,10 +62,10 @@ export default function getHistoryDraft<
 		) as History<S>['changes'];
 		const nextHistory: History<S> = {
 			changes,
-			priorInitial: initial !== history.initial ? history.initial : history.priorInitial,
+			prevInitial: initial !== history.initial ? history.initial : history.prevInitial,
 			state: state as S,
 			initial: initial as S,
-			priorState: state !== history.state ? history.state : history.priorState,
+			prev: state !== history.state ? history.state : history.prev,
 		};
 
 		return setHistory( nextHistory, );

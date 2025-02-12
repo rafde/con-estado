@@ -35,7 +35,7 @@ describe( 'createCon - getDraft', () => {
 		// Verify the state has been updated
 		expect( newHistory.state.counter, ).toBe( 10, );
 		expect( newHistory.state.list, ).toEqual( ['item1', 'item2',], );
-		expect( newHistory.priorState, ).toStrictEqual( initialState, );
+		expect( newHistory.prev, ).toStrictEqual( initialState, );
 	}, );
 
 	it( 'should return a draft object and a commit function using getDraft', () => {
