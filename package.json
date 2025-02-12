@@ -82,7 +82,7 @@
 		"url": "git+https://github.com/rafde/con-estado.git"
 	},
 	"scripts": {
-		"build": "rimraf dist && parcel build --log-level verbose",
+		"build": "rimraf dist && parcel build --log-level verbose --no-cache",
 		"lint": "eslint --cache --fix src/ __tests__/",
 		"prepare": "husky",
 		"test": "vitest",
