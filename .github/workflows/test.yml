@@ -26,7 +26,7 @@ jobs:
            with:
              path: |
                ${{ github.workspace }}/.test-cache
-             key: ${{ runner.os }}-test-${{ hashFiles('{src,__tests__}/**/*.{ts,tsx}') }}-${{ hashFiles('**/package-lock.json') }}
+             key: ${{ runner.os }}-test-${{ hashFiles('/{src,__tests__}/**/*.{ts,tsx}') }}-${{ hashFiles('/package-lock.json') }}
              restore-keys: |
                ${{ runner.os }}-test-
 
