@@ -13,22 +13,10 @@ const isEqual = createCustomEqual( {
 	},
 }, );
 
-function returnOnChange( prev: unknown, next: unknown, ) {
-	if ( prev == null ) {
-		return next;
-	}
-
-	if ( !isEqual( prev, next, ) ) {
-		return next;
-	}
-
-	return prev;
-}
-
 export default function useSelectorCallback<
 	S extends DS,
-	A extends ActRecord,
->( defaultSelector: Selector<S, A>, selector?: Selector<S, A>, ) {
+	AR extends ActRecord,
+>( defaultSelector: Selector<S, AR>, selector?: Selector<S, AR>, ) {
 	const _selector = useMemo(
 		() => {
 			if ( typeof selector === 'function' ) {
@@ -41,9 +29,14 @@ export default function useSelectorCallback<
 	);
 	const resultRef = useRef( null as unknown, );
 	return useCallback(
-		( snapshot: Parameters<Selector<S, A>>[0], ) => {
-			const result = _selector( snapshot, );
-			resultRef.current = returnOnChange( resultRef.current, result, );
+		( snapshot: Parameters<Selector<S, AR>>[0], ) => {
+			const next = _selector( snapshot, );
+			const prev = resultRef.current;
+			resultRef.current = prev == null
+				? next
+				: isEqual( prev, next, )
+					? prev
+					: next;
 			return resultRef.current;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
