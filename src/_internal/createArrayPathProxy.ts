@@ -6,6 +6,17 @@ import type { NestedObjectKeys, } from '../types/NestedObjectKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
+const PROP_TO_HISTORY = {
+	changesProp: 'changes',
+	initialProp: 'initial',
+	priorInitialProp: 'priorInitial',
+	priorStateProp: 'priorState',
+	stateProp: 'state',
+} as const;
+
+type PropKeys = keyof typeof PROP_TO_HISTORY;
+type HistoryKeys = typeof PROP_TO_HISTORY[PropKeys];
+
 export default function createArrayPathProxy<
 	S extends DS,
 	TS extends object,
@@ -23,76 +34,57 @@ export default function createArrayPathProxy<
 		valueProp?: string | number
 	} = {},
 ) {
-	const {
-		draftProp,
-		parentDraft,
-		valueProp,
-	} = props;
-	return new Proxy(
-		{
-			...history,
-			draft: targetState,
-		} as ArrayPathDraftProps<S, DS, StringPathToArray<NestedObjectKeys<DS>>>,
-		{
-			get( target, prop, ) {
-				switch ( prop ) {
-					case 'changesProp': {
-						const [
-							prop,
-						] = getDeepValueParentByArray( history.changes, arrayPath, );
-						target.changesProp = prop as never;
-						return prop;
-					}
-					case 'initialProp': {
-						const [
-							prop,
-						] = getDeepValueParentByArray( history.initial, arrayPath, );
-						target.initialProp = prop as never;
-						return prop;
-					}
-					case 'priorInitialProp': {
-						const [
-							prop,
-						] = getDeepValueParentByArray( history.priorInitial, arrayPath, );
-						target.priorInitialProp = prop as never;
-						return prop;
-					}
-					case 'priorStateProp': {
-						const [
-							prop,
-						] = getDeepValueParentByArray( history.priorState, arrayPath, );
-						target.priorStateProp = prop as never;
-						return prop;
-					}
-					case 'stateProp': {
-						const [
-							prop,
-						] = getDeepValueParentByArray( history.state, arrayPath, );
-						target.stateProp = prop as never;
-						return prop;
-					}
-					case 'draft': {
-						if ( typeof valueProp !== 'undefined' ) {
-							return Reflect.get( target.draft, valueProp, );
-						}
-						return Reflect.get( target, prop, );
-					}
-					default:
-						return Reflect.get( target, prop, );
+	const { draftProp, parentDraft, valueProp, } = props;
+
+	// Cache history property lookups
+	const propCache = new Map<PropKeys, unknown>();
+
+	function getHistoryProp( historyKey: HistoryKeys, propKey: PropKeys, ) {
+		if ( propCache.has( propKey, ) ) {
+			return propCache.get( propKey, );
+		}
+		const [prop,] = getDeepValueParentByArray( history[ historyKey ], arrayPath, );
+		propCache.set( propKey, prop, );
+		return prop;
+	}
+
+	const baseTarget = {
+		...history,
+		draft: targetState,
+	} as ArrayPathDraftProps<S, DS, StringPathToArray<NestedObjectKeys<DS>>>;
+
+	return new Proxy( baseTarget, {
+		get( target, prop, ) {
+			// Handle history property lookups
+			if ( prop in PROP_TO_HISTORY ) {
+				const historyPropKey = prop as PropKeys;
+				const value = getHistoryProp( PROP_TO_HISTORY[ historyPropKey ], historyPropKey, );
+				target[ historyPropKey ] = value as never;
+				return value;
+			}
+
+			// Handle draft property
+			if ( prop === 'draft' ) {
+				if ( typeof valueProp !== 'undefined' ) {
+					return Reflect.get( target.draft, valueProp, );
 				}
-			},
-			set( target, prop, value, ) {
-				if ( prop === 'draft' ) {
-					if ( typeof valueProp !== 'undefined' ) {
-						return Reflect.set( target.draft, valueProp, value, );
-					}
-					if ( parentDraft && typeof parentDraft === 'object' && typeof draftProp !== 'undefined' ) {
-						return Reflect.set( parentDraft, draftProp, value, );
-					}
-					return Reflect.set( target, prop, value, );
-				}
-				return false;
-			},
+				return Reflect.get( target, prop, );
+			}
+
+			return Reflect.get( target, prop, );
 		},
-	);
+
+		set( target, prop, value, ) {
+			if ( prop === 'draft' ) {
+				if ( typeof valueProp !== 'undefined' ) {
+					return Reflect.set( target.draft, valueProp, value, );
+				}
+				if ( parentDraft && typeof draftProp !== 'undefined' ) {
+					return Reflect.set( parentDraft, draftProp, value, );
+				}
+				return Reflect.set( target, prop, value, );
+			}
+			return false;
+		},
+	}, );
 }
