@@ -34,9 +34,9 @@ describe( 'createCon - reset', () => {
 		// Verify the state has been modified
 		expect( estado.get( 'state.counter', ), ).toBe( 10, );
 		expect( estado.get( 'state.list', ), ).toEqual( ['item1', 'item2',], );
-		expect( estado.get( 'priorState', ), ).toBe( history.state, );
+		expect( estado.get( 'prev', ), ).toBe( history.state, );
 		expect( estado.get( 'changes', ), ).toStrictEqual( changes, );
-		expect( estado.get( 'priorInitial', ), ).toBe( undefined, );
+		expect( estado.get( 'prevInitial', ), ).toBe( undefined, );
 
 		// Reset the state using createActProps.reset()
 		estado.reset();
@@ -47,8 +47,8 @@ describe( 'createCon - reset', () => {
 		expect( newHistory.state, ).toBe( history.initial, );
 		expect( newHistory.state.counter, ).toBe( 0, );
 		expect( newHistory.state.list, ).toEqual( ['item1',], );
-		expect( newHistory.priorState, ).toStrictEqual( changes, );
-		expect( newHistory.priorInitial, ).toBe( undefined, );
+		expect( newHistory.prev, ).toStrictEqual( changes, );
+		expect( newHistory.prevInitial, ).toBe( undefined, );
 	}, );
 
 	it( 'should reset the state using new initial', () => {
@@ -62,6 +62,6 @@ describe( 'createCon - reset', () => {
 		const testHistory = estado.get();
 
 		expect( testHistory.initial, ).toBe( newInitial, );
-		expect( testHistory.priorInitial, ).toBe( newInitial, );
+		expect( testHistory.prevInitial, ).toBe( newInitial, );
 	}, );
 }, );

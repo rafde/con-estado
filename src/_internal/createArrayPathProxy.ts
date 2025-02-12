@@ -9,8 +9,8 @@ import getDeepValueParentByArray from './getDeepValueParentByArray';
 const PROP_TO_HISTORY = {
 	changesProp: 'changes',
 	initialProp: 'initial',
-	priorInitialProp: 'priorInitial',
-	priorStateProp: 'priorState',
+	prevInitialProp: 'prevInitial',
+	prevProp: 'prev',
 	stateProp: 'state',
 } as const;
 

@@ -8,7 +8,7 @@ export type History<S extends DS,> = {
 			: never
 	) | undefined
 	initial: S
-	priorState: S | undefined
-	priorInitial: S | undefined
+	prev: S | undefined
+	prevInitial: S | undefined
 	state: S
 };

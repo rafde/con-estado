@@ -8,14 +8,14 @@ export default function createHistory<
 		changes = undefined,
 		initial,
 		state = initial,
-		priorState = undefined,
-		priorInitial = undefined,
+		prev = undefined,
+		prevInitial = undefined,
 	} = history;
 	return {
 		changes,
 		initial,
-		priorState,
-		priorInitial,
+		prev,
+		prevInitial,
 		state,
 	};
 }

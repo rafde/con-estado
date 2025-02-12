@@ -13,8 +13,8 @@ export type ArrayPathDraftProps<
 > = {
 	changesProp: GetArrayPathValue<History<S>['changes'], Sub>
 	initialProp: GetArrayPathValue<History<S>['initial'], Sub>
-	priorInitialProp: GetArrayPathValue<History<S>['priorInitial'], Sub>
-	priorStateProp: GetArrayPathValue<History<S>['priorState'], Sub>
+	prevInitialProp: GetArrayPathValue<History<S>['prevInitial'], Sub>
+	prevProp: GetArrayPathValue<History<S>['prev'], Sub>
 	stateProp: GetArrayPathValue<History<S>['state'], Sub>
 } & Readonly<{
 	draft: GetArrayPathValue<Draft<TS>, SP>

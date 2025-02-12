@@ -106,8 +106,8 @@ export default function createCon<
 	): {
 		readonly changes: Immutable<S extends ( infer U )[] ? ( U | undefined )[] : S extends Record<string | number, unknown> ? Partial<S> : never> | undefined
 		readonly initial: Immutable<S>
-		readonly priorState: Immutable<S> | undefined
-		readonly priorInitial: Immutable<S> | undefined
+		readonly prev: Immutable<S> | undefined
+		readonly prevInitial: Immutable<S> | undefined
 		readonly state: Immutable<S>
 	} | Immutable<GetStringPathValue<S, SHP>> {
 		if ( stateHistoryPath == null ) {
@@ -233,8 +233,8 @@ export default function createCon<
 			return _dispatch( {
 				initial,
 				changes,
-				priorInitial: history.priorInitial == null ? undefined : history.initial,
-				priorState: history.priorState == null ? undefined : history.state,
+				prevInitial: history.prevInitial == null ? undefined : history.initial,
+				prev: history.prev == null ? undefined : history.state,
 				state,
 			}, );
 		},
