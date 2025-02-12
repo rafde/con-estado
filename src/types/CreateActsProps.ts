@@ -1,6 +1,6 @@
 import type { DS, } from './DS';
 import type { History, } from './History';
-import type { EstadoSetters, } from './EstadoSetters';
+import type { Setters, } from './Setters';
 import type { GetDraftRecord, } from './GetDraftRecord';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
@@ -17,4 +17,4 @@ export type CreateActsProps<
 	): Immutable<GetStringPathValue<History<S>, SHP>>
 }
 & GetDraftRecord<S>
-& EstadoSetters<S>;
+& Setters<S>;

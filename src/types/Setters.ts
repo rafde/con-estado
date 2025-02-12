@@ -229,7 +229,7 @@ type SetWrap<
 	): ( ...args: A ) => History<S>
 };
 
-export type EstadoSetters<
+export type Setters<
 	S extends DS,
 > = {
 	reset(): History<S>
