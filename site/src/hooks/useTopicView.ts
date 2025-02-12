@@ -1,5 +1,5 @@
 'use client';
-import { createConStore, } from '../../../src';
+import { createConStore, } from 'con-estado';
 
 const useTopicView = createConStore(
 	{

@@ -1,5 +1,5 @@
 'use client';
-import { createConStore, } from '../../../src';
+import { createConStore, } from 'con-estado';
 
 const useNav = createConStore(
 	{
@@ -31,6 +31,13 @@ const useNav = createConStore(
 			};
 		},
 	},
+	( { acts: { open, close, toggle, }, state: { isNavOverlayOpen, isNavOpen, }, }, ) => ( {
+		isNavOverlayOpen,
+		isNavOpen,
+		open,
+		close,
+		toggle,
+	} ),
 );
 
 export default useNav;

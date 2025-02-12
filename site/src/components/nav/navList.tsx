@@ -1,8 +1,12 @@
 import { useMemo, } from 'react';
 import { cn, } from '../../lib/utils';
-import { navList, type NavItem, } from './config';
+import {
+	// navList,
+	type NavItem,
+} from './config';
 import { FolderOpen, FolderClosed, } from 'lucide-react';
 import NavTopicInView from './navTopicInView';
+import ReadMeLinks from './ReadMeLinks';
 
 type NavLiProps = NavItem & {
 	linkWrapperClassName?: string
@@ -54,10 +58,10 @@ function createNavListLinks( nav?: NavItem[], linkWrapperClassName?: string, ) {
 	return nav.map( navLink => <NavLi key={navLink.href} {...navLink} linkWrapperClassName={linkWrapperClassName} />, );
 }
 
-const navListLinks = navList.map( navLink => <NavLi key={navLink.href} {...navLink} linkWrapperClassName="sticky top-0 z-20" />, );
+// const navListLinks = navList.map( navLink => <NavLi key={navLink.href} {...navLink} linkWrapperClassName="sticky top-0 z-20" />, );
 
 export default function NavList() {
 	return <ul className="grow overflow-y-auto pl-1">
-		{navListLinks}
+		<ReadMeLinks />
 	</ul>;
 }

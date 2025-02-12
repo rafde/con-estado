@@ -1,6 +1,7 @@
 import process from 'node:process';
 import bundleAnalyzer from '@next/bundle-analyzer';
 import pkg from './package.json' with { type: 'json',};
+import createMDX from '@next/mdx';
 
 const withBundleAnalyzer = bundleAnalyzer( {
 	enabled: process.env.ANALYZE === 'true',
@@ -32,6 +33,8 @@ const nextConfig = {
 		],
 		dangerouslyAllowSVG: true,
 	},
+	// Configure `pageExtensions` to include markdown and MDX files
+	pageExtensions: ['md', 'mdx', 'ts', 'tsx',],
 };
 
 if ( process.env.NODE_ENV === 'production' ) {
@@ -42,4 +45,8 @@ if ( process.env.NODE_ENV === 'production' ) {
 	};
 }
 
-export default withBundleAnalyzer( nextConfig, );
+const withMDX = createMDX( {
+	extension: /\.md(x)?$/,
+}, );
+
+export default withBundleAnalyzer( withMDX( nextConfig, ), );
