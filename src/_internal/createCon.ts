@@ -108,13 +108,7 @@ export default function createCon<
 
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
-	): {
-		readonly changes: Immutable<S extends ( infer U )[] ? ( U | undefined )[] : S extends Record<string | number, unknown> ? Partial<S> : never> | undefined
-		readonly initial: Immutable<S>
-		readonly prev: Immutable<S> | undefined
-		readonly prevInitial: Immutable<S> | undefined
-		readonly state: Immutable<S>
-	} | Immutable<GetStringPathValue<S, SHP>> {
+	): Immutable<History<S>> | Immutable<GetStringPathValue<S, SHP>> {
 		if ( stateHistoryPath == null ) {
 			// No argument version
 			return history as Immutable<History<S>>;
