@@ -1,9 +1,9 @@
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { History, } from '../types/History';
 
 export default function createHistory<
 	S extends DS,
->( history: Omit<Partial<EstadoHistory<S>>, 'initial'> & { initial: S }, ): EstadoHistory<S> {
+>( history: Omit<Partial<History<S>>, 'initial'> & { initial: S }, ): History<S> {
 	const {
 		changes = undefined,
 		initial,

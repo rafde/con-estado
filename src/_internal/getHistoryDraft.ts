@@ -1,7 +1,7 @@
 import { strictDeepEqual, } from 'fast-equals';
 import { create, isDraft, type Draft, type Options as MutOptions, } from 'mutative';
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { History, } from '../types/History';
 import type { OptionTransform, } from '../types/OptionTransform';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
@@ -11,8 +11,8 @@ export default function getHistoryDraft<
 	S extends DS,
 	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
 >(
-	history: EstadoHistory<S>,
-	setHistory: ( nextHistory: EstadoHistory<S>, ) => EstadoHistory<S>,
+	history: History<S>,
+	setHistory: ( nextHistory: History<S>, ) => History<S>,
 	arrayPathMap: Map<string | number, Array<string | number>>,
 	transform: OptionTransform<S>,
 	type: 'set' | 'reset',
@@ -58,8 +58,8 @@ export default function getHistoryDraft<
 		const changes = findChanges(
 			initial as S,
 			state as S,
-		) as EstadoHistory<S>['changes'];
-		const nextHistory: EstadoHistory<S> = {
+		) as History<S>['changes'];
+		const nextHistory: History<S> = {
 			changes,
 			priorInitial: initial !== history.initial ? history.initial : history.priorInitial,
 			state: state as S,

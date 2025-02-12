@@ -3,7 +3,7 @@ import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { History, } from '../types/History';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
@@ -80,10 +80,10 @@ export default function createCon<
 	} = options;
 	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
-	function _dispatch( nextHistory: EstadoHistory<S>, ) {
+	function _dispatch( nextHistory: History<S>, ) {
 		history = nextHistory;
-		dispatcher( history as Immutable<EstadoHistory<S>>, );
-		queueMicrotask( () => afterChange( history as Immutable<EstadoHistory<S>>, ), );
+		dispatcher( history as Immutable<History<S>>, );
+		queueMicrotask( () => afterChange( history as Immutable<History<S>>, ), );
 		return nextHistory;
 	}
 
@@ -101,7 +101,7 @@ export default function createCon<
 		);
 	}
 
-	function get<S extends DS, SHP extends NestedRecordKeys<EstadoHistory<S>>,>(
+	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
 	): {
 		readonly changes: Immutable<S extends ( infer U )[] ? ( U | undefined )[] : S extends Record<string | number, unknown> ? Partial<S> : never> | undefined
@@ -112,7 +112,7 @@ export default function createCon<
 	} | Immutable<GetStringPathValue<S, SHP>> {
 		if ( stateHistoryPath == null ) {
 			// No argument version
-			return history as Immutable<EstadoHistory<S>>;
+			return history as Immutable<History<S>>;
 		}
 		return getDeepValueParentByArray(
 			history,
@@ -164,7 +164,7 @@ export default function createCon<
 		return handleStateUpdate( draft, history, args, arrayPathMap, finalize, );
 	}
 
-	const curryMap = new Map<unknown, ( nextState: unknown ) => EstadoHistory<S>>();
+	const curryMap = new Map<unknown, ( nextState: unknown ) => History<S>>();
 	function currySetHistory( statePath?: string | ( string | number )[], ) {
 		if ( statePath == null ) {
 			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
@@ -202,7 +202,7 @@ export default function createCon<
 
 			let initial = history.initial;
 			let state = history.initial;
-			let changes: undefined | EstadoHistory<S>['changes'];
+			let changes: undefined | History<S>['changes'];
 			if ( transform !== noop ) {
 				let hasChanges = false;
 				const res = create(
@@ -226,7 +226,7 @@ export default function createCon<
 					changes = findChanges(
 						initial,
 						state,
-					) as EstadoHistory<S>['changes'];
+					) as History<S>['changes'];
 				}
 			}
 
