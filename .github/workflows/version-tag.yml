@@ -93,3 +93,7 @@ jobs:
         if: ${{ inputs.release != 'NONE' }}
         run: |
           npm run version:${{ inputs.release }}
+
+      - name: create PR
+        run: |
+          gh pr create -B main -H release --title 'Release' --body 'Created by Github action'
