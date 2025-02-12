@@ -89,7 +89,7 @@
 		"test:coverage": "vitest --coverage",
 		"tsc": "tsc",
 		"version": "node util/versioning.cjs && git add jsr.json && npm run build && git add -A dist",
-		"postversion": "git push --follow-tags",
+		"postversion": "HUSKY=0 git push --follow-tags",
 		"version:major": "npm version major",
 		"version:minor": "npm version minor",
 		"version:patch": "npm version patch",
