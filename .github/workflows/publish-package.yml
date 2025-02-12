@@ -52,15 +52,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-
 
-#      - name: Restore cache dist
-#        if: ${{ inputs.release != 'NONE' }}
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            ${{ github.workspace }}/dist
-#          key: ${{ runner.os }}-dist-${{ hashFiles('src/**/*.{ts,tsx}') }}-${{ hashFiles('**/package-lock.json') }}
-#          restore-keys: |
-#            ${{ runner.os }}-dist-
+      - name: Restore cache dist
+        if: ${{ inputs.release != 'NONE' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/dist
+          key: ${{ runner.os }}-dist-${{ hashFiles('dist/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-dist-
 
       - name: Install npm dependencies
         if: ${{ inputs.jsr  || inputs.npm  }}
@@ -68,13 +68,14 @@ jobs:
           npm i
           npm run build
 
+      - name: Publish to jsr
+        if: ${{ inputs.jsr }}
+        run: npx jsr publish --allow-dirty
+
       - name: Publish to npm
         if: ${{ inputs.npm  }}
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-      - name: Publish to jsr
-        if: ${{ inputs.jsr }}
-        run: npx jsr publish --allow-dirty
 
