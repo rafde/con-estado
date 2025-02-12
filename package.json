@@ -98,5 +98,5 @@
 	"sideEffects": false,
 	"source": "src/index.ts",
 	"types": "dist/types.d.ts",
-	"version": "0.0.1"
+	"version": "0.0.2-pre.0"
 }
