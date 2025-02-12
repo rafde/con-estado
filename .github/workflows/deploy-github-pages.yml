@@ -48,7 +48,7 @@ jobs:
           path: |
             ${{ github.workspace }}/site/.next/cache
           # Generate a new cache whenever packages or source files change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('site/src/**/*') }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('/site/src/**/*') }}-${{ hashFiles('site/package-lock.json') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-
@@ -61,7 +61,7 @@ jobs:
       - name: Build with Next.js
         run: |
           cd site
-          npx --no-install --workspace=site next build
+          npx --no-install next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
