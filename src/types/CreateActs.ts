@@ -5,4 +5,4 @@ import type { CreateActsProps, } from './CreateActsProps';
 export type CreateActs<
 	S extends DS,
 	AR extends ActRecord,
-> = ( createActsProps: CreateActsProps<S> ) => AR;
+> = ( props: CreateActsProps<S> ) => AR;
