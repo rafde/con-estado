@@ -1,6 +1,6 @@
 import type { Draft, Options as MutOptions, } from 'mutative';
 import type { DS, } from './DS';
-import type { EstadoHistory, } from './EstadoHistory';
+import type { History, } from './History';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { HistoryState, } from './HistoryState';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
@@ -11,7 +11,7 @@ export type GetDraftRecord<
 > = {
 	getDraft( stateHistoryPath?: MO, options?: never ): [
 		Draft<HistoryState<S>>,
-		() => EstadoHistory<S>,
+		() => History<S>,
 	]
 	getDraft<
 		SHP extends NestedObjectKeys<HistoryState<S>>,
@@ -21,6 +21,6 @@ export type GetDraftRecord<
 			Draft<HistoryState<S>>,
 			SHP
 		>,
-		() => EstadoHistory<S>,
+		() => History<S>,
 	]
 };

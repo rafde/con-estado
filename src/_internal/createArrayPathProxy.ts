@@ -1,7 +1,7 @@
 import type { Draft, } from 'mutative';
 import type { ArrayPathDraftProps, } from '../types/ArrayPathDraftProps';
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { History, } from '../types/History';
 import type { NestedObjectKeys, } from '../types/NestedObjectKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -22,7 +22,7 @@ export default function createArrayPathProxy<
 	TS extends object,
 >(
 	targetState: TS,
-	history: EstadoHistory<S>,
+	history: History<S>,
 	arrayPath: ( string | number )[],
 	props: {
 		draftProp?: string | number

@@ -1,6 +1,6 @@
 import type { Draft, } from 'mutative';
 import type { DS, } from './DS';
-import type { EstadoHistory, } from './EstadoHistory';
+import type { History, } from './History';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
@@ -13,7 +13,7 @@ type StringPathProps<
 	NS extends HistoryState<S> | S,
 	SP extends NestedRecordKeys<NS>,
 > = Immutable<
-	EstadoHistory<S> & {
+	History<S> & {
 		changesProp: GetStringPathValue<NS, SP> | undefined
 		initialProp: GetStringPathValue<NS, SP>
 		priorInitialProp: GetStringPathValue<NS, SP> | undefined
@@ -27,7 +27,7 @@ type ArrayPathProps<
 	S extends DS,
 	NS extends HistoryState<S> | S,
 	SP extends StringPathToArray<NestedRecordKeys<NS>>,
-> = Immutable<EstadoHistory<S> & {
+> = Immutable<History<S> & {
 	changesProp: GetArrayPathValue<NS, SP> | undefined
 	initialProp: GetArrayPathValue<NS, SP>
 	priorInitialProp: GetArrayPathValue<NS, SP> | undefined
@@ -40,7 +40,7 @@ type ArrayPathProps<
 type CallbackDraftProps<
 	S extends DS,
 	NS extends HistoryState<S> | S,
-> = EstadoHistory<S> & Readonly<{
+> = History<S> & Readonly<{
 	draft: Draft<NS>
 }>;
 
@@ -53,7 +53,7 @@ type SetHistory<
 		nextState: NS | ( (
 			props: CallbackDraftProps<S, NS>,
 		) => void )
-	): EstadoHistory<S>
+	): History<S>
 	setHistory<
 		SP extends RK,
 	>(
@@ -63,7 +63,7 @@ type SetHistory<
 				props: StringPathProps<S, NS, SP>
 			) => void
 		),
-	): EstadoHistory<S>
+	): History<S>
 	setHistory<
 		SP extends StringPathToArray<RK>,
 	>(
@@ -73,7 +73,7 @@ type SetHistory<
 				props: ArrayPathProps<S, NS, SP>
 			) => void
 		),
-	): EstadoHistory<S>
+	): History<S>
 };
 
 type CurrySetHistory<
@@ -89,7 +89,7 @@ type CurrySetHistory<
 				props: StringPathProps<S, NS, SP>
 			) => void
 		)
-	) => EstadoHistory<S>
+	) => History<S>
 	currySetHistory<
 		SP extends StringPathToArray<RK>,
 	>( statePath: SP, ): (
@@ -98,7 +98,7 @@ type CurrySetHistory<
 				props: ArrayPathProps<S, NS, SP>
 			) => void
 		)
-	) => EstadoHistory<S>
+	) => History<S>
 };
 
 type SetHistoryWrap<
@@ -111,7 +111,7 @@ type SetHistoryWrap<
 			props: CallbackDraftProps<S, NS>,
 			...args: A
 		) => void
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 	setHistoryWrap<
 		SP extends StringPathToArray<RK>,
 		A extends unknown[],
@@ -123,7 +123,7 @@ type SetHistoryWrap<
 				...args: A
 			) => void
 		),
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 	setHistoryWrap<
 		SP extends RK,
 		A extends unknown[],
@@ -135,7 +135,7 @@ type SetHistoryWrap<
 				...args: A
 			) => void
 		),
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 };
 
 type SetState<
@@ -146,7 +146,7 @@ type SetState<
 		nextState: S | ( (
 			props: CallbackDraftProps<S, S>,
 		) => void )
-	): EstadoHistory<S>
+	): History<S>
 	set<
 		SP extends RK,
 	>(
@@ -156,7 +156,7 @@ type SetState<
 				props: StringPathProps<S, S, SP>
 			) => void
 			),
-	): EstadoHistory<S>
+	): History<S>
 	set<
 		SP extends StringPathToArray<RK>,
 	>(
@@ -166,7 +166,7 @@ type SetState<
 				props: ArrayPathProps<S, S, SP>
 			) => void
 			),
-	): EstadoHistory<S>
+	): History<S>
 };
 
 type CurrySet<
@@ -181,7 +181,7 @@ type CurrySet<
 				props: StringPathProps<S, S, SP>
 			) => void
 			)
-	) => EstadoHistory<S>
+	) => History<S>
 	currySet<
 		SP extends StringPathToArray<RK>,
 	>( statePath: SP, ): (
@@ -190,7 +190,7 @@ type CurrySet<
 				props: ArrayPathProps<S, S, SP>
 			) => void
 			)
-	) => EstadoHistory<S>
+	) => History<S>
 };
 
 type SetWrap<
@@ -202,7 +202,7 @@ type SetWrap<
 			props: CallbackDraftProps<S, S>,
 			...args: A
 		) => void
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 	setWrap<
 		SP extends StringPathToArray<RK>,
 		A extends unknown[],
@@ -214,7 +214,7 @@ type SetWrap<
 				...args: A
 			) => void
 		),
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 	setWrap<
 		SP extends NestedRecordKeys<S>,
 		A extends unknown[],
@@ -226,13 +226,13 @@ type SetWrap<
 				...args: A
 			) => void
 		),
-	): ( ...args: A ) => EstadoHistory<S>
+	): ( ...args: A ) => History<S>
 };
 
 export type EstadoSetters<
 	S extends DS,
 > = {
-	reset(): EstadoHistory<S>
+	reset(): History<S>
 }
 & CurrySet<S>
 & CurrySetHistory<S>

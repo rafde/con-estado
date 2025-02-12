@@ -1,6 +1,6 @@
 import type { Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
-import type { EstadoHistory, } from '../types/EstadoHistory';
+import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -13,10 +13,10 @@ export default function handleStateUpdate<
 		initial: S
 		state: S
 	}>,
-	history: EstadoHistory<S>,
+	history: History<S>,
 	args: unknown[],
 	arrayPathMap: Map<string | number, Array<string | number>>,
-	finalize: () => EstadoHistory<S>,
+	finalize: () => History<S>,
 ) {
 	const [statePath, nextState,] = args;
 
