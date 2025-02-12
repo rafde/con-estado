@@ -10,12 +10,37 @@ const initialState = {
 describe( 'useCon', () => {
 	it( 'should initialize with the correct initial state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
-		expect( result.current[ 0 ], ).toEqual( initialState, );
+		expect( result.current[ 0 ], ).toBe( initialState, );
 	}, );
 
 	it( 'should initialize using callback', () => {
 		const { result, } = renderHook( () => useCon( () => initialState, ), );
-		expect( result.current[ 0 ], ).toEqual( initialState, );
+		expect( result.current[ 0 ], ).toBe( initialState, );
+	}, );
+
+	it( 'should only return what default selector sends', () => {
+		const { result, } = renderHook( () => useCon( initialState, ), );
+		const props = result.current[ 1 ];
+		expect( result.current, ).toStrictEqual( [
+			initialState,
+			{
+				state: props.state,
+				initial: props.initial,
+				prev: props.prev,
+				changes: props.changes,
+				prevInitial: props.prevInitial,
+				currySet: props.currySet,
+				currySetHistory: props.currySetHistory,
+				get: props.get,
+				getDraft: props.getDraft,
+				reset: props.reset,
+				set: props.set,
+				setHistory: props.setHistory,
+				setHistoryWrap: props.setHistoryWrap,
+				setWrap: props.setWrap,
+				acts: props.acts,
+			},
+		], );
 	}, );
 
 	it( 'should setHistory count correctly', () => {
@@ -40,18 +65,48 @@ describe( 'useCon', () => {
 
 	it( 'should not return a new state', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
-		const oldHistory = result.current[ 1 ].get();
-		const oldState = result.current[ 0 ];
+		const oldHistory = result.current;
 		act( () => {
 			result.current[ 1 ].setHistory( 'state.count', 0, );
 		}, );
-		const newHistory = result.current[ 1 ].get();
-		const newState = result.current[ 0 ];
+		const newHistory = result.current;
 		expect( oldHistory, ).toBe( newHistory, );
-		expect( oldState, ).toBe( newState, );
 	}, );
 
 	describe( 'selector', () => {
+		it( 'should use a custom selector', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				props => ( {
+					test: props.state.text,
+					setHistory: props.setHistory,
+				} ),
+			), );
+
+			act( () => {
+				result.current.setHistory( 'state.text', 'world', );
+			}, );
+
+			expect( result.current.test, ).toBe( 'world', );
+		}, );
+
+		it( 'should not re-render with a custom selector', () => {
+			const { result, } = renderHook( () => useCon(
+				initialState,
+				props => ( {
+					test: props.initial.text,
+					setHistory: props.setHistory,
+				} ),
+			), );
+
+			const oldHistory = result.current;
+			act( () => {
+				result.current.setHistory( 'state.count', 0, );
+			}, );
+			const newHistory = result.current;
+			expect( oldHistory, ).toBe( newHistory, );
+		}, );
+
 		it( 'should use a custom selector', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
