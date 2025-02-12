@@ -1,6 +1,7 @@
 import { describe, expect, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 
+const ERROR_REGEX = /Only works with plain objects or arrays/;
 describe( 'createConBase', () => {
 	it( 'should create a new base from object', () => {
 		const initial = {
@@ -48,14 +49,14 @@ describe( 'createConBase', () => {
 
 	it( 'should handle undefined or null initial state', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createCon( null, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( null, ), ).toThrowError( ERROR_REGEX, );
 
 		// @ts-expect-error -- checking invalid value
-		expect( () => createCon( undefined, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( undefined, ), ).toThrowError( ERROR_REGEX, );
 	}, );
 
 	it( 'should handle invalid selector functions', () => {
 		// @ts-expect-error -- checking invalid value
-		expect( () => createCon( null as unknown, ), ).toThrowError( /createCon can only work with/, );
+		expect( () => createCon( null as unknown, ), ).toThrowError( ERROR_REGEX, );
 	}, );
 }, );

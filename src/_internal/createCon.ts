@@ -47,13 +47,13 @@ function _returnStateArgs( args: unknown[], ) {
 	return [];
 }
 
-const opts = Object.freeze( {}, );
+const EMPTY_OBJECT = Object.freeze( {}, );
 function noop(): void {
 }
 
 const fo = <
 	AR extends ActRecord,
->() => opts as AR;
+>() => EMPTY_OBJECT as AR;
 
 export type CreateConReturnType<
 	S extends DS,
@@ -65,10 +65,10 @@ export default function createCon<
 	AR extends ActRecord,
 >(
 	initial: S,
-	options: CreateConOptions<S, AR> = opts as CreateConOptions<S, AR>,
+	options: CreateConOptions<S, AR> = EMPTY_OBJECT as CreateConOptions<S, AR>,
 ): CreateConReturnType<S, AR> {
 	if ( initial == null || typeof initial !== 'object' ) {
-		throw new Error( `createCon can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
+		throw new Error( `Only works with plain objects or arrays. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history = createHistory( { initial, }, );
 	const {
@@ -83,7 +83,7 @@ export default function createCon<
 	function _dispatch( nextHistory: EstadoHistory<S>, ) {
 		history = nextHistory;
 		dispatcher( history as Immutable<EstadoHistory<S>>, );
-		Promise.resolve().then( () => afterChange( history as Immutable<EstadoHistory<S>>, ), );
+		queueMicrotask( () => afterChange( history as Immutable<EstadoHistory<S>>, ), );
 		return nextHistory;
 	}
 
@@ -130,7 +130,7 @@ export default function createCon<
 					draft,
 					history,
 					[
-						( ...props: unknown[] ) => statePath( props[ 0 ], ...wrapArgs, ),
+						( prop: unknown, ) => statePath( prop, ...wrapArgs, ),
 					],
 					arrayPathMap,
 					finalize,
@@ -143,7 +143,7 @@ export default function createCon<
 					history,
 					[
 						statePath,
-						( ...props: unknown[] ) => nextState( props[ 0 ], ...wrapArgs, ),
+						( prop: unknown, ) => nextState( prop, ...wrapArgs, ),
 					],
 					arrayPathMap,
 					finalize,
@@ -176,9 +176,7 @@ export default function createCon<
 			return curryFn;
 		}
 
-		function curried( nextState: unknown, ) {
-			return setHistory( statePath, nextState, );
-		}
+		const curried = ( nextState: unknown, ) => setHistory( statePath, nextState, );
 
 		curryMap.set( statePath, curried, );
 		return curried;
