@@ -76,5 +76,5 @@ jobs:
 
       - name: Publish to jsr
         if: ${{ inputs.jsr }}
-        run: npx jsr publish
+        run: npx jsr publish --allow-dirty
 
