@@ -48,7 +48,7 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/.parcel-cache
-          key: ${{ runner.os }}-build-${{ hashFiles('src/**/*.{ts,tsx}') }}-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('src/**/*') }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-
 
