@@ -12,7 +12,7 @@ import createHistory from './createHistory';
 import escapeDots from './escapeDots';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
-import getDeepArrayPath from './getDeepArrayPath';
+import getDeepValueParentByArray from './getDeepValueParentByArray';
 import handleStateUpdate from './handleStateUpdate';
 import isPlainObject from './isPlainObject';
 import getHistoryDraft from './getHistoryDraft';
@@ -114,10 +114,10 @@ export default function createCon<
 			// No argument version
 			return history as Immutable<EstadoHistory<S>>;
 		}
-		return getDeepArrayPath(
+		return getDeepValueParentByArray(
 			history,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
-		) as Immutable<GetStringPathValue<S, typeof stateHistoryPath>>;
+		)[ 0 ] as Immutable<GetStringPathValue<S, typeof stateHistoryPath>>;
 	}
 
 	function setHistoryWrap( ...args: unknown[] ) {
