@@ -1,6 +1,6 @@
 # con-estado
 
-[![NPM License](https://img.shields.io/npm/l/con-estado)](/LICENSE)
+[![NPM License](https://img.shields.io/npm/l/con-estado)](https://github.com/rafde/con-estado/blob/main/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/con-estado)](https://www.npmjs.com/package/con-estado)
 [![JSR Version](https://img.shields.io/jsr/v/%40rafde/con-estado)](https://jsr.io/@rafde/con-estado)
 ![Test](https://github.com/rafde/con-estado/actions/workflows/test.yml/badge.svg)
@@ -75,7 +75,10 @@ function MyComponent() {
     {
       acts: ( { set, }, ) => ( {
         onChangeInput: ( event: ChangeEvent<HTMLInputElement>, ) => {
-          set( event.target.name as Parameter<typeof set>[0], event.target.value )
+          set( 
+            event.target.name as Parameter<typeof set>[0],
+            event.target.value
+          );
         }
       })
     }
@@ -100,6 +103,7 @@ function MyComponent() {
   </div>;
 }
 ```
+
 ## Global Store
 
 For applications needing global state management, `createConStore` provides a solution for creating actions and optimized updates:
@@ -184,7 +188,10 @@ function UserPreferences() {
       selector: props => ( {
         theme: props.state.user.preferences.theme,
         updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
-          props.set(event.target.name as Parameter<typeof props.set>[0], event.target.value, )
+          props.set(
+            event.target.name as Parameter<typeof props.set>[0],
+            event.target.value,
+          );
         },
       } ),
     } );
@@ -256,6 +263,12 @@ function PostList() {
 
 Track and access previous state values:
 
+- **state**: Current immutable state object.
+- **prev**: The previous `state` immutable object before `state` was updated.
+- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for resync purposes like merging with server data while `state` keeps client side data.
+- **prevInitial**: The previous `initial` immutable object before `initial` was updated.
+- **changes**: Immutable object that keeps track of top level properties (shallow) difference between the `state` and `initial` object.
+
 ```tsx
 function StateHistory() {
   const [ state, { get, reset, }, ] = useCon( initialState, );
@@ -270,7 +283,7 @@ function StateHistory() {
 }
 ```
 
-## createConStore and useCon Parameters Overview
+## API References
 
 `createConStore` and `useCon` take the same parameters.
 
@@ -426,11 +439,18 @@ example
 
 ```ts
 // Won't re-render
-const setCount = useCon( initialState, controls => controls.state.count < 10 ? controls.setWrap('count') : () => {});
+const setCount = useCon( 
+  initialState,
+   controls => controls.state.count < 10
+    ? controls.setWrap('count')
+    : () => {}
+);
 
 // Won't re-render, but it will do something.
 const setCount = useCon( initialState, controls => (value) => {
-  controls.state.count < 10 ? controls.set('count', value) : undefined
+  controls.state.count < 10
+   ? controls.set('count', value)
+   : undefined
 });
 ```
 
@@ -438,7 +458,9 @@ const setCount = useCon( initialState, controls => (value) => {
 // This will re-render when `controls.state.count` value is updated
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
-  setCount: controls.state.count < 10 ? controls.setWrap('count') : () => {}
+  setCount: controls.state.count < 10
+   ? controls.setWrap('count')
+   : () => {}
 }));
 ```
 
@@ -487,7 +509,12 @@ example
 
 ```ts
 // Won't re-render
-const setCount = useCon( initialState, controls => controls.state.count < 10 ? controls.setWrap('count') : () => {});
+const setCount = useCon( 
+  initialState,
+  controls => controls.state.count < 10
+   ? controls.setWrap('count')
+   : () => {}
+);
 
 // Won't re-render, but it will do something.
 const setCount = useCon( initialState, controls => (value) => {
@@ -570,7 +597,7 @@ have access to the following controls:
 
 ### `get`
 
-Gives you immutable access to [History](#history-object).
+Gives you immutable access to [State History](#state-history).
 
 ```ts
 const [
@@ -595,13 +622,6 @@ You can also use dot-notation to access properties.
 ```ts
 const changesToSomeValue = get('changes.to.some.value');
 ```
-
-#### `History` Object
-- **state**: Current immutable state object.
-- **prev**: The previous `state` immutable object before `state` was updated.
-- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for resync purposes like merging with server data while `state` keeps client side data.
-- **prevInitial**: The previous `initial` immutable object before `initial` was updated.
-- **changes**: Immutable object that keeps track of top level properties (shallow) difference between the `state` and `initial` object.
 
 ### `state`
 
@@ -634,7 +654,7 @@ const {
 } = useConSelector( ( { set, } ) => ( { set, }, ));
 ```
 
-All `set` calls returns a new [History](#history-object) object that contains the following properties:
+All `set` calls returns a new [State History](#state-history) object that contains the following properties:
 
 ### `set( state )`
 
@@ -666,11 +686,11 @@ set( ( {
 
 #### `set` callback parameters
 
-Contains [`History`](#history-object) properties plus:
+Contains [State History](#state-history) properties plus:
 - **draft**: The mutable part of the `state` object that can be modified in the callback.
 - **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
 
-### `set( 'dot.notation.0.path.to\\.value', value )`
+### `set('path.0.to\\.val', value)`
 
 Specialized overload for updating state at a specified dot-notated string path with a direct value.
 
@@ -690,19 +710,19 @@ const initial = {
 }; // 'path.user\\.name'
 ```
 
-### `set( ['string', 'path', 0, 'to.value'], value )`
+### `set(['path', 0, 'to.val'], value)`
 
 Specialized overload for updating state at a specified array of strings or numbers (for arrays) path with a direct value.
 
 Array path to the state property to update, can have dot notation, e.g. `['items', 0]` or `['users', 2, 'address.name']`
 
-Callback works the same as [set( 'path.to.value', callback )](#set-pathtovalue--path-to-value-callback-)
+Callback works the same as [set( 'path.to.value', callback )](#setpath--path-callback)
 
 ```ts
-set( ['string', 'path', 0, 'to.value'], [ 'new', 'value' ] );
+set( ['string', 'path', 0, 'to.val'], [ 'new', 'value' ] );
 ```
 
-### `set( 'path.to.value' | ['path', 'to', 'value'], callback )`
+### `set('path' | ['path'], callback)`
 
 Specialized overload for updating state at a specified
 array of strings or numbers (for arrays) or dot-notated string
@@ -767,12 +787,17 @@ const {
 } = useConSelector( ( { setWrap, } ) => ( { setWrap, } ), );
 
 // Example usage
-const inc = setWrap( ( { draft, }, incBy: number, ) => draft.count += incBy );
+const inc = setWrap( 
+  ( { draft, }, incBy: number, ) => draft.count += incBy
+);
 
 const newInc = inc( 5, ); // returns 5
 
 // Example usage
-const incCount = setWrap( 'count', ( props, incBy: number, ) => props.draft += incBy );
+const incCount = setWrap( 
+  'count',
+  ( props, incBy: number, ) => props.draft += incBy
+);
 
 const newCount = inc( 5, ); // returns 5
 ```
@@ -816,7 +841,7 @@ Works like [currySet](#curryset), but can be used to update both `state` and `in
 ### `reset`
 
 Resets `state` to `initial`.
-Returns [History](#history-object) with `initial` set to `state` values.
+Returns [State History](#state-history) with `initial` set to `state` values.
 
 ```ts
 const [
@@ -833,7 +858,7 @@ reset();
 
 ### `subscribe`
 
-Subscribes to state changes outside [useSelector](#useselector) or [useConSelector](#useconselector) via [selector](#selector).
+Subscribes to state changes outside [useSelector](#useselector) or [useConSelector](#useconselector) via [selector](#3-selector).
 Returns `function` to unsubscribe the listener.
 
 **ALERT**:When using subscribe, you have to manage when to unsubscribe the listener.
