@@ -1,7 +1,8 @@
 import { strictDeepEqual, } from 'fast-equals';
-import { create, isDraft, type Draft, type Options as MutOptions, } from 'mutative';
+import { create, isDraft, type Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
+import type { MutOptions, } from '../types/MutOptions';
 import type { OptionTransform, } from '../types/OptionTransform';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
@@ -9,7 +10,7 @@ import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function getHistoryDraft<
 	S extends DS,
-	MO extends MutOptions<false, boolean> = MutOptions<false, false>,
+	MO extends MutOptions = MutOptions,
 >(
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
