@@ -2,6 +2,7 @@ import { useSyncExternalStore, } from 'react';
 import type { CreateConReturnType, } from './_internal/createCon';
 import defaultSelector, { type DefaultSelector, } from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
+import isPlainObject from './_internal/isPlainObject';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
@@ -30,14 +31,13 @@ type CreateConStoreReturnType<
  *
  * @template {DS} S
  *
- * @param {Initial<S>} initial - The initial state object
- * @param {Option} [options] - Configuration options
- * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
- * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
- * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes.
- * Subsequent updates will ignore changes to `function` to prevent excessive re-renders.
+ * @param {Initial<S>} initial - The initial state object or `function` that returns the initial state object
+ * @param {Option | Selector} [options] - Configuration options or custom state selector
+ * @param {CreateActs} [options.acts] - A `function` to create a Record of actions `function`s that can be sync or async.
+ * @param {OptionAfterChange} [options.afterChange] - Async `function` to call after state changes
  * @param {MutOptions} [options.mutOptions] - Mutative options. {enablePatches: true} not supported
- * @param {Selector} [selector=typeof defaultSelector] - Function to select and transform state values
+ * @param {OptionTransform} [options.transform] - `function` to transform the `state` and/or `initial` properties before it is set/reset
+ * @param {Selector} [selector=DefaultSelector] - Function to select and transform state values
  *
  * @returns {CreateConStoreReturnType<DS, ActRecord>} A function that can be used as a hook to access and modify the store state
  *
@@ -74,17 +74,6 @@ export default function createConStore<
 >;
 export default function createConStore<
 	S extends DS,
->(
-	initial: Initial<S>,
-	options?: never,
-	selector?: never
-): CreateConStoreReturnType<
-	S,
-	Record<never, never>,
-	typeof defaultSelector<S, Record<never, never>>
->;
-export default function createConStore<
-	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
 >(
 	initial: Initial<S>,
@@ -97,7 +86,7 @@ export default function createConStore<
 >;
 export default function createConStore<
 	S extends DS,
-	AR extends ActRecord,
+	AR extends ActRecord = Record<never, never>,
 >(
 	initial: Initial<S>,
 	options?: Option<S, AR>,
@@ -105,7 +94,7 @@ export default function createConStore<
 ): CreateConStoreReturnType<
 	S,
 	AR,
-	typeof defaultSelector<S, AR>
+	DefaultSelector<S, AR>
 >;
 export default function createConStore<
 	S extends DS,
@@ -115,19 +104,16 @@ export default function createConStore<
 	options?: unknown,
 	selector?: unknown,
 ) {
-	const _options = options && typeof options === 'object'
-		? options as Option<S, AR>
-		: {} as Option<S, AR>;
-	const _selector = typeof options === 'function'
-		? options as Selector<S, AR>
-		: typeof selector === 'function'
-			? selector as Selector<S, AR>
-			: defaultSelector<S, AR>;
-
+	const [
+		opts,
+		sel,
+	] = isPlainObject( options, )
+		? [options as Option<S, AR>, ( selector ?? defaultSelector<S, AR> ) as Selector<S, AR>,]
+		: [{} as Option<S, AR>, ( options ?? defaultSelector<S, AR> ) as Selector<S, AR>,];
 	const estadoSubLis = createConSubLis(
 		typeof initial === 'function' ? initial() : initial,
 		{
-			..._options,
+			...opts,
 			dispatcher( nextHistory, ) {
 				snapshot = {
 					...nextHistory,
@@ -147,11 +133,9 @@ export default function createConStore<
 		...estado,
 	};
 	let snapshot = initialSnapshot;
-	function useConSelector(): ReturnType<typeof _selector>;
-	function useConSelector<Sel extends Selector<S, AR>,>( select: Sel ): ReturnType<Sel>;
 	function useConSelector<Sel extends Selector<S, AR>,>( select?: Sel, ) {
 		const selectorCallback = useSelectorCallback<S, AR>(
-			_selector,
+			sel,
 			select,
 		);
 		// @see {@link https://github.com/facebook/react/blob/main/packages/use-sync-external-store/src/useSyncExternalStoreShimClient.js}
