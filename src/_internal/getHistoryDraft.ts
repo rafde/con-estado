@@ -5,7 +5,7 @@ import type { EstadoHistory, } from '../types/EstadoHistory';
 import type { OptionTransform, } from '../types/OptionTransform';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
-import getDeepArrayPath from './getDeepArrayPath';
+import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function getHistoryDraft<
 	S extends DS,
@@ -76,10 +76,10 @@ export default function getHistoryDraft<
 	}> = _draft;
 
 	if ( typeof stateHistoryPath === 'string' ) {
-		const value = getDeepArrayPath(
+		const value = getDeepValueParentByArray(
 			_draft,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
-		);
+		)[ 0 ];
 		if ( value == null || !isDraft( value, ) ) {
 			throw new Error( `Key path ${stateHistoryPath} cannot be a draft. It's value is ${draft} of type ${typeof draft}`, );
 		}
