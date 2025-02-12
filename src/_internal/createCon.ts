@@ -55,13 +55,18 @@ const fo = <
 	AR extends ActRecord,
 >() => opts as AR;
 
+export type CreateConReturnType<
+	S extends DS,
+	AR extends ActRecord,
+> = CreateActsProps<S> & { acts: AR };
+
 export default function createCon<
 	S extends DS,
 	AR extends ActRecord,
 >(
 	initial: S,
 	options: CreateConOptions<S, AR> = opts as CreateConOptions<S, AR>,
-) {
+): CreateConReturnType<S, AR> {
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `createCon can only work with plain objects \`{}\` or arrays \`[]. Value is ${initial} of type ${typeof initial}`, );
 	}
@@ -250,8 +255,3 @@ export default function createCon<
 		acts: acts( props, ),
 	}, );
 }
-
-export type CreateConReturnType<
-	S extends DS,
-	AR extends ActRecord,
-> = ReturnType<typeof createCon<S, AR>>;
