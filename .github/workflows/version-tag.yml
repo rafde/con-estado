@@ -1,4 +1,4 @@
-name: Version and tag
+name: Version, tag, and release
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -94,6 +94,12 @@ jobs:
         run: |
           npm run version:${{ inputs.release }}
 
-      - name: create PR
-        run: |
-          gh pr create -B main -H release --title 'Release' --body 'Created by Github action'
+      - name: Publish to npm
+        if: ${{ inputs.release != 'NONE' }}
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Publish to jsr
+        if: ${{ inputs.release != 'NONE' }}
+        run: npx jsr publish
