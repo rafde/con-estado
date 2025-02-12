@@ -8,7 +8,6 @@ import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import createHistory from './createHistory';
 import escapeDots from './escapeDots';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
@@ -70,7 +69,13 @@ export default function createCon<
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `Only works with plain objects or arrays. Value is ${initial} of type ${typeof initial}`, );
 	}
-	let history = createHistory( { initial, }, );
+	let history: History<S> = {
+		changes: undefined,
+		initial,
+		prev: undefined,
+		prevInitial: undefined,
+		state: initial,
+	};
 	const {
 		acts = fo,
 		afterChange = noop,
