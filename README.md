@@ -311,3 +311,10 @@ const [state, { set }] = useCon({
 	posts: [] as string[]
 });
 ```
+
+## Credits to
+
+- [Mutative](https://mutative.js.org/) for efficient immutable updates
+- [Immer](https://immerjs.github.io/immer/) for inspiring Mutative
+- [Zustand](https://github.com/pmndrs/zustand) for the inspiration
+- Øivind Loe for questioning why I wanted to create a state management library.
