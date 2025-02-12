@@ -65,7 +65,7 @@ jobs:
       - name: Install npm dependencies
         if: ${{ inputs.jsr  || inputs.npm  }}
         run: |
-          npm ci
+          npm i
           npm run build
 
       - name: Publish to npm
