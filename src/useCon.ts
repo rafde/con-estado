@@ -1,6 +1,7 @@
 import { useState, } from 'react';
 import createCon from './_internal/createCon';
-import defaultSelector from './_internal/defaultSelector';
+import defaultSelector, { type DefaultSelector, } from './_internal/defaultSelector';
+import isPlainObject from './_internal/isPlainObject';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DS, } from './types/DS';
@@ -12,29 +13,25 @@ import type { Selector, } from './types/Selector';
 import type { Options as MutOptions, } from 'mutative';
 // @ts-expect-error -- here for tsdocs
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { OptionCompare, } from './types/OptionCompare';
+import type { OptionAfterChange, } from './types/OptionAfterChange';
 // @ts-expect-error -- here for tsdocs
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { OptionAfterChange, } from './types/OptionAfterChange';
+import type { OptionTransform, } from './types/OptionTransform';
 
 /**
  * A React hook for managing state with history tracking and actions.
  *
  * @template {DS} S
  *
- * @param {Initial<S>} initial - The initial state object
- * @param {Option} [options] - Configuration options
- * @param {CreateActs} [options.acts] - A function to create a Record of action functions that modify state
- * @param {OptionCompare} [options.compare] - Custom comparison function to determine if state has changed
- * @param {OptionAfterChange} [options.afterChange] - Callback function executed asynchronously after state changes
- * Subsequent updates will ignore `function` changes.
+ * @param {Initial<S>} initial - The initial state object or `function` that returns the initial state object
+ * @param {Option | Selector} [options] - Configuration options or custom state selector
+ * @param {CreateActs} [options.acts] - A `function` to create a Record of actions `function`s that can be sync or async.
+ * @param {OptionAfterChange} [options.afterChange] - Async callback after state changes
  * @param {MutOptions} [options.mutOptions] - Mutative options. {enablePatches: true} not supported
- * @param {Selector} selector - Function to select and transform state values
+ * @param {OptionTransform} [options.transform] - `function` to transform the `state` and/or `initial` properties before it is set/reset
+ * @param {Selector} [selector=DefaultSelector] - Custom state selector function that lets you shape what is returned.
  *
- * @returns {ReturnType<Selector<DS, ActRecord>> | ReturnType<typeof defaultSelector<DS, ActRecord>>}
- * Returns either:
- * - The result of the custom selector if provided
- * - The default selection (state + actions) if no selector is provided
+ * @returns {ReturnType<Selector<DS, ActRecord>> | ReturnType<DefaultSelector<DS, ActRecord>>}
  *
  * @example
  * ```typescript
@@ -48,16 +45,6 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
  *      text: ''
  *    }
  *    items: []
- *  },
- *  {
- *    compare: (prev, next, { cmp, key, keys, }) => {
- *      if ( key === 'user.count' && next > 10) {
- *        // prevent user.count greater than 10
- *        return true;
- *      }
- *      return cmp( prev, next );
- *    },
- *    afterChange: (newState) => console.log('users updated:', newState.users)
  *  });
  *  controls.set( 'foo' );
  *
@@ -72,7 +59,7 @@ import type { OptionAfterChange, } from './types/OptionAfterChange';
  *    }
  *  );
  *
- *  set( 'items', ({draft}) => {
+ *  set( ({draft}) => {
  *    draft.push( 'foo' );
  *  } );
  *
@@ -89,11 +76,12 @@ export default function useCon<
 ): ReturnType<Sel>;
 export default function useCon<
 	S extends DS,
+	AR extends ActRecord = Record<never, never>,
 >(
 	initial: Initial<S>,
-	options?: never,
-	selector?: never
-): ReturnType<typeof defaultSelector<S, Record<never, never>>>;
+	options?: Option<S, AR>,
+	_?: never
+): ReturnType<DefaultSelector<S, AR>>;
 export default function useCon<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
@@ -107,29 +95,19 @@ export default function useCon<
 	AR extends ActRecord,
 >(
 	initial: Initial<S>,
-	options?: Option<S, AR>,
-	_?: never
-): ReturnType<typeof defaultSelector<S, AR>>;
-export default function useCon<
-	S extends DS,
-	AR extends ActRecord,
->(
-	initial: Initial<S>,
 	options?: unknown,
 	selector?: unknown,
 ) {
-	const _options = options && typeof options === 'object'
-		? options as Option<S, AR>
-		: {} as Option<S, AR>;
-	const _selector = typeof options === 'function'
-		? options as Selector<S, AR>
-		: typeof selector === 'function'
-			? selector as Selector<S, AR>
-			: undefined;
+	const [
+		opts,
+		sel,
+	] = isPlainObject( options, )
+		? [options as Option<S, AR>, selector as Selector<S, AR> | undefined,]
+		: [{} as Option<S, AR>, options as Selector<S, AR> | undefined,];
 
 	const selectorCallback = useSelectorCallback<S, AR>(
 		defaultSelector<S, AR>,
-		_selector,
+		sel,
 	);
 	const [
 		state,
@@ -139,7 +117,7 @@ export default function useCon<
 			const conProps = createCon(
 				typeof initial === 'function' ? initial() : initial,
 				{
-					..._options,
+					...opts,
 					dispatcher() {
 						setState( selectorCallback( {
 							...conProps.get(),
