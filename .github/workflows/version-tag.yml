@@ -33,15 +33,15 @@ jobs:
       - name: Checkout repository
         if: ${{ inputs.release != 'NONE' }}
         uses: actions/checkout@v4
-        with:
-          ref: release
-          fetch-depth: 0
-
-      - name: Rebase latest
-        if: ${{ inputs.release != 'NONE' }}
-        run: |
-          git rebase origin/main
-          git push origin release
+#        with:
+#          ref: release
+#          fetch-depth: 0
+#
+#      - name: Rebase latest
+#        if: ${{ inputs.release != 'NONE' }}
+#        run: |
+#          git rebase origin/main
+#          git push origin release
 
       - name: setup git config
         if: ${{ inputs.release != 'NONE' }}
@@ -56,15 +56,15 @@ jobs:
           node-version: "lts/*"
           cache: npm
 
-      - name: Restore cache dist
-        if: ${{ inputs.release != 'NONE' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ github.workspace }}/dist
-          key: ${{ runner.os }}-dist-${{ hashFiles('src/**/*.{ts,tsx}') }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-dist-
+#      - name: Restore cache dist
+#        if: ${{ inputs.release != 'NONE' }}
+#        uses: actions/cache@v4
+#        with:
+#          path: |
+#            ${{ github.workspace }}/dist
+#          key: ${{ runner.os }}-dist-${{ hashFiles('src/**/*.{ts,tsx}') }}-${{ hashFiles('**/package-lock.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-dist-
 
       - name: Restore cache test-cache
         if: ${{ inputs.release != 'NONE' }}
