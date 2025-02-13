@@ -144,7 +144,7 @@ import type { History, } from './types/History';
  * ```
  *
  * @returns Returns state and controls based on the {@link Selector}.
- * By {@link DefaultSelector default}, returns `[state, controls]` tuple where:
+ * - By {@link DefaultSelector default}, returns `[state, controls]` tuple where:
  *   - `state` contains the current state.
  *   - `controls` contains all state management {@link CreateActsProps methods} `&` {@link History history}
   *     - State Methods:
@@ -159,8 +159,8 @@ import type { History, } from './types/History';
  *     - Query Methods:
  *       - `get(path?)`: Get `state` and `initial`, or value at path
  *       - `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft at path.
- * 		 	Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
-* 			Returns `[draft, finalize]`.
+ *          Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
+ *          Returns `[draft, finalize]`.
  *     - {@link History} Properties:
  *       - `initial`: Initial state
  *       - `state`: Current state
@@ -169,6 +169,7 @@ import type { History, } from './types/History';
  *       - `prevInitial`: Previous initial if changed
  *     - Custom Actions:
  *       - `acts`: Custom actions from options.acts
+ * - With custom selector: Returns whatever shape the selector returns. You have access to `controls` via parameter.
  *
  * @example
  * Return example
@@ -176,18 +177,18 @@ import type { History, } from './types/History';
  * // Default return type
  * const [
  *   state, {
- * 	 // State methods
- *   set, setWrap, currySet,
- *   // History methods
- *   reset, setHistory, setHistoryWrap, currySetHistory,
- *   // Query methods
- *   get, // raw history
- * 	 getDraft, // mutative [draft, finalize]
- *   // History
- *   initial, state, changes, prev, prevInitial,
- *   // Custom actions
- *   acts
- * 	}
+ *      // State methods
+ *      set, setWrap, currySet,
+ *      // History methods
+ *      reset, setHistory, setHistoryWrap, currySetHistory,
+ *      // Query methods
+ *      get, // raw history
+ *      getDraft, // mutative [draft, finalize]
+ *      // History
+ *      initial, state, changes, prev, prevInitial,
+ *      // Custom actions
+ *      acts
+ *    }
  * ] = useCon({ count: 0 });
  *
  * // Custom selector return type
@@ -245,30 +246,27 @@ export default function useCon<
  * );
  * ```
  *
- * @returns Returns state and controls based on the {@link Selector}.
- * Parameter gives you access to
- *   - `state` contains the current state.
- *   - `controls` contains all state management {@link CreateActsProps methods} `&` {@link History}
- *     - State Methods:
- *       - `set(pathOrCallback, valueOrCallback?)`: Set state at path or with updater function
- *       - `setWrap(pathOrCallback, valueOrCallback?)`: Like set but returns a function for additional args
- *       - `currySet(pathOrCallback)`: Returns a function to set state at path
- *       - `reset()`: Reset state to initial or transformed initial
- *     - History Methods:
- *       - `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: Direct history manipulation of `state` or `initial` properties at path or with updater function.
- *       - `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Like setHistory but returns a function for additional args.
- *       - `currySetHistory(pathOrCallback)`: Returns a function for updating `state` or `initial` properties at path
- *     - Query Methods:
- *       - `get(path?)`: Get `state` and `initial`, or value at path
- *       - `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft at path.
- *          Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
- *          Returns `[draft, finalize]`.
- *     - {@link History} Properties:
- *       - `initial`: Initial state
- *       - `state`: Current state
- *       - `changes`: Partial changes from initial
- *       - `prev`: Previous state if changed
- *       - `prevInitial`: Previous initial if changed
+ * @returns Return based on what the {@link Selector} returns. It's provided access to the state and controls.
+ * - State Methods:
+ *   - `set(pathOrCallback, valueOrCallback?)`: Set state at path or with updater function
+ *   - `setWrap(pathOrCallback, valueOrCallback?)`: Like set but returns a function for additional args
+ *   - `currySet(pathOrCallback)`: Returns a function to set state at path
+ *   - `reset()`: Reset state to initial or transformed initial
+ * - History Methods:
+ *   - `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: Direct history manipulation of `state` or `initial` properties at path or with updater function.
+ *   - `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Like setHistory but returns a function for additional args.
+ *   - `currySetHistory(pathOrCallback)`: Returns a function for updating `state` or `initial` properties at path
+ * - Query Methods:
+ *   - `get(path?)`: Get `state` and `initial`, or value at path
+ *   - `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft at path.
+ *      Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
+ *      Returns `[draft, finalize]`.
+ * - {@link History} Properties:
+ *   - `initial`: Initial state
+ *   - `state`: Current state
+ *   - `changes`: Partial changes from initial
+ *   - `prev`: Previous state if changed
+ *   - `prevInitial`: Previous initial if changed
  */
 export default function useCon<
 	S extends DS,

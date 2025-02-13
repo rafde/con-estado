@@ -174,8 +174,7 @@ type CreateConStoreReturnType<
  *       - `changes`: Partial changes from initial
  *       - `prev`: Previous state if changed
  *       - `prevInitial`: Previous initial if changed
- *
- * - With custom selector: Returns whatever shape the selector returns
+ * - With custom selector: Returns whatever shape the selector returns. You have access to `controls` via parameter.
  *
  * @example
  * `selector` example
@@ -267,29 +266,27 @@ export default function createConStore<
  *
  * @returns A React hook function that provides access to the store's state and controls.
  * The hook's return type depends on the selector:
- * - With default selector: Returns `[state, controls]` tuple where:
- *   - `state`: The current state
- *   - `controls` contains all state management {@link CreateActsProps methods} `&` {@link History}
- *     - State Methods:
- *       - `set(pathOrCallback, valueOrCallback?)`: Set state at path or with updater function
- *       - `setWrap(pathOrCallback, valueOrCallback?)`: Like set but returns a function for additional args
- *       - `currySet(pathOrCallback)`: Returns a function to set state at path
- *       - `reset()`: Reset state to initial or transformed initial
- *     - History Methods:
- *       - `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: Direct history manipulation of `state` or `initial` properties at path or with updater function.
- *       - `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Like setHistory but returns a function for additional args.
- *       - `currySetHistory(pathOrCallback)`: Returns a function for updating `state` or `initial` properties at path
- *     - Query Methods:
- *       - `get(path?)`: Get `state` and `initial`, or value at path
- *       - `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft at path.
- *          Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
- *          Returns `[draft, finalize]`.
- *     - {@link History} Properties:
- *       - `initial`: Initial state
- *       - `state`: Current state
- *       - `changes`: Partial changes from initial
- *       - `prev`: Previous state if changed
- *       - `prevInitial`: Previous initial if changed
+ * - `controls` contains all state management {@link CreateActsProps methods} `&` {@link History}
+ *   - State Methods:
+ *     - `set(pathOrCallback, valueOrCallback?)`: Set state at path or with updater function
+ *     - `setWrap(pathOrCallback, valueOrCallback?)`: Like set but returns a function for additional args
+ *     - `currySet(pathOrCallback)`: Returns a function to set state at path
+ *     - `reset()`: Reset state to initial or transformed initial
+ *   - History Methods:
+ *     - `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: Direct history manipulation of `state` or `initial` properties at path or with updater function.
+ *     - `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Like setHistory but returns a function for additional args.
+ *     - `currySetHistory(pathOrCallback)`: Returns a function for updating `state` or `initial` properties at path
+ *   - Query Methods:
+ *     - `get(path?)`: Get `state` and `initial`, or value at path
+ *     - `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft at path.
+ *        Accepts `path` or `mutOptions` to mutate `state` and/or `initial` properties.
+ *        Returns `[draft, finalize]`.
+ *   - {@link History} Properties:
+ *     - `initial`: Initial state
+ *     - `state`: Current state
+ *     - `changes`: Partial changes from initial
+ *     - `prev`: Previous state if changed
+ *     - `prevInitial`: Previous initial if changed
  * - With custom selector: Returns whatever shape the selector returns
  *
  * @example
