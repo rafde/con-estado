@@ -304,7 +304,7 @@ export default function useCon<
 					...opts,
 					dispatcher() {
 						setState( selectorCallback( {
-							...conProps.get(),
+							state: conProps.get( 'state', ),
 							...conProps,
 						}, ), );
 					},
@@ -312,7 +312,7 @@ export default function useCon<
 			);
 
 			return selectorCallback( {
-				...conProps.get(),
+				state: conProps.get( 'state', ),
 				...conProps,
 			}, );
 		},

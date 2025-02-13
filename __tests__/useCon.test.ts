@@ -25,10 +25,6 @@ describe( 'useCon', () => {
 			initialState,
 			{
 				state: props.state,
-				initial: props.initial,
-				prev: props.prev,
-				changes: props.changes,
-				prevInitial: props.prevInitial,
 				currySet: props.currySet,
 				currySetHistory: props.currySetHistory,
 				get: props.get,
@@ -94,7 +90,7 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				props => ( {
-					test: props.initial.text,
+					test: props.get( 'initial.text', ),
 					setHistory: props.setHistory,
 				} ),
 			), );
