@@ -8,7 +8,6 @@ import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import escapeDots from './escapeDots';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -16,8 +15,15 @@ import handleStateUpdate from './handleStateUpdate';
 import isPlainObject from './isPlainObject';
 import getHistoryDraft from './getHistoryDraft';
 
+function _escapeDots( key: string | number, ) {
+	if ( typeof key === 'string' ) {
+		return key.replace( /(?<!\\)\./g, '\\\\.', );
+	}
+	return key;
+}
+
 function _joinPath( path: string | ( string | number )[], ) {
-	return typeof path === 'string' ? path : path.map( escapeDots, ).join( '.', );
+	return typeof path === 'string' ? path : path.map( _escapeDots, ).join( '.', );
 }
 
 function _returnStateArgs( args: unknown[], ) {
