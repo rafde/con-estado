@@ -42,26 +42,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: npm
 
-      - name: Restore cache parcel-cache
-        if: ${{ inputs.jsr || inputs.npm }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ github.workspace }}/.parcel-cache
-          key: ${{ runner.os }}-build-${{ hashFiles('src/**/*') }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
-
-      - name: Restore cache dist
-        if: ${{ inputs.release != 'NONE' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ github.workspace }}/dist
-          key: ${{ runner.os }}-dist-${{ hashFiles('dist/**/*') }}
-          restore-keys: |
-            ${{ runner.os }}-dist-
-
       - name: Install npm dependencies
         if: ${{ inputs.jsr  || inputs.npm  }}
         run: |
