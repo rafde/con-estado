@@ -1,11 +1,10 @@
 import { useState, } from 'react';
 import createCon from './_internal/createCon';
-import defaultSelector, {
-	type DefaultSelector,
-} from './_internal/defaultSelector';
+import defaultSelector from './_internal/defaultSelector';
 import isPlainObject from './_internal/isPlainObject';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
+import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
 import type { Initial, } from './types/Initial';
 import type { Option, } from './types/Option';
