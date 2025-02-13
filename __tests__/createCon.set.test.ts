@@ -66,6 +66,64 @@ describe( 'createCon - set', () => {
 		}, );
 
 		describe( 'set(function)', () => {
+			it( 'should provide correct StringPathProps data structure to updater', () => {
+				const changes = {
+					s: 'next',
+				};
+				const initialPropValue = initialObject.ooo.oooa[ 0 ];
+				const nextHistory = estado.set( 'ooo.oooa.0', ( props, ) => {
+					// Test StringPathProps properties
+					expect( props.changesProp, ).toBeUndefined(); // No changes yet
+					expect( props.initialProp, ).toEqual( initialPropValue, );
+					expect( props.prevProp, ).toBeUndefined(); // No previous state yet
+					expect( props.prevInitialProp, ).toBeUndefined();
+					expect( props.stateProp, ).toEqual( initialPropValue, );
+
+					// Make changes using props
+					props.draft.s = 'next';
+				}, );
+
+				// Verify changes were applied
+				expect( nextHistory.state.ooo.oooa[ 0 ], ).toEqual( changes, );
+
+				estado.set( 'ooo.oooa.0', ( props, ) => {
+					// Test StringPathProps properties
+					expect( props.changesProp, ).toStrictEqual( changes, );
+					expect( props.initialProp, ).toEqual( initialPropValue, );
+					expect( props.prevProp, ).toStrictEqual( initialPropValue, );
+					expect( props.prevInitialProp, ).toBeUndefined();
+					expect( props.stateProp, ).toEqual( changes, );
+				}, );
+			}, );
+
+			it( 'should provide correct StringPathProps value to updater', () => {
+				const changes = 'next';
+				const initialPropValue = initialObject.ooo.oooa[ 0 ].s;
+				const nextHistory = estado.set( 'ooo.oooa.0.s', ( props, ) => {
+					// Test StringPathProps properties
+					expect( props.changesProp, ).toBeUndefined(); // No changes yet
+					expect( props.initialProp, ).toEqual( initialPropValue, );
+					expect( props.prevProp, ).toBeUndefined(); // No previous state yet
+					expect( props.prevInitialProp, ).toBeUndefined();
+					expect( props.stateProp, ).toEqual( initialPropValue, );
+
+					// Make changes using props
+					props.draft = 'next';
+				}, );
+
+				// Verify changes were applied
+				expect( nextHistory.state.ooo.oooa[ 0 ].s, ).toEqual( changes, );
+
+				estado.set( 'ooo.oooa.0.s', ( props, ) => {
+					// Test StringPathProps properties
+					expect( props.changesProp, ).toStrictEqual( changes, );
+					expect( props.initialProp, ).toEqual( initialPropValue, );
+					expect( props.prevProp, ).toStrictEqual( initialPropValue, );
+					expect( props.prevInitialProp, ).toBeUndefined();
+					expect( props.stateProp, ).toEqual( changes, );
+				}, );
+			}, );
+
 			it( 'should set a new value by callback', () => {
 				const next = estado.set( ( { draft, }, ) => {
 					draft.n = 11;
