@@ -356,7 +356,7 @@ export default function createConStore<
 			...opts,
 			dispatcher( nextHistory, ) {
 				snapshot = {
-					...nextHistory,
+					state: nextHistory.state,
 					...estado,
 				};
 				listeners.forEach( listener => listener( snapshot, ), );
@@ -369,7 +369,7 @@ export default function createConStore<
 		...estado
 	} = estadoSubLis;
 	const initialSnapshot = {
-		...estado.get(),
+		state: estado.get( 'state', ),
 		...estado,
 	};
 	let snapshot = initialSnapshot;
