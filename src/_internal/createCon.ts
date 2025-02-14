@@ -9,7 +9,7 @@ import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import findChanges from './findChanges';
+import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
@@ -71,13 +71,12 @@ export default function createCon<
 	if ( initial == null || typeof initial !== 'object' ) {
 		throw new Error( `Only works with plain objects or arrays. Value is ${initial} of type ${typeof initial}`, );
 	}
-	let history: History<S> = {
-		changes: undefined,
+	let history: History<S> = createHistoryProxy( {
 		initial,
 		prev: undefined,
 		prevInitial: undefined,
 		state: initial,
-	};
+	}, );
 	const {
 		acts = fo,
 		afterChange = noop,
@@ -203,9 +202,7 @@ export default function createCon<
 
 			let initial = history.initial;
 			let state = history.initial;
-			let changes: undefined | History<S>['changes'];
 			if ( transform !== noop ) {
-				let hasChanges = false;
 				const res = create(
 					{
 						initial,
@@ -216,28 +213,20 @@ export default function createCon<
 					},
 				);
 				if ( res.initial !== initial ) {
-					hasChanges = true;
 					initial = res.initial;
 				}
 				if ( res.state !== state ) {
-					hasChanges = true;
 					state = res.state;
 				}
-				if ( hasChanges ) {
-					changes = findChanges(
-						initial,
-						state,
-					) as History<S>['changes'];
-				}
 			}
-
-			return _dispatch( {
+			const nextHistory: History<S> = createHistoryProxy( {
 				initial,
-				changes,
-				prevInitial: history.prevInitial == null ? undefined : history.initial,
 				prev: history.prev == null ? undefined : history.state,
+				prevInitial: history.prevInitial == null ? undefined : history.initial,
 				state,
 			}, );
+
+			return _dispatch( nextHistory, );
 		},
 		set( ...args: unknown[] ) {
 			return setHistory( ..._returnStateArgs( args, ), );

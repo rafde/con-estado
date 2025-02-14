@@ -33,7 +33,7 @@ describe( 'createCon - set', () => {
 		describe( 'set(object)', () => {
 			it( 'should have no changes when setting the same state', () => {
 				const next = estado.set( initialObject, );
-				expect( history, ).toStrictEqual( next, );
+				expect( history, ).toBe( next, );
 			}, );
 
 			it( 'should set state object', () => {

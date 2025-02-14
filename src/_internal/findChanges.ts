@@ -11,6 +11,9 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 }
 
 export default function findChanges<T extends DS,>( a: T, b: T, ) {
+	if ( a === b ) {
+		return;
+	}
 	let changes: Record<string, unknown> | Array<unknown> = {};
 	let hasChanges = false;
 	if ( Array.isArray( a, ) && Array.isArray( b, ) ) {

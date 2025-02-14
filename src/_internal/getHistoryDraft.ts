@@ -1,10 +1,9 @@
-import { strictDeepEqual, } from 'fast-equals';
 import { create, isDraft, type Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import type { MutOptions, } from '../types/MutOptions';
 import type { OptionTransform, } from '../types/OptionTransform';
-import findChanges from './findChanges';
+import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
@@ -35,38 +34,13 @@ export default function getHistoryDraft<
 
 	function finalize() {
 		transform( _draft, history, type, );
-		const next = _finalize();
-		let {
-			initial,
-			state,
-		} = next;
-
-		const hasNoStateChanges = strictDeepEqual( history.state, state, );
-		const hasNoInitialChanges = strictDeepEqual( history.initial, initial, );
-
-		if ( hasNoStateChanges && hasNoInitialChanges ) {
+		const next = _finalize() as History<S>;
+		if ( history.state === next.state && history.initial === next.initial ) {
 			return history;
 		}
-
-		if ( hasNoStateChanges ) {
-			state = history.state;
-		}
-
-		if ( hasNoInitialChanges ) {
-			initial = history.initial;
-		}
-
-		const changes = findChanges(
-			initial as S,
-			state as S,
-		) as History<S>['changes'];
-		const nextHistory: History<S> = {
-			changes,
-			prevInitial: initial !== history.initial ? history.initial : history.prevInitial,
-			state: state as S,
-			initial: initial as S,
-			prev: state !== history.state ? history.state : history.prev,
-		};
+		next.prev = history.state === next.state ? history.prev : history.state;
+		next.prevInitial = history.initial === next.initial ? history.prevInitial : history.initial;
+		const nextHistory: History<S> = createHistoryProxy( next, );
 
 		return setHistory( nextHistory, );
 	}
