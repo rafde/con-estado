@@ -238,11 +238,11 @@ function StateHistory() {
 	const [state, { get, reset }] = useCon(initialState);
 	
 	const history = get(); // Get full state history
-	const previousState = history.priorState;
+	const prev = history.prev;
 	
 	return (
 		<div>
-			<pre>{JSON.stringify(previousState, null, 2)}</pre>
+			<pre>{JSON.stringify(prev, null, 2)}</pre>
 			<button onClick={reset}>Reset State</button>
 		</div>
 	);
@@ -272,28 +272,27 @@ const [state, controls] = useCon(initialState, options?);
 
 #### createConStore and useCon Options
 
-1. `initial`: `Record<string | number, unknown>` or `Array<unknown>`
-   - `useCon` can accept a callback 
+1. `initial`: `Record<string | number, unknown>`, `Array<unknown>`, or `() => Record<string | number, unknown> | Array<unknown>`  
 2. `options`: Configuration options for `createConStore` and `useCon`.
    - `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
    - `afterChange`: Async callback after state changes
-   - `mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options)
-   - `transform`: Callback `function` to transform the `state` and/or `initial` properties before it is set/reset
+   - `mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options). `{enablePatches: true}` not supported.
+   - `transform`: Callback `function` to transform the `state` and/or `initial` properties before it is set/reset. Receives a draft and current history
 3. `selector`: Custom state selector function that lets you shape what is returned from `useCon` and `createConStore`
 
 
 ### createConStore and useCon Controls
 
-- `set(path, value)`: A function to update `state` properties
-- `currySet(path)`: Get a function to specify which part of `state` you want to update by currying `set(path)`
-- `setWrap(path, value)`: Lets you wrap the `set` function in a function that will be called with the draft value to update.
-- `acts`: Custom defined actions
+- `set(pathOrCallback, valueOrCallback?)`: A function to update `state` properties
+- `currySet(pathOrCallback)`: Get a function to specify which part of `state` you want to update by currying `set(path)`
+- `setWrap(pathOrCallback, pathOrCallback?)`: Lets you wrap the `set` function in a function that will be called with the draft value to update.
+- `acts(controls)`: Custom defined actions
 - `get(path?)`: Get current state or value at path
 - `reset()`: Reset state to initial
-- `getDraft(path?, mutOptions?)`: Get mutable draft of `state` and/or `initial` properties
-- `setHistory(path, value)`: A function to update `state` and/or `initial` properties
-- `currySetHistory(path)`: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
-- `setHistoryWrap(path, value)`: Lets you wrap the `setHistory` function in a function that will be called with the draft value to update.
+- `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft of `state` and/or `initial` properties
+- `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: A function to update `state` and/or `initial` properties
+- `currySetHistory(pathOrCallback)`: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
+- `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Lets you wrap the `setHistory` function in a function that will be called with the draft value to update.
 
 ## TypeScript Support
 
