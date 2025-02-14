@@ -32,11 +32,9 @@ export default function useSelectorCallback<
 		( snapshot: Parameters<Selector<S, AR>>[0], ) => {
 			const next = _selector( snapshot, );
 			const prev = resultRef.current;
-			resultRef.current = prev == null
+			resultRef.current = prev == null || !isEqual( prev, next, )
 				? next
-				: isEqual( prev, next, )
-					? prev
-					: next;
+				: prev;
 			return resultRef.current;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,8 +1,8 @@
-import type { CreateConOptions, } from '../types/CreateConOptions';
-import createCon from './createCon';
 import type { ActRecord, } from '../types/ActRecord';
+import type { CreateConOptions, } from '../types/CreateConOptions';
+import type { CreateConSubLisReturn, } from '../types/createConSubLisReturn';
 import type { DS, } from '../types/DS';
-import type { Selector, } from '../types/Selector';
+import createCon from './createCon';
 
 export default function createConSubLis<
 	S extends DS,
@@ -10,13 +10,19 @@ export default function createConSubLis<
 >(
 	initial: S,
 	options?: CreateConOptions<S, AR>,
-) {
+): CreateConSubLisReturn<S, AR> {
 	const estado = createCon(
 		initial,
-		options,
+		{
+			...options,
+			dispatcher( nextHistory, ) {
+				options?.dispatcher?.( nextHistory, );
+				listeners.forEach( listener => listener(), );
+			},
+		},
 	);
-	const listeners = new Set<Selector<S, AR>>();
-	function subscribe( listener: Selector<S, AR>, ) {
+	const listeners = new Set<() => void>();
+	function subscribe( listener: () => void, ) {
 		listeners.add( listener, );
 		return () => {
 			listeners.delete( listener, );
