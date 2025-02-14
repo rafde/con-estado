@@ -1,10 +1,11 @@
 import type { ActRecord, } from './ActRecord';
 import type { CreateConReturnType, } from './createConReturnType';
 import type { DS, } from './DS';
-import type { Immutable, } from './Immutable';
 
-export type Selector<
+export type CreateConSubLisReturn<
 	S extends DS,
 	AR extends ActRecord,
-	R = unknown,
-> = ( selectorProps: CreateConReturnType<S, AR> & Immutable<{ state: S }> ) => R;
+> = CreateConReturnType<S, AR> & {
+	subscribe( listener: () => void ): () => void
+	listeners: Set<() => void>
+};

@@ -1,10 +1,10 @@
-import { useSyncExternalStore, } from 'react';
-import type { CreateConReturnType, } from './_internal/createCon';
+import { useCallback, useSyncExternalStore, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import isPlainObject from './_internal/isPlainObject';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
+import type { CreateConReturnType, } from './types/createConReturnType';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
 import type { Initial, } from './types/Initial';
@@ -359,12 +359,12 @@ export default function createConStore<
 					state: nextHistory.state,
 					...estado,
 				};
-				listeners.forEach( listener => listener( snapshot, ), );
 			},
 		},
 	);
 	const {
 		subscribe,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		listeners,
 		...estado
 	} = estadoSubLis;
@@ -378,16 +378,26 @@ export default function createConStore<
 			sel,
 			select,
 		);
-		// @see {@link https://github.com/facebook/react/blob/main/packages/use-sync-external-store/src/useSyncExternalStoreShimClient.js}
+		const initSnapshotCallback = useCallback(
+			() => selectorCallback( initialSnapshot, ),
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			[],
+		);
+		const snapshotCallback = useCallback(
+			() => selectorCallback( snapshot, ),
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			[],
+		);
+
 		return useSyncExternalStore(
 			subscribe,
-			() => selectorCallback( snapshot, ),
-			() => selectorCallback( initialSnapshot, ),
+			snapshotCallback,
+			initSnapshotCallback,
 		);
 	}
 
 	return Object.assign(
 		useConSelector,
-		estado,
+		estadoSubLis,
 	);
 }

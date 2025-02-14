@@ -40,6 +40,21 @@ describe( 'createConStore', () => {
 		expect( strictDeepEqual( result.current[ 0 ], initialSnapshot, ), ).toBe( false, );
 	}, );
 
+	it( 'should not change', () => {
+		const { result, } = renderHook( () => useConSelector(), );
+
+		const [initialSnapshot, controls,] = result.current;
+
+		act( () => {
+			controls.setHistory( 'state', ( { draft, }, ) => {
+				draft.count = 0;
+			}, );
+		}, );
+
+		expect( result.current[ 0 ], ).toBe( initialSnapshot, );
+		expect( strictDeepEqual( result.current[ 0 ], initialSnapshot, ), ).toBe( true, );
+	}, );
+
 	describe( 'acts', () => {
 		function createSelector() {
 			return createConStore(
@@ -104,6 +119,28 @@ describe( 'createConStore', () => {
 			}, );
 
 			expect( result.current.test, ).toBe( 'new text', );
+		}, );
+
+		it( 'should not trigger other hooks', () => {
+			const { result, } = renderHook( () => useConSelector( props => ( {
+				setText: props.setHistoryWrap(
+					'state.test',
+					( props, text: string, ) => {
+						props.draft = text;
+					},
+				),
+				test: props.state.test,
+			} ), ), );
+			const lastCurrent = result.current;
+
+			const { result: defaultResult, } = renderHook( () => useConSelector(), );
+
+			act( () => {
+				defaultResult.current[ 1 ].set( 'count', 11, );
+			}, );
+
+			expect( result.current, ).toBe( lastCurrent, );
+			expect( strictDeepEqual( result.current, lastCurrent, ), ).toBe( true, );
 		}, );
 
 		it( 'should return the correct state based createConStore selector', () => {

@@ -2,18 +2,19 @@ import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
+import type { CreateConReturnType, } from '../types/createConReturnType';
 import type { DS, } from '../types/DS';
-import type { History, } from '../types/History';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';
+import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import findChanges from './findChanges';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import getHistoryDraft from './getHistoryDraft';
 import handleStateUpdate from './handleStateUpdate';
 import isPlainObject from './isPlainObject';
-import getHistoryDraft from './getHistoryDraft';
 
 function _escapeDots( key: string | number, ) {
 	if ( typeof key === 'string' ) {
@@ -59,11 +60,6 @@ function noop(): void {
 const fo = <
 	AR extends ActRecord,
 >() => EMPTY_OBJECT as AR;
-
-export type CreateConReturnType<
-	S extends DS,
-	AR extends ActRecord,
-> = CreateActsProps<S> & { acts: AR };
 
 export default function createCon<
 	S extends DS,
