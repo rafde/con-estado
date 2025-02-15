@@ -124,10 +124,10 @@ export default function createCon<
 		const [statePath, nextState,] = args;
 
 		return function wrap( ...wrapArgs: unknown[] ) {
-			const [draft, finalize,] = getDraft();
+			const [draftHistory, finalize,] = getDraft();
 			if ( typeof statePath === 'function' ) {
 				return handleStateUpdate(
-					draft,
+					draftHistory,
 					history,
 					[
 						( prop: unknown, ) => statePath( prop, ...wrapArgs, ),
@@ -139,7 +139,7 @@ export default function createCon<
 
 			if ( typeof nextState === 'function' ) {
 				return handleStateUpdate(
-					draft,
+					draftHistory,
 					history,
 					[
 						statePath,
@@ -150,18 +150,18 @@ export default function createCon<
 				);
 			}
 
-			return handleStateUpdate( draft, history, args, arrayPathMap, finalize, );
+			return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
 		};
 	}
 
 	function setHistory( ...args: unknown[] ) {
-		const [draft, finalize,] = getDraft();
+		const [draftHistory, finalize,] = getDraft();
 
 		if ( args.length === 0 ) {
 			return finalize();
 		}
 
-		return handleStateUpdate( draft, history, args, arrayPathMap, finalize, );
+		return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
 	}
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => History<S>>();
