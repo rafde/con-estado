@@ -36,8 +36,8 @@ describe( 'createCon - setHistoryWrap', () => {
 
 	it( 'handles function-based updates with context', () => {
 		const con = createCon( initial, );
-		const wrapped = con.setHistoryWrap( ( { draft, }, multiplier: number, ) => {
-			draft.state.nested.value *= multiplier;
+		const wrapped = con.setHistoryWrap( ( { historyDraft, }, multiplier: number, ) => {
+			historyDraft.state.nested.value *= multiplier;
 		}, );
 		wrapped( 4, );
 		expect( con.get().state.nested.value, ).toBe( 40, );

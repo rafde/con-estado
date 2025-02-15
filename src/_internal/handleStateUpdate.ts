@@ -24,7 +24,7 @@ export default function handleStateUpdate<
 	if ( typeof statePath === 'function' ) {
 		statePath( {
 			...history,
-			draft: historyDraft,
+			historyDraft,
 		}, );
 		return finalize();
 	}

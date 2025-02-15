@@ -39,11 +39,16 @@ type ArrayPathProps<
 	historyDraft: Draft<HistoryState<S>>
 };
 
+type CallbackHistoryDraftProps<
+	S extends DS,
+> = History<S> & Readonly<{
+	historyDraft: Draft<HistoryState<S>>
+}>;
+
 type CallbackDraftProps<
 	S extends DS,
-	NS extends HistoryState<S> | S,
-> = History<S> & Readonly<{
-	draft: Draft<NS>
+> = CallbackHistoryDraftProps<S> & Readonly<{
+	draft: Draft<S>
 }>;
 
 type SetHistory<
@@ -53,7 +58,7 @@ type SetHistory<
 > = {
 	setHistory(
 		nextState: NS | ( (
-			props: CallbackDraftProps<S, NS>,
+			props: CallbackHistoryDraftProps<S>,
 		) => void )
 	): History<S>
 	setHistory<
@@ -110,7 +115,7 @@ type SetHistoryWrap<
 > = {
 	setHistoryWrap<A extends unknown[],>(
 		nextState: (
-			props: CallbackDraftProps<S, NS>,
+			props: CallbackHistoryDraftProps<S>,
 			...args: A
 		) => void
 	): ( ...args: A ) => History<S>
@@ -146,7 +151,7 @@ type SetState<
 > = {
 	set(
 		nextState: S | ( (
-			props: CallbackDraftProps<S, S>,
+			props: CallbackDraftProps<S>,
 		) => void )
 	): History<S>
 	set<
@@ -201,7 +206,7 @@ type SetWrap<
 > = {
 	setWrap<A extends unknown[],>(
 		nextState: (
-			props: CallbackDraftProps<S, S>,
+			props: CallbackDraftProps<S>,
 			...args: A
 		) => void
 	): ( ...args: A ) => History<S>
