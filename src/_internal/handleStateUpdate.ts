@@ -9,7 +9,7 @@ import isPlainObject from './isPlainObject';
 export default function handleStateUpdate<
 	S extends DS,
 >(
-	draft: Draft<{
+	historyDraft: Draft<{
 		initial: S
 		state: S
 	}>,
@@ -24,52 +24,52 @@ export default function handleStateUpdate<
 	if ( typeof statePath === 'function' ) {
 		statePath( {
 			...history,
-			draft,
+			draft: historyDraft,
 		}, );
 		return finalize();
 	}
 
 	// Handle path-based updates
 	if ( typeof statePath === 'string' || Array.isArray( statePath, ) ) {
-		const arrayPath = typeof statePath === 'string'
+		const statePathArray = typeof statePath === 'string'
 			? getCacheStringPathToArray( arrayPathMap, statePath, )
 			: statePath as ( string | number )[];
 
-		const valuePath = arrayPath.at( -1, );
-		const [value, parent,] = getDeepValueParentByArray( draft, arrayPath, );
-		const slicedPath = arrayPath.slice( 1, );
+		const valueKey = statePathArray.at( -1, );
+		const [draft, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
+		const pathArray = statePathArray.slice( 1, );
 
-		if ( typeof nextState === 'function' && isPlainObject( value, ) ) {
+		if ( typeof nextState === 'function' && isPlainObject( draft, ) ) {
 			nextState(
-				createArrayPathProxy(
-					value,
+				createArrayPathProxy( {
+					pathArray,
+					draft,
+					historyDraft,
+					parentDraft,
 					history,
-					slicedPath,
-					{
-						parentDraft: parent,
-						draftProp: valuePath,
-					},
-				),
+					valueKey,
+				}, ),
 			);
 		}
-		else if ( typeof parent === 'object' && typeof valuePath !== 'undefined' && valuePath in parent ) {
+		else if ( typeof parentDraft === 'object' && typeof valueKey !== 'undefined' && valueKey in parentDraft ) {
 			if ( typeof nextState === 'function' ) {
 				nextState(
-					createArrayPathProxy(
-						parent,
+					createArrayPathProxy( {
+						draft: parentDraft,
+						historyDraft,
+						pathArray,
 						history,
-						slicedPath,
-						{ valueProp: valuePath, },
-					),
+						valueKey,
+					}, ),
 				);
 			}
 			else {
-				Reflect.set( parent, valuePath, nextState, );
+				Reflect.set( parentDraft, valueKey, nextState, );
 			}
 		}
 	}
 	else if ( typeof nextState === 'undefined' && isPlainObject( statePath, ) ) {
-		Object.assign( draft, statePath, );
+		Object.assign( historyDraft, statePath, );
 	}
 
 	return finalize();

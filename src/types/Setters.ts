@@ -21,6 +21,7 @@ type StringPathProps<
 		stateProp: GetStringPathValue<NS, SP>
 	}> & {
 		draft: GetStringPathValue<NS, SP>
+		historyDraft: Draft<HistoryState<S>>
 	};
 
 type ArrayPathProps<
@@ -35,6 +36,7 @@ type ArrayPathProps<
 	stateProp: GetArrayPathValue<NS, SP>
 }> & {
 	draft: GetArrayPathValue<NS, SP>
+	historyDraft: Draft<HistoryState<S>>
 };
 
 type CallbackDraftProps<
