@@ -86,8 +86,8 @@ describe( 'createCon - setHistory', () => {
 
 		describe( 'setHistory(function)', () => {
 			it( 'should setHistory a new value by callback', () => {
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state.n = 11;
+				const next = estado.setHistory( ( { historyDraft, }, ) => {
+					historyDraft.state.n = 11;
 				}, );
 
 				expect( next.state, ).toStrictEqual( {
@@ -298,8 +298,8 @@ describe( 'createCon - setHistory', () => {
 						n: 11,
 					},
 				];
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state[ 0 ].n = changes[ 0 ].n;
+				const next = estado.setHistory( ( { historyDraft, }, ) => {
+					historyDraft.state[ 0 ].n = changes[ 0 ].n;
 				}, );
 
 				expect( next.state, ).toStrictEqual( changes, );
@@ -321,8 +321,8 @@ describe( 'createCon - setHistory', () => {
 					...initialArray,
 					item,
 				];
-				const next = estado.setHistory( ( { draft, }, ) => {
-					draft.state.push( item, );
+				const next = estado.setHistory( ( { historyDraft, }, ) => {
+					historyDraft.state.push( item, );
 				}, );
 
 				expect( next.state, ).toStrictEqual( changes, );
