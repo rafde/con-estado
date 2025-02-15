@@ -1,6 +1,6 @@
 import { renderHook, act, } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, } from 'vitest';
-import { createConStore, } from '../src/index';
+import { createConStore, } from '../src/';
 import { strictDeepEqual, } from 'fast-equals';
 
 const initialState = {

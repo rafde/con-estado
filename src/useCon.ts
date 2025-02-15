@@ -207,7 +207,7 @@ import type { History, } from './types/History';
  * );
  * ```
  */
-export default function useCon<
+export function useCon<
 	S extends DS,
 	AR extends ActRecord,
 	Sel extends Selector<S, AR> = DefaultSelector<S, AR>,
@@ -267,14 +267,14 @@ export default function useCon<
  *   - `prev`: Previous state if changed
  *   - `prevInitial`: Previous initial if changed
  */
-export default function useCon<
+export function useCon<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
 >(
 	initial: Initial<S>,
 	selector: Sel,
 ): ReturnType<Sel>;
-export default function useCon<
+export function useCon<
 	S extends DS,
 	AR extends ActRecord,
 >(

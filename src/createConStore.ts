@@ -217,7 +217,7 @@ type CreateConStoreReturnType<
  * }
  * ```
  */
-export default function createConStore<
+export function createConStore<
 	S extends DS,
 	AR extends ActRecord,
 	Sel extends Selector<S, AR> = DefaultSelector<S, AR>,
@@ -325,7 +325,7 @@ export default function createConStore<
  * }
  * ```
  */
-export default function createConStore<
+export function createConStore<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>>,
 >(
@@ -336,7 +336,7 @@ export default function createConStore<
 	Record<never, never>,
 	Sel
 >;
-export default function createConStore<
+export function createConStore<
 	S extends DS,
 	AR extends ActRecord,
 >(

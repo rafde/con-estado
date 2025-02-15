@@ -1,6 +1,6 @@
 import { renderHook, act, } from '@testing-library/react';
 import { describe, expect, it, } from 'vitest';
-import useCon from '../src/useCon';
+import { useCon, } from '../src/';
 
 const initialState = {
 	count: 0,
