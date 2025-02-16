@@ -1,8 +1,6 @@
-import { useState, } from 'react';
-import createCon from './_internal/createCon';
-import defaultSelector from './_internal/defaultSelector';
+import { useMemo, } from 'react';
 import isPlainObject from './_internal/isPlainObject';
-import useSelectorCallback from './_internal/useSelectorCallback';
+import { createConStore, } from './createConStore';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
@@ -282,41 +280,19 @@ export function useCon<
 	options?: unknown,
 	selector?: unknown,
 ) {
-	const [
-		opts,
-		sel,
-	] = isPlainObject( options, )
-		? [options as Option<S, AR>, selector as Selector<S, AR> | undefined,]
-		: [{} as Option<S, AR>, options as Selector<S, AR> | undefined,];
-
-	const selectorCallback = useSelectorCallback<S, AR>(
-		defaultSelector<S, AR>,
-		sel,
-	);
-	const [
-		state,
-		setState,
-	] = useState(
+	const useSelector = useMemo(
 		() => {
-			const conProps = createCon(
-				typeof initial === 'function' ? initial() : initial,
-				{
-					...opts,
-					dispatcher() {
-						setState( selectorCallback( {
-							state: conProps.get( 'state', ),
-							...conProps,
-						}, ), );
-					},
-				},
-			);
-
-			return selectorCallback( {
-				state: conProps.get( 'state', ),
-				...conProps,
-			}, );
+			const [
+				opts,
+				sel,
+			] = isPlainObject( options, )
+				? [options as Option<S, AR>, selector as Selector<S, AR> | undefined,]
+				: [{} as Option<S, AR>, options as Selector<S, AR> | undefined,];
+			return createConStore( initial, opts, sel, );
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
 	);
 
-	return state;
+	return useSelector();
 }
