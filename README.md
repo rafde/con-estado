@@ -31,10 +31,9 @@ with the goal of helping with deeply nested state management in your application
 
 Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `con-estado` provides:
 
-- **Direct path updates** - Modify nested properties using dot notation instead of spreading multiple levels
+- **Direct path updates** - Modify nested properties using dot notation or `Array<string | number>` instead of spreading multiple levels
 - **Referential stability** - Only modified portions of state create new references, preventing unnecessary re-renders
-- **Zero boilerplate actions** - Built-in atomic mutations with automatic action creation
-- **Optimized selectors** - Prevent component re-renders by selecting only relevant state fragments
+- **Custom selectors** - Prevent component re-renders by selecting only relevant state fragments
 - **Type-safe mutations** - Full TypeScript support for state paths and updates
 
 Built on [Mutative](https://mutative.js.org/)'s efficient immutable updates, `con-estado` is particularly useful for applications with:
@@ -79,7 +78,7 @@ function MyComponent() {
 ```
 ## Global Store
 
-For applications needing global state management, `createConStore` provides a solution with built-in actions and optimized updates:
+For applications needing global state management, `createConStore` provides a solution for creating actions and optimized updates:
 
 ```tsx
 import { createConStore } from 'con-estado';
@@ -187,7 +186,7 @@ Define reusable actions for complex state updates:
 
 ```tsx
 function PostList() {
-	const [state, { acts }] = useCon(initialState, {
+	const [state, { acts }] = useCon({posts: [{id: 1, text: 'post'}]}, {
 		acts: ({ currySet, wrapSet }) => {
 			// currySet is a function that returns a function that can be called with the posts array
 			const setPost = currySet('posts');
@@ -251,15 +250,26 @@ function StateHistory() {
 
 ## API Reference
 
+`createConStore` and `useCon` take the same parameters.
+
+### createConStore and useCon Options Overview
+
+1. **initial**: non-null Object with data, Array, or a function that returns an Object or Array
+2. **options**: Configuration options for `createConStore` and `useCon`.
+	- **acts**: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
+	- **afterChange**: Async callback after state changes
+	- **mutOptions**: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options). `{enablePatches: true}` not supported.
+	- **transform**: Callback `function` to transform the `state` and/or `initial` properties before it is set/reset. Receives a draft and current history
+3. **selector**: Custom state selector function that lets you shape what is returned from `useCon` and `createConStore`
 
 ### createConStore
 
 Global store for state management.
 
 ```ts
-const useConSelector = createConStore(initialState, options?);
+const useConSelector = createConStore(initialState, options, selector);
 
-const [state, controls] = useConSelector(selector?);
+const [state, controls] = useConSelector(selectorOverride);
 ```
 
 ### useCon
@@ -267,32 +277,21 @@ const [state, controls] = useConSelector(selector?);
 Local state management.
 
 ```ts
-const [state, controls] = useCon(initialState, options?);
+const [state, controls] = useCon(initialState, options, selector);
 ```
 
-#### createConStore and useCon Options
+### createConStore and useCon Controls Overview
 
-1. `initial`: `Record<string | number, unknown>`, `Array<unknown>`, or `() => Record<string | number, unknown> | Array<unknown>`  
-2. `options`: Configuration options for `createConStore` and `useCon`.
-   - `acts`: Callback `function` for creating the actions object. The action functions can be called with the `controls` object.
-   - `afterChange`: Async callback after state changes
-   - `mutOptions`: Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options). `{enablePatches: true}` not supported.
-   - `transform`: Callback `function` to transform the `state` and/or `initial` properties before it is set/reset. Receives a draft and current history
-3. `selector`: Custom state selector function that lets you shape what is returned from `useCon` and `createConStore`
-
-
-### createConStore and useCon Controls
-
-- `set(pathOrCallback, valueOrCallback?)`: A function to update `state` properties
-- `currySet(pathOrCallback)`: Get a function to specify which part of `state` you want to update by currying `set(path)`
-- `setWrap(pathOrCallback, pathOrCallback?)`: Lets you wrap the `set` function in a function that will be called with the draft value to update.
-- `acts(controls)`: Custom defined actions
-- `get(path?)`: Get current state or value at path
-- `reset()`: Reset state to initial
-- `getDraft(pathOrMutOptions?, mutOptions?)`: Get mutable draft of `state` and/or `initial` properties
-- `setHistory(pathOrCallbackOrStateAndHistory, valueOrCallback?)`: A function to update `state` and/or `initial` properties
-- `currySetHistory(pathOrCallback)`: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
-- `setHistoryWrap(pathOrCallback, valueOrCallback?)`: Lets you wrap the `setHistory` function in a function that will be called with the draft value to update.
+- **set**: A `function` to update `state` properties
+- **currySet**: Get a function to specify which part of `state` you want to update by currying `set(path)`
+- **setWrap**: Lets you wrap `set` around a function that will be called with the draft value to update.
+- **acts**: Custom defined actions
+- **get**: Get current state or value at path
+- **reset**: Reset state to initial
+- **getDraft**: Get mutable draft of `state` and/or `initial` properties
+- **setHistory**: A function to update `state` and/or `initial` properties
+- **currySetHistory**: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
+- **setHistoryWrap**: Lets you wrap `setHistory` around a function that will be called with the draft value to update.
 
 ## TypeScript Support
 
@@ -316,4 +315,4 @@ const [state, { set }] = useCon({
 - [Mutative](https://mutative.js.org/) for efficient immutable updates
 - [Immer](https://immerjs.github.io/immer/) for inspiring Mutative
 - [Zustand](https://github.com/pmndrs/zustand) for the inspiration
-- Øivind Loe for questioning why I wanted to create a state management library.
+- Øivind Loe for reminding me why I wanted to create a state management library.
