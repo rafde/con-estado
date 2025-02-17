@@ -16,6 +16,7 @@ describe( 'createCon - setHistory', () => {
 			oooa: [
 				{
 					s: 's',
+					's.s': 's.s',
 				},
 			],
 		},
@@ -69,7 +70,8 @@ describe( 'createCon - setHistory', () => {
 					ooo: {
 						oooa: [
 							{
-								s: 'next',
+								s: 's next',
+								's.s': 's.s next',
 							},
 						],
 					},
@@ -104,9 +106,14 @@ describe( 'createCon - setHistory', () => {
 		describe( 'setHistory(stringPathToValue, non-function)', () => {
 			it( 'should setHistory a new value by path', () => {
 				const changes = {
-					n: 3,
+					ooo: {
+						oooa: [{
+							s: 's',
+							's.s': 'next',
+						},],
+					},
 				};
-				const next = estado.setHistory( 'state.n', changes.n, );
+				const next = estado.setHistory( 'state.ooo.oooa.0.s\\.s', changes.ooo.oooa[ 0 ][ 's.s' ], );
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
