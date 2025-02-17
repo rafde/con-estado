@@ -2,14 +2,27 @@ import { useCallback, useSyncExternalStore, } from 'react';
 import type { CreateConStoreReturnType, } from '../types/CreateConStoreReturnType';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
+import getSnapshotSymbol from './_internal/getSnapshotSymbol';
 import isPlainObject from './_internal/isPlainObject';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
+import type { GetSnapshot, } from './types/GetSnapshot';
+import type { History, } from './types/History';
+import type { Immutable, } from './types/Immutable';
 import type { Initial, } from './types/Initial';
 import type { Option, } from './types/Option';
 import type { Selector, } from './types/Selector';
+import type { SelectorProps, } from './types/SelectorProps';
+
+export type CreateConStoreOptions<
+	S extends DS,
+	AR extends ActRecord,
+	SP extends Record<string, unknown>,
+> = Option<S, AR> & {
+	[getSnapshotSymbol]?: ( props: SelectorProps<S, AR> ) => SelectorProps<S, AR, SP>
+};
 
 /**
  * Creates a global state store with history tracking and subscription through React's {@link useSyncExternalStore} capabilities.
@@ -68,14 +81,16 @@ import type { Selector, } from './types/Selector';
 export function createConStore<
 	S extends DS,
 	AR extends ActRecord,
-	Sel extends Selector<S, AR> = DefaultSelector<S, AR>,
+	SP extends Record<string, unknown>,
+	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
 >(
 	initial: Initial<S>,
-	options?: Option<S, AR>,
+	options?: CreateConStoreOptions<S, AR, SP>,
 	selector?: Sel
 ): CreateConStoreReturnType<
 	S,
 	AR,
+	SP,
 	Sel
 >;
 /**
@@ -175,40 +190,51 @@ export function createConStore<
  */
 export function createConStore<
 	S extends DS,
-	Sel extends Selector<S, Record<never, never>>,
+	SP extends Record<string, unknown>,
+	Sel extends Selector<S, Record<never, never>, SP>,
 >(
 	initial: Initial<S>,
 	selector: Sel,
 ): CreateConStoreReturnType<
 	S,
 	Record<never, never>,
+	SP,
 	Sel
 >;
 export function createConStore<
 	S extends DS,
 	AR extends ActRecord,
+	SP extends Record<string, unknown>,
+	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
 >(
 	initial: Initial<S>,
-	options?: unknown,
-	selector?: unknown,
+	options?: CreateConStoreOptions<S, AR, SP> | Sel,
+	selector?: Sel,
 ) {
 	const [
 		opts,
 		sel,
 	] = isPlainObject( options, )
-		? [options as Option<S, AR>, ( selector ?? defaultSelector<S, AR> ) as Selector<S, AR>,]
-		: [{} as Option<S, AR>, ( options ?? defaultSelector<S, AR> ) as Selector<S, AR>,];
+		? [options as CreateConStoreOptions<S, AR, SP>, ( selector ?? defaultSelector<S, AR, SP> ) as Selector<S, AR, SP>,]
+		: [{} as CreateConStoreOptions<S, AR, SP>, ( options ?? defaultSelector<S, AR, SP> ) as Selector<S, AR, SP>,];
+
+	const {
+		[ getSnapshotSymbol ]: _getSnapshot,
+	} = opts;
+
+	const getSnapshot: GetSnapshot<S, AR, SP> = ( nextHistory: Immutable<History<S>>, ) => {
+		const _snapshot = {
+			state: nextHistory.state,
+			...estado,
+		};
+		snapshot = typeof _getSnapshot === 'function' ? _getSnapshot( _snapshot, ) : _snapshot as ReturnType<GetSnapshot<S, AR, SP>>;
+		return snapshot;
+	};
+	let snapshot: ReturnType<GetSnapshot<S, AR, SP>>;
 	const estadoSubLis = createConSubLis(
 		typeof initial === 'function' ? initial() : initial,
-		{
-			...opts,
-			dispatcher( nextHistory, ) {
-				snapshot = {
-					state: nextHistory.state,
-					...estado,
-				};
-			},
-		},
+		getSnapshot,
+		opts,
 	);
 	const {
 		subscribe,
@@ -216,13 +242,11 @@ export function createConStore<
 		listeners,
 		...estado
 	} = estadoSubLis;
-	const initialSnapshot = {
-		state: estado.get( 'state', ),
-		...estado,
-	};
-	let snapshot = initialSnapshot;
-	function useConSelector<Sel extends Selector<S, AR>,>( select?: Sel, ) {
-		const selectorCallback = useSelectorCallback<S, AR>(
+
+	const initialSnapshot: SelectorProps<S, AR, SP> = getSnapshot( estado.get(), );
+
+	function useConSelector<Sel extends Selector<S, AR, SP>,>( select?: Sel, ) {
+		const selectorCallback = useSelectorCallback<S, AR, SP>(
 			sel,
 			select,
 		);

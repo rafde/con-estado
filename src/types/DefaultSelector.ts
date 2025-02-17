@@ -15,10 +15,12 @@ import type { Selector, } from './Selector';
 export type DefaultSelector<
 	S extends DS,
 	AR extends ActRecord,
-	P extends Parameters<Selector<S, AR>>[0] = Parameters<Selector<S, AR>>[0],
+	SP extends Record<string, unknown>,
+	P extends Parameters<Selector<S, AR, SP>>[0] = Parameters<Selector<S, AR, SP>>[0],
 > = Selector<
 	S,
 	AR,
+	SP,
 	readonly [
 		P['state'],
 		P,

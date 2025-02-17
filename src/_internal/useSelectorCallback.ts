@@ -16,7 +16,8 @@ const isEqual = createCustomEqual( {
 export default function useSelectorCallback<
 	S extends DS,
 	AR extends ActRecord,
->( defaultSelector: Selector<S, AR>, selector?: Selector<S, AR>, ) {
+	SP extends Record<string, unknown> | Record<never, never> = Record<never, never>,
+>( defaultSelector: Selector<S, AR, SP>, selector?: Selector<S, AR, SP>, ) {
 	const _selector = useMemo(
 		() => {
 			if ( typeof selector === 'function' ) {
@@ -29,7 +30,7 @@ export default function useSelectorCallback<
 	);
 	const resultRef = useRef( null as unknown, );
 	return useCallback(
-		( snapshot: Parameters<Selector<S, AR>>[0], ) => {
+		( snapshot: Parameters<Selector<S, AR, SP>>[0], ) => {
 			const next = _selector( snapshot, );
 			const prev = resultRef.current;
 			resultRef.current = prev == null || !isEqual( prev, next, )

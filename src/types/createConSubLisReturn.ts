@@ -1,11 +1,15 @@
 import type { ActRecord, } from './ActRecord';
 import type { CreateConReturnType, } from './createConReturnType';
 import type { DS, } from './DS';
+import type { SelectorProps, } from './SelectorProps';
+
+type Listener<Snapshot,> = ( props: Snapshot ) => void;
 
 export type CreateConSubLisReturn<
 	S extends DS,
 	AR extends ActRecord,
+	Snapshot = SelectorProps<S, AR>,
 > = CreateConReturnType<S, AR> & {
-	subscribe( listener: () => void ): () => void
-	listeners: Set<() => void>
+	subscribe( listener: Listener<Snapshot> ): () => void
+	listeners: Set<Listener<Snapshot>>
 };

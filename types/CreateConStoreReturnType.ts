@@ -1,5 +1,5 @@
 import type { ActRecord, } from '../src/types/ActRecord';
-import type { CreateConReturnType, } from '../src/types/createConReturnType';
+import type { CreateConSubLisReturn, } from '../src/types/createConSubLisReturn';
 import type { DefaultSelector, } from '../src/types/DefaultSelector';
 import type { DS, } from '../src/types/DS';
 import type { Selector, } from '../src/types/Selector';
@@ -11,7 +11,7 @@ import type { Selector, } from '../src/types/Selector';
  * @template AR - Action record type
  * @template Sel - Selector type extending base Selector
  *
- * @returns {CreateConReturnType<S, AR>} Base store controls and actions
+ * @returns {CreateConSubLisReturn<S, AR>} Base store controls and actions
  * @returns {() => ReturnType<Sel>} Default selector when called with no arguments
  * @returns {<Sel>(select: Sel) => ReturnType<Sel>} Custom selector when provided
  *
@@ -43,8 +43,9 @@ import type { Selector, } from '../src/types/Selector';
 export type CreateConStoreReturnType<
 	S extends DS,
 	AR extends ActRecord,
-	Sel extends Selector<S, AR>,
-> = CreateConReturnType<S, AR> & {
-	(): ReturnType<Sel extends Selector<S, AR> ? Sel : DefaultSelector<S, AR>>
-	<Sel extends Selector<S, AR>, >( select: Sel ): ReturnType<Sel>
+	SP extends Record<string, unknown>,
+	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
+> = CreateConSubLisReturn<S, AR> & {
+	(): ReturnType<Sel>
+	<Sel extends Selector<S, AR, SP>, >( select: Sel ): ReturnType<Sel>
 };
