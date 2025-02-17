@@ -5,7 +5,8 @@ import type { DS, } from '../types/DS';
 export default function defaultSelector<
 	S extends DS,
 	AR extends ActRecord,
->( selectorProps: Parameters<DefaultSelector<S, AR>>[0], ): ReturnType<DefaultSelector<S, AR>> {
+	SP extends Record<string, unknown> | Record<never, never> = Record<never, never>,
+>( selectorProps: Parameters<DefaultSelector<S, AR, SP>>[0], ) {
 	return [
 		selectorProps.state,
 		selectorProps,

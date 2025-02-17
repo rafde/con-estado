@@ -4,5 +4,5 @@ import type { DS, } from './DS';
 
 export type CreateConReturnType<
 	S extends DS,
-	AR extends ActRecord,
+	AR extends ActRecord = Record<never, never>,
 > = CreateActsProps<S> & { acts: AR };

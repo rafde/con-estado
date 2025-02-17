@@ -35,7 +35,7 @@ describe( 'useCon', () => {
 				setHistoryWrap: props.setHistoryWrap,
 				setWrap: props.setWrap,
 				acts: props.acts,
-				// useSelector: props.useSelector,
+				useSelector: props.useSelector,
 			},
 		], );
 	}, );
@@ -70,29 +70,29 @@ describe( 'useCon', () => {
 		expect( oldHistory, ).toBe( newHistory, );
 	}, );
 
-	// describe( 'useSelector', () => {
-	// 	it( 'should update with beforeSelectorPropsCallbackSymbol', () => {
-	// 		const { result, } = renderHook( () => useCon( initialState, ), );
-	// 		const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector(), );
-	//
-	// 		act( () => {
-	// 			sResults.current[ 1 ].setHistory( 'state.count', 11, );
-	// 		}, );
-	// 		expect( result.current[ 0 ].count, ).toBe( 11, );
-	// 		expect( sResults.current[ 0 ].count, ).toBe( 11, );
-	// 	}, );
-	//
-	// 	it( 'should not update useCon with beforeSelectorPropsCallbackSymbol', () => {
-	// 		const { result, } = renderHook( () => useCon( initialState, ), );
-	// 		const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector( ( props, ) => { props.state.text; }, ), );
-	// 		const old = sResults.current;
-	// 		act( () => {
-	// 			result.current[ 1 ].setHistory( 'state.count', 11, );
-	// 		}, );
-	// 		expect( result.current[ 0 ].count, ).toBe( 11, );
-	// 		expect( sResults.current, ).toBe( old, );
-	// 	}, );
-	// }, );
+	describe( 'useSelector', () => {
+		it( 'should update with useSelector', () => {
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector(), );
+
+			act( () => {
+				sResults.current[ 1 ].setHistory( 'state.count', 11, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 11, );
+			expect( sResults.current[ 0 ].count, ).toBe( 11, );
+		}, );
+
+		it( 'should not update useCon with useSelector', () => {
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector( props => props.state.text, ), );
+			const old = sResults.current;
+			act( () => {
+				result.current[ 1 ].setHistory( 'state.count', 11, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 11, );
+			expect( sResults.current, ).toBe( old, );
+		}, );
+	}, );
 
 	describe( 'selector', () => {
 		it( 'should use a custom selector', () => {

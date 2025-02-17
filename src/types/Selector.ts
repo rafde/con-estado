@@ -1,7 +1,6 @@
 import type { ActRecord, } from './ActRecord';
-import type { CreateConReturnType, } from './createConReturnType';
 import type { DS, } from './DS';
-import type { Immutable, } from './Immutable';
+import type { SelectorProps, } from './SelectorProps';
 
 /**
  * Function that selects and transforms state data into a derived value.
@@ -35,5 +34,6 @@ import type { Immutable, } from './Immutable';
 export type Selector<
 	S extends DS,
 	AR extends ActRecord,
+	SP extends Record<string, unknown>,
 	R = unknown,
-> = ( selectorProps: CreateConReturnType<S, AR> & Immutable<{ state: S }> ) => R;
+> = ( selectorProps: SelectorProps<S, AR, SP> ) => R;
