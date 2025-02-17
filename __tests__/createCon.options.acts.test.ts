@@ -14,20 +14,20 @@ describe( 'createCon -  options.acts', () => {
 		const estado = createCon(
 			initialState,
 			{
-				acts: ( { setHistory, }, ) => ( {
+				acts: props => ( {
 					increment() {
-						setHistory( ( { historyDraft, }, ) => {
+						props.setHistory( ( { historyDraft, }, ) => {
 							historyDraft.state.counter += 1;
 						}, );
 					},
 					addItem( item: string, ) {
-						setHistory( ( { historyDraft, }, ) => {
+						props.setHistory( ( { historyDraft, }, ) => {
 							historyDraft.state.list.push( item, );
 						}, );
 					},
 					async asyncIncrement() {
 						return Promise.resolve().then( () => {
-							setHistory( ( { historyDraft, }, ) => {
+							props.setHistory( ( { historyDraft, }, ) => {
 								historyDraft.state.counter += 10;
 							}, );
 						}, );
