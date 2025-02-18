@@ -1,8 +1,8 @@
-import type { ActRecord, } from '../src/types/ActRecord';
-import type { CreateConSubLisReturn, } from '../src/types/createConSubLisReturn';
-import type { DefaultSelector, } from '../src/types/DefaultSelector';
-import type { DS, } from '../src/types/DS';
-import type { Selector, } from '../src/types/Selector';
+import type { ActRecord, } from './ActRecord';
+import type { CreateConSubLisReturn, } from './createConSubLisReturn';
+import type { DefaultSelector, } from './DefaultSelector';
+import type { DS, } from './DS';
+import type { Selector, } from './Selector';
 
 /**
  * Return type for a store creation function that combines state controls with selector functionality.

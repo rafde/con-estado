@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore, } from 'react';
-import type { CreateConStoreReturnType, } from '../types/CreateConStoreReturnType';
+import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
