@@ -4,16 +4,17 @@ import type { History, } from './History';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { HistoryState, } from './HistoryState';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
-import type { MutOptions, } from './MutOptions';
+import type { ConMutOptions, } from './ConMutOptions';
 
 export type GetDraftRecord<
 	S extends DS,
-	MO extends MutOptions = MutOptions,
+	MO extends ConMutOptions = ConMutOptions,
 > = {
 	/**
 	 * Gets a mutable draft of the state history and a function to commit changes.
+	 * @template S - The state type
 	 *
-	 * @param {MutOptions} [options] - Optional mutation options
+	 * @param {ConMutOptions} [options] - Optional mutation options
 	 * @returns {[Draft<HistoryState<S>>, () => History<S>]} Tuple containing:
 	 *   - Mutable draft of the state history
 	 *   - Function to commit draft changes and return updated history
@@ -61,11 +62,12 @@ export type GetDraftRecord<
 	]
 	/**
 	 * Gets a mutable draft of a specific property in the state history and a function to commit changes.
-	 *
+	 * @template S - The state type
 	 * @template SHP - String path type for accessing nested history properties
 	 * @template MO - Mutation options type
+	 *
 	 * @param {SHP} stateHistoryPath - Dot notation path to the desired property
-	 * @param {MutOptions} [options] - Optional mutation options
+	 * @param {ConMutOptions} [options] - Optional mutation options
 	 * @returns {[GetStringPathValue<Draft<HistoryState<S>>, SHP>, () => History<S>]} Tuple containing:
 	 *   - Mutable draft of the specified property
 	 *   - Function to commit draft changes and return updated history
@@ -98,7 +100,7 @@ export type GetDraftRecord<
 	 */
 	getDraft<
 		SHP extends NestedObjectKeys<HistoryState<S>>,
-		MO extends MutOptions = MutOptions,
+		MO extends ConMutOptions = ConMutOptions,
 	>( stateHistoryPath: SHP, options?: MO ): [
 		GetStringPathValue<
 			Draft<HistoryState<S>>,
