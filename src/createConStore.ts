@@ -270,6 +270,9 @@ export function createConStore<
 
 	return Object.assign(
 		useConSelector,
-		estadoSubLis,
+		{
+			...estado,
+			subscribe,
+		},
 	);
 }
