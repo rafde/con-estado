@@ -280,18 +280,26 @@ Local state management.
 const [state, controls] = useCon(initialState, options, selector);
 ```
 
-### createConStore and useCon Controls Overview
+### `createConStore` and `useCon` Controls Overview
 
+- **state**: Current state
 - **set**: A `function` to update `state` properties
-- **currySet**: Get a function to specify which part of `state` you want to update by currying `set(path)`
-- **setWrap**: Lets you wrap `set` around a function that will be called with the draft value to update.
+- **currySet**: Get a `function` to specify which part of `state` you want to update by currying `set(path)`
+- **setWrap**: Lets you wrap `set` around a `function` that will be called with the `draft` value to update.
 - **acts**: Custom defined actions
-- **get**: Get current state or value at path
-- **reset**: Reset state to initial
-- **getDraft**: Get mutable draft of `state` and/or `initial` properties
-- **setHistory**: A function to update `state` and/or `initial` properties
-- **currySetHistory**: Get a function to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
-- **setHistoryWrap**: Lets you wrap `setHistory` around a function that will be called with the draft value to update.
+- **get**: Get current `state` or value at path
+- **reset**: Reset `state` to `initial`
+- **getDraft**: Get mutable `draft` of `state` and/or `initial` properties
+- **setHistory**: A `function` to update `state` and/or `initial` properties
+- **currySetHistory**: Get a `function` to specify which part of `state` and/or `initial` you want to update by currying `setHistory(path)`
+- **setHistoryWrap**: Lets you wrap `setHistory` around a `function` that will be called with the `draft` value to update.
+
+#### useCon Additional Control Property Overview
+`useCon` has access to what was previously described, plus:
+
+- **useSelector**: A `function` that works like what `createConStore` returns. 
+  - By default, returns `[state, controls]` when no selector is provided. If a `selector` is provided, it returns the result of the `selector`.
+  - This allows you to use local state as a local store that can be passed down to other components, where each component can provide a custom `selector`.
 
 ## TypeScript Support
 
