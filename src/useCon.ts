@@ -1,5 +1,5 @@
 import { useMemo, } from 'react';
-import type { CreateConStoreReturnType, } from '../types/CreateConStoreReturnType';
+import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
 import isPlainObject from './_internal/isPlainObject';
 import { createConStore, } from './createConStore';

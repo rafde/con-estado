@@ -2,7 +2,7 @@ import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
-import type { CreateConReturnType, } from '../types/createConReturnType';
+import type { CreateConReturnType, } from '../types/CreateConReturnType';
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { GetStringPathValue, } from '../types/GetStringPathValue';

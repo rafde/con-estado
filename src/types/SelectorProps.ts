@@ -1,5 +1,5 @@
 import type { ActRecord, } from './ActRecord';
-import type { CreateConReturnType, } from './createConReturnType';
+import type { CreateConReturnType, } from './CreateConReturnType';
 import type { DS, } from './DS';
 import type { Immutable, } from './Immutable';
 
