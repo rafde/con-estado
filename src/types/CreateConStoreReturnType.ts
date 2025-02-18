@@ -1,5 +1,5 @@
 import type { ActRecord, } from './ActRecord';
-import type { CreateConSubLisReturn, } from './createConSubLisReturn';
+import type { CreateConSubLisReturn, } from './CreateConSubLisReturn';
 import type { DefaultSelector, } from './DefaultSelector';
 import type { DS, } from './DS';
 import type { Selector, } from './Selector';
