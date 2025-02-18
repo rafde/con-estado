@@ -4,13 +4,13 @@ import type { CreateActsProps, } from './CreateActsProps';
 import type { History, } from './History';
 import type { HistoryState, } from './HistoryState';
 import type { Immutable, } from './Immutable';
-import type { MutOptions, } from './MutOptions';
+import type { ConMutOptions, } from './ConMutOptions';
 import type { DS, } from './DS';
 
-export type Option<
+export type ConOptions<
 	S extends DS,
 	AR extends ActRecord,
-	MO extends MutOptions = MutOptions,
+	MO extends ConMutOptions = ConMutOptions,
 > = {
 	/**
 	 * Optional factory function for creating action handlers and state transformations.

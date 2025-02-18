@@ -1,20 +1,21 @@
 import { create, isDraft, type Draft, } from 'mutative';
+import type { ActRecord, } from '../types/ActRecord';
+import type { ConOptions, } from '../types/ConOptions';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
-import type { MutOptions, } from '../types/MutOptions';
-import type { OptionTransform, } from '../types/OptionTransform';
+import type { ConMutOptions, } from '../types/ConMutOptions';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 
 export default function getHistoryDraft<
 	S extends DS,
-	MO extends MutOptions = MutOptions,
+	MO extends ConMutOptions = ConMutOptions,
 >(
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
 	arrayPathMap: Map<string | number, Array<string | number>>,
-	transform: OptionTransform<S>,
+	transform: Exclude<ConOptions<S, ActRecord, MO>['transform'], undefined>,
 	type: 'set' | 'reset',
 	stateHistoryPath?: unknown,
 	mutOptions?: MO,

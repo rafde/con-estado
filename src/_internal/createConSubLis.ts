@@ -2,7 +2,7 @@ import type { CreateConSubLisReturn, } from '../types/CreateConSubLisReturn';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { GetSnapshot, } from '../types/GetSnapshot';
-import type { Option, } from '../types/Option';
+import type { ConOptions, } from '../types/ConOptions';
 import createCon from './createCon';
 
 export default function createConSubLis<
@@ -11,7 +11,7 @@ export default function createConSubLis<
 >(
 	initial: S,
 	getSnapshot: GetSnapshot<S, AR>,
-	options?: Option<S, AR>,
+	options?: ConOptions<S, AR>,
 ): CreateConSubLisReturn<S, AR, ReturnType<typeof getSnapshot>> {
 	const estado = createCon(
 		initial,

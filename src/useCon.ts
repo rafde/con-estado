@@ -7,7 +7,7 @@ import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
 import type { Initial, } from './types/Initial';
-import type { Option, } from './types/Option';
+import type { ConOptions, } from './types/ConOptions';
 import type { Selector, } from './types/Selector';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Options as MutOptions, } from 'mutative';
@@ -23,20 +23,20 @@ import type { UseSelectorProp, } from './types/UseSelectorProp';
  *
  * @param {DS} initial - The initial {@link Initial state object or `function`} that returns the initial state object
  *
- * @param {Option} [options] - Configuration {@link Option options}.
+ * @param {ConOptions} [options] - Configuration {@link ConOptions options}.
  *
- * @param {Option.acts} [options.acts] - A {@link Option.acts function} that creates reusable actions for state management.
+ * @param {ConOptions.acts} [options.acts] - A {@link ConOptions.acts function} that creates reusable actions for state management.
  * Takes control props (set, get, reset, etc.) and returns an object of action functions that can be asynchronous.
  *
- * @param {Option.afterChange} [options.afterChange] - A {@link Option.afterChange function} that runs after state changes are dispatched.
+ * @param {ConOptions.afterChange} [options.afterChange] - A {@link ConOptions.afterChange function} that runs after state changes are dispatched.
  * Receives the immutable history object containing the current state, changes, and previous states.
  * Can be async and return a Promise or void.
  *
- * @param {MutOptions} [options.mutOptions] - {@link MutOptions} Configuration options for the Mutative library's state updates.
+ * @param {ConMutOptions} [options.mutOptions] - {@link MutOptions} Configuration options for the Mutative library's state updates.
  * Controls how drafts are created and modified. Supports all Mutative options except `enablePatches`.
  * See {@link https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options Mutative Options}
  *
- * @param {Option.transform} [options.transform] - A {@link Option.transform function} to transform state before it's updated.
+ * @param {ConOptions.transform} [options.transform] - A {@link ConOptions.transform function} to transform state before it's updated.
  * Receives a mutable draft of both state and initial values, allowing you to modify them before changes are applied.
  * Called during set and reset operations with the corresponding action type.
  *
@@ -54,7 +54,7 @@ export function useCon<
 	Sel extends Selector<S, AR, US> = DefaultSelector<S, AR, US>,
 >(
 	initial: Initial<S>,
-	options?: Option<S, AR>,
+	options?: ConOptions<S, AR>,
 	selector?: Sel
 ): ReturnType<Sel>;
 /**
@@ -111,8 +111,8 @@ export function useCon<
 				opts,
 				sel,
 			] = isPlainObject( options, )
-				? [options as Option<S, AR>, selector as Sel,]
-				: [{} as Option<S, AR>, options as Sel,];
+				? [options as ConOptions<S, AR>, selector as Sel,]
+				: [{} as ConOptions<S, AR>, options as Sel,];
 			const _useSelector = createConStore<S, AR, US, Sel>(
 				initial,
 				{
