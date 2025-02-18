@@ -70,30 +70,6 @@ describe( 'useCon', () => {
 		expect( oldHistory, ).toBe( newHistory, );
 	}, );
 
-	describe( 'useSelector', () => {
-		it( 'should update with useSelector', () => {
-			const { result, } = renderHook( () => useCon( initialState, ), );
-			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector(), );
-
-			act( () => {
-				sResults.current[ 1 ].setHistory( 'state.count', 11, );
-			}, );
-			expect( result.current[ 0 ].count, ).toBe( 11, );
-			expect( sResults.current[ 0 ].count, ).toBe( 11, );
-		}, );
-
-		it( 'should not update useCon with useSelector', () => {
-			const { result, } = renderHook( () => useCon( initialState, ), );
-			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector( props => props.state.text, ), );
-			const old = sResults.current;
-			act( () => {
-				result.current[ 1 ].setHistory( 'state.count', 11, );
-			}, );
-			expect( result.current[ 0 ].count, ).toBe( 11, );
-			expect( sResults.current, ).toBe( old, );
-		}, );
-	}, );
-
 	describe( 'selector', () => {
 		it( 'should use a custom selector', () => {
 			const { result, } = renderHook( () => useCon(
@@ -226,6 +202,82 @@ describe( 'useCon', () => {
 			}, );
 
 			expect( result.current.test, ).toBe( 'hi', );
+		}, );
+	}, );
+
+	describe( 'useSelector', () => {
+		it( 'should useCon default useSelector return to update ', () => {
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector(), );
+
+			act( () => {
+				sResults.current[ 1 ].setHistory( 'state.count', 11, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 11, );
+			expect( sResults.current[ 0 ].count, ).toBe( 11, );
+		}, );
+
+		it( 'should useCon useSelector selector to update ', () => {
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector( props => ( {
+				count: props.state.count,
+				set: props.set,
+			} ), ), );
+
+			act( () => {
+				sResults.current.set( 'count', 11, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 11, );
+			expect( sResults.current.count, ).toBe( 11, );
+
+			const oldS = sResults.current;
+			act( () => {
+				result.current[ 1 ].set( 'text', 'test', );
+			}, );
+
+			expect( oldS, ).toBe( sResults.current, );
+		}, );
+
+		it( 'should useCon selector to return useSelector to update ', () => {
+			const { result, } = renderHook( () => useCon( initialState, props => props.useSelector, ), );
+			const old = result.current;
+			const { result: sResults, } = renderHook( () => result.current(), );
+
+			act( () => {
+				sResults.current[ 1 ].setHistory( 'state.count', 11, );
+			}, );
+			expect( sResults.current[ 0 ].count, ).toBe( 11, );
+			expect( result.current, ).toBe( old, );
+		}, );
+
+		it( 'should useCon selector to return useSelector selected result to update', () => {
+			const { result, } = renderHook( () => useCon( initialState, props => props.useSelector, ), );
+			const old = result.current;
+			const { result: sResults, } = renderHook( () => result.current( props => ( {
+				count: props.state.count,
+				set: props.set,
+			} ), ), );
+
+			act( () => {
+				sResults.current.set( 'count', 11, );
+			}, );
+			expect( sResults.current.count, ).toBe( 11, );
+			expect( result.current, ).toBe( old, );
+		}, );
+
+		it( 'should not update useCon with useSelector', () => {
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector( props => ( {
+				text: props.state.text,
+				set: props.set,
+			} ), ), );
+			const old = sResults.current;
+
+			act( () => {
+				result.current[ 1 ].setHistory( 'state.count', 11, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 11, );
+			expect( sResults.current, ).toBe( old, );
 		}, );
 	}, );
 

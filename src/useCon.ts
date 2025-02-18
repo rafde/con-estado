@@ -1,5 +1,5 @@
 import { useMemo, } from 'react';
-import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
+import defaultSelector from './_internal/defaultSelector';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
 import isPlainObject from './_internal/isPlainObject';
 import { createConStore, } from './createConStore';
@@ -12,6 +12,7 @@ import type { Selector, } from './types/Selector';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Options as MutOptions, } from 'mutative';
 import type { SelectorProps, } from './types/SelectorProps';
+import type { UseSelectorProp, } from './types/UseSelectorProp';
 
 /**
  * React hook for managing local state with history tracking and actions.
@@ -49,10 +50,8 @@ import type { SelectorProps, } from './types/SelectorProps';
 export function useCon<
 	S extends DS,
 	AR extends ActRecord,
-	US extends { useSelector: CreateConStoreReturnType<S, AR, US, Sel> },
-	DUS extends { useSelector: CreateConStoreReturnType<S, AR, DUS, DefSel> },
-	DefSel extends DefaultSelector<S, AR, { useSelector: CreateConStoreReturnType<S, AR, DUS, DefSel> }>,
-	Sel extends Selector<S, AR, { useSelector: CreateConStoreReturnType<S, AR, US, Sel> }> = DefSel,
+	US extends { useSelector: UseSelectorProp<S, AR> },
+	Sel extends Selector<S, AR, US> = DefaultSelector<S, AR, US>,
 >(
 	initial: Initial<S>,
 	options?: Option<S, AR>,
@@ -91,8 +90,7 @@ export function useCon<
  */
 export function useCon<
 	S extends DS,
-	Sel extends Selector<S, Record<never, never>, SP>,
-	SP extends { useSelector: CreateConStoreReturnType<S, Record<never, never>, SP, Sel> },
+	Sel extends Selector<S, Record<never, never>, { useSelector: UseSelectorProp<S, Record<never, never>> }>,
 >(
 	initial: Initial<S>,
 	selector: Sel,
@@ -100,12 +98,12 @@ export function useCon<
 export function useCon<
 	S extends DS,
 	AR extends ActRecord,
-	SP extends { useSelector: CreateConStoreReturnType<S, AR, SP, Sel> },
-	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
+	US extends { useSelector: UseSelectorProp<S, AR> },
+	Sel extends Selector<S, AR, US> = DefaultSelector<S, AR, US>,
 >(
 	initial: Initial<S>,
-	options?: Option<S, AR> | Sel,
-	selector?: Sel,
+	options?: unknown,
+	selector?: unknown,
 ) {
 	const useSelector = useMemo(
 		() => {
@@ -115,21 +113,19 @@ export function useCon<
 			] = isPlainObject( options, )
 				? [options as Option<S, AR>, selector as Sel,]
 				: [{} as Option<S, AR>, options as Sel,];
-			const _useSelector = createConStore<S, AR, SP, Sel>(
+			const _useSelector = createConStore<S, AR, US, Sel>(
 				initial,
 				{
 					...opts,
 					[ getSnapshotSymbol ]: props => ( {
 						...props,
-						useSelector,
-					} as SelectorProps<S, AR, SP> ),
+						useSelector( sel: Parameters<typeof _useSelector>[0] = defaultSelector<S, AR, US>, ) {
+							return _useSelector( sel, );
+						},
+					} as SelectorProps<S, AR, US> ),
 				},
 				sel,
 			);
-
-			function useSelector( sel: Parameters<typeof _useSelector>[0], ) {
-				return _useSelector( sel, );
-			}
 
 			return _useSelector;
 		},
