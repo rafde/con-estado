@@ -9,8 +9,6 @@ import type { DS, } from './types/DS';
 import type { Initial, } from './types/Initial';
 import type { ConOptions, } from './types/ConOptions';
 import type { Selector, } from './types/Selector';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Options as MutOptions, } from 'mutative';
 import type { SelectorProps, } from './types/SelectorProps';
 import type { UseSelectorProp, } from './types/UseSelectorProp';
 
@@ -32,7 +30,7 @@ import type { UseSelectorProp, } from './types/UseSelectorProp';
  * Receives the immutable history object containing the current state, changes, and previous states.
  * Can be async and return a Promise or void.
  *
- * @param {ConMutOptions} [options.mutOptions] - {@link MutOptions} Configuration options for the Mutative library's state updates.
+ * @param {ConMutOptions} [options.mutOptions] - {@link ConMutOptions} Configuration options for the Mutative library's state updates.
  * Controls how drafts are created and modified. Supports all Mutative options except `enablePatches`.
  * See {@link https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options Mutative Options}
  *
@@ -50,7 +48,7 @@ import type { UseSelectorProp, } from './types/UseSelectorProp';
 export function useCon<
 	S extends DS,
 	AR extends ActRecord,
-	US extends { useSelector: UseSelectorProp<S, AR> },
+	US extends UseSelectorProp<S, AR>,
 	Sel extends Selector<S, AR, US> = DefaultSelector<S, AR, US>,
 >(
 	initial: Initial<S>,
@@ -90,7 +88,7 @@ export function useCon<
  */
 export function useCon<
 	S extends DS,
-	Sel extends Selector<S, Record<never, never>, { useSelector: UseSelectorProp<S, Record<never, never>> }>,
+	Sel extends Selector<S, Record<never, never>, UseSelectorProp<S, Record<never, never>>>,
 >(
 	initial: Initial<S>,
 	selector: Sel,
@@ -98,7 +96,7 @@ export function useCon<
 export function useCon<
 	S extends DS,
 	AR extends ActRecord,
-	US extends { useSelector: UseSelectorProp<S, AR> },
+	US extends UseSelectorProp<S, AR>,
 	Sel extends Selector<S, AR, US> = DefaultSelector<S, AR, US>,
 >(
 	initial: Initial<S>,
