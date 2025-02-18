@@ -45,7 +45,7 @@ export type CreateConStoreReturnType<
 	AR extends ActRecord,
 	SP extends Record<string, unknown>,
 	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
-> = CreateConSubLisReturn<S, AR> & {
+> = Omit<CreateConSubLisReturn<S, AR>, 'listeners'> & {
 	(): ReturnType<Sel>
 	<Sel extends Selector<S, AR, SP>, >( select: Sel ): ReturnType<Sel>
 };
