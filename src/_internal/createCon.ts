@@ -9,6 +9,7 @@ import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
+import createArrayPathProxy from './createArrayPathProxy';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -122,35 +123,58 @@ export default function createCon<
 
 	function setHistoryWrap( ...args: unknown[] ) {
 		const [statePath, nextState,] = args;
+		const isStatePathFunction = typeof statePath === 'function';
+		const isNextStateType = typeof nextState === 'function';
+
+		if ( !isStatePathFunction && !isNextStateType ) {
+			throw new Error( 'Needs a callback function to wrap', );
+		}
+
+		const isValidStatePath = typeof statePath === 'string' || Array.isArray( statePath, );
+		if ( isValidStatePath && !isNextStateType ) {
+			throw new Error( 'Second parameter needs a callback function to wrap', );
+		}
 
 		return function wrap( ...wrapArgs: unknown[] ) {
-			const [draftHistory, finalize,] = getDraft();
-			if ( typeof statePath === 'function' ) {
-				return handleStateUpdate(
-					draftHistory,
-					history,
-					[
-						( prop: unknown, ) => statePath( prop, ...wrapArgs, ),
-					],
-					arrayPathMap,
-					finalize,
+			const [historyDraft, finalize,] = getDraft();
+			if ( isStatePathFunction ) {
+				const result = statePath(
+					{
+						...history,
+						historyDraft,
+					},
+					...wrapArgs,
 				);
+				finalize();
+				return result;
 			}
 
-			if ( typeof nextState === 'function' ) {
-				return handleStateUpdate(
-					draftHistory,
-					history,
-					[
-						statePath,
-						( prop: unknown, ) => nextState( prop, ...wrapArgs, ),
-					],
-					arrayPathMap,
-					finalize,
-				);
+			// appeasing typescript
+			if ( !isValidStatePath || !isNextStateType ) {
+				return;
 			}
 
-			return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
+			const statePathArray = typeof statePath === 'string'
+				? getCacheStringPathToArray( arrayPathMap, statePath, )
+				: statePath as ( string | number )[];
+			const valueKey = statePathArray.at( -1, );
+			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
+			if ( !parentDraft || typeof parentDraft !== 'object' || typeof valueKey === 'undefined' || !( valueKey in parentDraft ) ) {
+				return;
+			}
+			const pathArray = statePathArray.slice( 1, );
+			const result = nextState(
+				createArrayPathProxy( {
+					draft: parentDraft,
+					historyDraft,
+					pathArray,
+					history,
+					valueKey,
+				}, ),
+				...wrapArgs,
+			);
+			finalize();
+			return result;
 		};
 	}
 

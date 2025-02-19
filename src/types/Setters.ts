@@ -377,7 +377,7 @@ type SetHistoryWrap<
 	 *
 	 * @returns Wrapped function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *   - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -398,14 +398,16 @@ type SetHistoryWrap<
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
 	 * - Maintains full type safety for both draft and additional arguments
-	 * - Returns same history object as direct setHistory calls
 	 */
-	setHistoryWrap<A extends unknown[],>(
+	setHistoryWrap<
+		A extends unknown[],
+		R = unknown,
+	>(
 		nextState: (
 			props: CallbackHistoryDraftProps<S>,
 			...args: A
-		) => void
-	): ( ...args: A ) => History<S>
+		) => R
+	): ( ...args: A ) => R
 	/**
 	 * Creates a wrapped setHistory function for array paths with additional arguments.
 	 * Enables parameterized array element updates through curried path and args
@@ -426,7 +428,7 @@ type SetHistoryWrap<
 	 *
 	 * @returns Function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *   - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -462,20 +464,20 @@ type SetHistoryWrap<
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
 	 * - Maintains full type safety for path, draft, and arguments
-	 * - Returns same history object as direct array path updates
 	 */
 	setHistoryWrap<
 		SP extends StringPathToArray<RK>,
 		A extends unknown[],
+		R = unknown,
 	>(
 		statePath: SP,
 		nextState: (
 			(
 				props: ArrayPathProps<S, NS, SP>,
 				...args: A
-			) => void
+			) => R
 		),
-	): ( ...args: A ) => History<S>
+	): ( ...args: A ) => R
 	/**
 	 * Creates a wrapped setHistory function for dot-notation string paths with additional arguments.
 	 * Enables parameterized state updates through curried path and parameters
@@ -496,7 +498,7 @@ type SetHistoryWrap<
 	 *
 	 * @returns Function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *   - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -532,20 +534,20 @@ type SetHistoryWrap<
 	 * @remarks
 	 * - Handles escaped dots in path keys (e.g., 'user\\.profile.age')
 	 * - Maintains full type safety for path, draft, and arguments
-	 * - Returns same history object as direct string path updates
 	 */
 	setHistoryWrap<
 		SP extends RK,
 		A extends unknown[],
+		R = unknown,
 	>(
 		statePath: SP,
 		nextState: (
 			(
 				props: StringPathProps<S, NS, SP>,
 				...args: A
-			) => void
+			) => R
 		),
-	): ( ...args: A ) => History<S>
+	): ( ...args: A ) => R
 };
 
 type SetState<
@@ -809,7 +811,7 @@ type SetWrap<
 	 *
 	 * @returns Wrapped function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *  - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -830,14 +832,16 @@ type SetWrap<
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
 	 * - Maintains full type safety for both draft and additional arguments
-	 * - Returns same history object as direct set calls
 	 */
-	setWrap<A extends unknown[],>(
+	setWrap<
+		A extends unknown[],
+		R = unknown,
+	>(
 		nextState: (
 			props: CallbackDraftProps<S>,
 			...args: A
-		) => void
-	): ( ...args: A ) => History<S>
+		) => R
+	): ( ...args: A ) => R
 	/**
 	 * Creates a wrapped set function for array paths with additional arguments.
 	 * Enables parameterized array element updates through curried path and args
@@ -858,7 +862,7 @@ type SetWrap<
 	 *
 	 * @returns Function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *   - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -894,20 +898,20 @@ type SetWrap<
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
 	 * - Maintains full type safety for path, draft, and arguments
-	 * - Returns same history object as direct array path updates
 	 */
 	setWrap<
 		SP extends StringPathToArray<RK>,
 		A extends unknown[],
+		R = unknown,
 	>(
 		statePath: SP,
 		nextState: (
 			(
 				props: ArrayPathProps<S, S, SP>,
 				...args: A
-			) => void
+			) => R
 		),
-	): ( ...args: A ) => History<S>
+	): ( ...args: A ) => R
 	/**
 	 * Creates a wrapped set function for dot-notation string paths with additional arguments.
 	 * Enables parameterized array element updates through curried path and args
@@ -928,7 +932,7 @@ type SetWrap<
 	 *
 	 * @returns Function that:
 	 *   - Accepts parameters of type A
-	 *   - Returns updated history object
+	 *  - Returns whatever the wrapper function returns
 	 *
 	 * @example
 	 * ```ts
@@ -964,20 +968,20 @@ type SetWrap<
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
 	 * - Maintains full type safety for path, draft, and arguments
-	 * - Returns same history object as direct string path updates
 	 */
 	setWrap<
 		SP extends NestedRecordKeys<S>,
 		A extends unknown[],
+		R = unknown,
 	>(
 		statePath: SP,
 		nextState: (
 			(
 				props: StringPathProps<S, S, SP>,
 				...args: A
-			) => void
+			) => R
 		),
-	): ( ...args: A ) => History<S>
+	): ( ...args: A ) => R
 };
 
 export type Setters<
