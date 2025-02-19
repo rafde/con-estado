@@ -1,3 +1,4 @@
+import { waitFor, } from '@testing-library/react';
 import { afterEach, describe, expect, it, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 
@@ -100,5 +101,21 @@ describe( 'createCon - setWrap', () => {
 			// @ts-expect-error -- testing throw
 			() => con.setWrap( 'count', ),
 		).toThrowError( /callback function to wrap/, );
+	}, );
+
+	it( 'takes function that returns a promise', async() => {
+		const wrapped = con.setWrap( ( props, increment: number, ) => Promise.resolve( props.draft.count += increment, ), );
+		return waitFor( async() => {
+			await wrapped( 5, );
+			expect( con.get().state.count, ).toBe( 5, );
+		}, );
+	}, );
+
+	it( 'takes async function ', async() => {
+		const wrapped = con.setWrap( async( props, increment: number, ) => await Promise.resolve().then( () => props.draft.count += increment, ), );
+		return waitFor( async() => {
+			await wrapped( 5, );
+			expect( con.get().state.count, ).toBe( 5, );
+		}, );
 	}, );
 }, );
