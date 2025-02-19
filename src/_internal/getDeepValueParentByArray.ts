@@ -1,6 +1,7 @@
 import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
+import isNil from './isNil';
 import isPlainObject from './isPlainObject';
 
 export default function getDeepValueParentByArray<
@@ -10,7 +11,7 @@ export default function getDeepValueParentByArray<
 	state: S | null | undefined,
 	arrayPath: AP,
 ) {
-	if ( state == null ) {
+	if ( isNil( state, ) ) {
 		return [undefined, undefined,];
 	}
 	let parent;

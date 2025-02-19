@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore, } from 'react';
+import isFunction from './_internal/isFunction';
 import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
@@ -227,12 +228,12 @@ export function createConStore<
 			state: nextHistory.state,
 			...estado,
 		};
-		snapshot = typeof _getSnapshot === 'function' ? _getSnapshot( _snapshot, ) : _snapshot as unknown as SelectorProps<S, AR, SP>;
+		snapshot = isFunction( _getSnapshot, ) ? _getSnapshot( _snapshot, ) : _snapshot as unknown as SelectorProps<S, AR, SP>;
 		return snapshot;
 	};
 	let snapshot: ReturnType<GetSnapshot<S, AR, SP>>;
 	const estadoSubLis = createConSubLis<S, AR, SP>(
-		typeof initial === 'function' ? initial() : initial,
+		isFunction( initial, ) ? initial() : initial,
 		getSnapshot as GetSnapshot<S, AR, SP>,
 		opts,
 	);

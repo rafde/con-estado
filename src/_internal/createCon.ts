@@ -15,33 +15,38 @@ import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
 import handleStateUpdate from './handleStateUpdate';
+import isFunction from './isFunction';
+import isNil from './isNil';
+import isObject from './isObject';
 import isPlainObject from './isPlainObject';
+import isString from './isString';
+import isUndefined from './isUndefined';
+import isValidStatePath from './isValidStatePath';
 
 function _escapeDots( key: string | number, ) {
-	if ( typeof key === 'string' ) {
+	if ( isString( key, ) ) {
 		return key.replace( /(?<!\\)\./g, '\\\\.', );
 	}
 	return key;
 }
 
-const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => value !== null
-	&& typeof value === 'object'
-	&& 'then' in value && typeof value?.then === 'function';
+const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
+	&& 'then' in value && isFunction( value?.then, );
 
 function _joinPath( path: string | ( string | number )[], ) {
-	return typeof path === 'string' ? path : path.map( _escapeDots, ).join( '.', );
+	return isString( path, ) ? path : path.map( _escapeDots, ).join( '.', );
 }
 
 function _returnStateArgs( args: unknown[], ) {
 	const [statePath, nextState,] = args;
-	if ( typeof nextState === 'undefined' ) {
+	if ( isNil( nextState, ) ) {
 		return [
 			'state',
 			statePath,
 		];
 	}
 
-	if ( typeof statePath === 'string' ) {
+	if ( isString( statePath, ) ) {
 		return [
 			`state.${statePath}`,
 			nextState,
@@ -73,7 +78,7 @@ export default function createCon<
 	initial: S,
 	options: CreateConOptions<S, AR> = EMPTY_OBJECT as CreateConOptions<S, AR>,
 ): CreateConReturnType<S, AR> {
-	if ( initial == null || typeof initial !== 'object' ) {
+	if ( !isObject( initial, ) ) {
 		throw new Error( `Only works with plain objects or arrays. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history: History<S> = createHistoryProxy( {
@@ -115,7 +120,7 @@ export default function createCon<
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
 	): Immutable<History<S>> | Immutable<GetStringPathValue<S, SHP>> {
-		if ( stateHistoryPath == null ) {
+		if ( isNil( stateHistoryPath, ) ) {
 			// No argument version
 			return history as Immutable<History<S>>;
 		}
@@ -127,16 +132,16 @@ export default function createCon<
 
 	function setHistoryWrap( ...args: unknown[] ) {
 		const [statePath, nextState,] = args;
-		const isStatePathFunction = typeof statePath === 'function';
-		const isNextStateType = typeof nextState === 'function';
+		const isStatePathFunction = isFunction( statePath, );
+		const isNextStateType = isFunction( nextState, );
 
 		if ( !isStatePathFunction && !isNextStateType ) {
-			throw new Error( 'Needs a callback function to wrap', );
+			throw new Error( 'Wrapper methods needs a callback function to wrap', );
 		}
 
-		const isValidStatePath = typeof statePath === 'string' || Array.isArray( statePath, );
-		if ( isValidStatePath && !isNextStateType ) {
-			throw new Error( 'Second parameter needs a callback function to wrap', );
+		const _isValidStatePath = isValidStatePath( statePath, );
+		if ( _isValidStatePath && !isNextStateType ) {
+			throw new Error( 'Wrapper method second parameter needs a callback function to wrap', );
 		}
 
 		return function wrap( ...wrapArgs: unknown[] ) {
@@ -161,16 +166,16 @@ export default function createCon<
 			}
 
 			// appeasing typescript
-			if ( !isValidStatePath || !isNextStateType ) {
+			if ( !_isValidStatePath || !isNextStateType ) {
 				return;
 			}
 
-			const statePathArray = typeof statePath === 'string'
+			const statePathArray = isString( statePath, )
 				? getCacheStringPathToArray( arrayPathMap, statePath, )
 				: statePath as ( string | number )[];
 			const valueKey = statePathArray.at( -1, );
 			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-			if ( !parentDraft || typeof parentDraft !== 'object' || typeof valueKey === 'undefined' || !( valueKey in parentDraft ) ) {
+			if ( !isObject( parentDraft, ) || isUndefined( valueKey, ) || !( valueKey in parentDraft ) ) {
 				return;
 			}
 			const pathArray = statePathArray.slice( 1, );
@@ -208,13 +213,13 @@ export default function createCon<
 
 	const curryMap = new Map<unknown, ( nextState: unknown ) => History<S>>();
 	function currySetHistory( statePath?: string | ( string | number )[], ) {
-		if ( statePath == null ) {
+		if ( isNil( statePath, ) ) {
 			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
 		}
 
 		const path = _joinPath( statePath, );
 		const curryFn = curryMap.get( path, );
-		if ( typeof curryFn === 'function' ) {
+		if ( isFunction( curryFn, ) ) {
 			return curryFn;
 		}
 
@@ -228,7 +233,7 @@ export default function createCon<
 		currySet( statePath: Parameters<CreateActsProps<S>['currySet']>[0], ) {
 			const _statePath = Array.isArray( statePath, )
 				? ['state', ...statePath,]
-				: typeof statePath === 'string'
+				: isString( statePath, )
 					? `state.${statePath}`
 					: undefined;
 
@@ -238,7 +243,7 @@ export default function createCon<
 		get,
 		getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
-			if ( history.changes == null ) {
+			if ( isNil( history.changes, ) ) {
 				return history;
 			}
 
@@ -263,8 +268,8 @@ export default function createCon<
 			}
 			const nextHistory: History<S> = createHistoryProxy( {
 				initial,
-				prev: history.prev == null ? undefined : history.state,
-				prevInitial: history.prevInitial == null ? undefined : history.initial,
+				prev: isNil( history.prev, ) ? undefined : history.state,
+				prevInitial: isNil( history.prevInitial, ) ? undefined : history.initial,
 				state,
 			}, );
 

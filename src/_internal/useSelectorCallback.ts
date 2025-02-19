@@ -3,6 +3,8 @@ import { useCallback, useMemo, useRef, } from 'react';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
+import isFunction from './isFunction';
+import isNil from './isNil';
 
 const isEqual = createCustomEqual( {
 	strict: true,
@@ -20,7 +22,7 @@ export default function useSelectorCallback<
 >( defaultSelector: Selector<S, AR, SP>, selector?: Selector<S, AR, SP>, ) {
 	const _selector = useMemo(
 		() => {
-			if ( typeof selector === 'function' ) {
+			if ( isFunction( selector, ) ) {
 				return selector;
 			}
 			return defaultSelector;
@@ -33,7 +35,7 @@ export default function useSelectorCallback<
 		( snapshot: Parameters<Selector<S, AR, SP>>[0], ) => {
 			const next = _selector( snapshot, );
 			const prev = resultRef.current;
-			resultRef.current = prev == null || !isEqual( prev, next, )
+			resultRef.current = isNil( prev, ) || !isEqual( prev, next, )
 				? next
 				: prev;
 			return resultRef.current;
