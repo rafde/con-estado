@@ -146,49 +146,37 @@ export default function createCon<
 
 		return function wrap( ...wrapArgs: unknown[] ) {
 			const [historyDraft, finalize,] = getDraft();
+			let result: unknown;
 			if ( isStatePathFunction ) {
-				const result = statePath(
+				result = statePath(
 					{
 						...history,
 						historyDraft,
 					},
 					...wrapArgs,
 				);
-
-				if ( _isPromiseLike( result, ) ) {
-					return result.then( ( res, ) => {
-						finalize();
-						return res;
-					}, );
+			}
+			else if ( _isValidStatePath && isNextStateType ) {
+				const statePathArray = isString( statePath, )
+					? getCacheStringPathToArray( arrayPathMap, statePath, )
+					: statePath as ( string | number )[];
+				const valueKey = statePathArray.at( -1, );
+				const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
+				if ( !isObject( parentDraft, ) || isUndefined( valueKey, ) || !( valueKey in parentDraft ) ) {
+					return;
 				}
-				finalize();
-				return result;
+				const pathArray = statePathArray.slice( 1, );
+				result = nextState(
+					createArrayPathProxy( {
+						draft: parentDraft,
+						historyDraft,
+						pathArray,
+						history,
+						valueKey,
+					}, ),
+					...wrapArgs,
+				);
 			}
-
-			// appeasing typescript
-			if ( !_isValidStatePath || !isNextStateType ) {
-				return;
-			}
-
-			const statePathArray = isString( statePath, )
-				? getCacheStringPathToArray( arrayPathMap, statePath, )
-				: statePath as ( string | number )[];
-			const valueKey = statePathArray.at( -1, );
-			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-			if ( !isObject( parentDraft, ) || isUndefined( valueKey, ) || !( valueKey in parentDraft ) ) {
-				return;
-			}
-			const pathArray = statePathArray.slice( 1, );
-			const result = nextState(
-				createArrayPathProxy( {
-					draft: parentDraft,
-					historyDraft,
-					pathArray,
-					history,
-					valueKey,
-				}, ),
-				...wrapArgs,
-			);
 
 			if ( _isPromiseLike( result, ) ) {
 				return result.then( ( res, ) => {
