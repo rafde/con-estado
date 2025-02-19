@@ -24,6 +24,10 @@ function _escapeDots( key: string | number, ) {
 	return key;
 }
 
+const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => value !== null
+	&& typeof value === 'object'
+	&& 'then' in value && typeof value?.then === 'function';
+
 function _joinPath( path: string | ( string | number )[], ) {
 	return typeof path === 'string' ? path : path.map( _escapeDots, ).join( '.', );
 }
@@ -145,6 +149,13 @@ export default function createCon<
 					},
 					...wrapArgs,
 				);
+
+				if ( _isPromiseLike( result, ) ) {
+					return result.then( ( res, ) => {
+						finalize();
+						return res;
+					}, );
+				}
 				finalize();
 				return result;
 			}
@@ -173,6 +184,13 @@ export default function createCon<
 				}, ),
 				...wrapArgs,
 			);
+
+			if ( _isPromiseLike( result, ) ) {
+				return result.then( ( res, ) => {
+					finalize();
+					return res;
+				}, );
+			}
 			finalize();
 			return result;
 		};
