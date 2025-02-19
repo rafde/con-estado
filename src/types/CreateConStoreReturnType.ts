@@ -1,8 +1,9 @@
 import type { ActRecord, } from './ActRecord';
-import type { CreateConSubLisReturn, } from './CreateConSubLisReturn';
+import type { CreateConSubscribe, } from './CreateConSubscribe';
 import type { DefaultSelector, } from './DefaultSelector';
 import type { DS, } from './DS';
 import type { Selector, } from './Selector';
+import type { SelectorProps, } from './SelectorProps';
 
 /**
  * Return type for a store creation function that combines state controls with selector functionality.
@@ -45,7 +46,7 @@ export type CreateConStoreReturnType<
 	AR extends ActRecord,
 	SP extends Record<string, unknown>,
 	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
-> = Omit<CreateConSubLisReturn<S, AR>, 'listeners'> & {
+> = CreateConSubscribe<S, AR, SelectorProps<S, AR, SP>> & {
 	(): ReturnType<Sel>
 	<Sel extends Selector<S, AR, SP>, >( select: Sel ): ReturnType<Sel>
 };

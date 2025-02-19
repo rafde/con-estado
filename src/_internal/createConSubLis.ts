@@ -8,11 +8,12 @@ import createCon from './createCon';
 export default function createConSubLis<
 	S extends DS,
 	AR extends ActRecord,
+	SP extends Record<string, unknown>,
 >(
 	initial: S,
-	getSnapshot: GetSnapshot<S, AR>,
+	getSnapshot: GetSnapshot<S, AR, SP>,
 	options?: ConOptions<S, AR>,
-): CreateConSubLisReturn<S, AR, ReturnType<typeof getSnapshot>> {
+): CreateConSubLisReturn<S, AR, ReturnType<GetSnapshot<S, AR, SP>>> {
 	const estado = createCon(
 		initial,
 		{
@@ -23,8 +24,8 @@ export default function createConSubLis<
 			},
 		},
 	);
-	const listeners: CreateConSubLisReturn<S, AR, ReturnType<typeof getSnapshot>>['listeners'] = new Set();
-	const subscribe: CreateConSubLisReturn<S, AR, ReturnType<typeof getSnapshot>>['subscribe'] = ( listener, ) => {
+	const listeners: CreateConSubLisReturn<S, AR, ReturnType<GetSnapshot<S, AR, SP>>>['listeners'] = new Set();
+	const subscribe: CreateConSubLisReturn<S, AR, ReturnType<GetSnapshot<S, AR, SP>>>['subscribe'] = ( listener, ) => {
 		listeners.add( listener, );
 		return () => {
 			listeners.delete( listener, );

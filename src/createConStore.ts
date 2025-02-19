@@ -222,28 +222,27 @@ export function createConStore<
 		[ getSnapshotSymbol ]: _getSnapshot,
 	} = opts;
 
-	const getSnapshot: GetSnapshot<S, AR, SP> = ( nextHistory: Immutable<History<S>>, ) => {
+	const getSnapshot = ( nextHistory: Immutable<History<S>>, ) => {
 		const _snapshot = {
 			state: nextHistory.state,
 			...estado,
 		};
-		snapshot = typeof _getSnapshot === 'function' ? _getSnapshot( _snapshot, ) : _snapshot as ReturnType<GetSnapshot<S, AR, SP>>;
+		snapshot = typeof _getSnapshot === 'function' ? _getSnapshot( _snapshot, ) : _snapshot as unknown as SelectorProps<S, AR, SP>;
 		return snapshot;
 	};
 	let snapshot: ReturnType<GetSnapshot<S, AR, SP>>;
-	const estadoSubLis = createConSubLis(
+	const estadoSubLis = createConSubLis<S, AR, SP>(
 		typeof initial === 'function' ? initial() : initial,
-		getSnapshot,
+		getSnapshot as GetSnapshot<S, AR, SP>,
 		opts,
 	);
 	const {
-		subscribe,
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		listeners,
 		...estado
 	} = estadoSubLis;
 
-	const initialSnapshot: SelectorProps<S, AR, SP> = getSnapshot( estado.get(), );
+	const initialSnapshot = getSnapshot( estado.get(), );
 
 	function useConSelector<Sel extends Selector<S, AR, SP>,>( select?: Sel, ) {
 		const selectorCallback = useSelectorCallback<S, AR, SP>(
@@ -262,7 +261,7 @@ export function createConStore<
 		);
 
 		return useSyncExternalStore(
-			subscribe,
+			estado.subscribe,
 			snapshotCallback,
 			initSnapshotCallback,
 		);
@@ -270,9 +269,6 @@ export function createConStore<
 
 	return Object.assign(
 		useConSelector,
-		{
-			...estado,
-			subscribe,
-		},
+		estado,
 	);
 }
