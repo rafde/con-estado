@@ -7,6 +7,8 @@ import type { ConMutOptions, } from '../types/ConMutOptions';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import isNil from './isNil';
+import isString from './isString';
 
 export default function getHistoryDraft<
 	S extends DS,
@@ -51,12 +53,12 @@ export default function getHistoryDraft<
 		state: S
 	}> = _draft;
 
-	if ( typeof stateHistoryPath === 'string' ) {
+	if ( isString( stateHistoryPath, ) ) {
 		const value = getDeepValueParentByArray(
 			_draft,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
 		)[ 0 ];
-		if ( value == null || !isDraft( value, ) ) {
+		if ( isNil( value, ) || !isDraft( value, ) ) {
 			throw new Error( `Key path ${stateHistoryPath} cannot be a draft. It's value is ${draft} of type ${typeof draft}`, );
 		}
 		return [

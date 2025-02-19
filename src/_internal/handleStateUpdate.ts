@@ -4,7 +4,12 @@ import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import isFunction from './isFunction';
+import isObject from './isObject';
 import isPlainObject from './isPlainObject';
+import isString from './isString';
+import isUndefined from './isUndefined';
+import isValidStatePath from './isValidStatePath';
 
 export default function handleStateUpdate<
 	S extends DS,
@@ -21,7 +26,7 @@ export default function handleStateUpdate<
 	const [statePath, nextState,] = args;
 
 	// Handle function-based root update
-	if ( typeof statePath === 'function' ) {
+	if ( isFunction( statePath, ) ) {
 		statePath( {
 			...history,
 			historyDraft,
@@ -30,8 +35,8 @@ export default function handleStateUpdate<
 	}
 
 	// Handle path-based updates
-	if ( typeof statePath === 'string' || Array.isArray( statePath, ) ) {
-		const statePathArray = typeof statePath === 'string'
+	if ( isValidStatePath( statePath, ) ) {
+		const statePathArray = isString( statePath, )
 			? getCacheStringPathToArray( arrayPathMap, statePath, )
 			: statePath as ( string | number )[];
 
@@ -39,7 +44,7 @@ export default function handleStateUpdate<
 		const [draft, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
 		const pathArray = statePathArray.slice( 1, );
 
-		if ( typeof nextState === 'function' && isPlainObject( draft, ) ) {
+		if ( isFunction( nextState, ) && isPlainObject( draft, ) ) {
 			nextState(
 				createArrayPathProxy( {
 					pathArray,
@@ -51,8 +56,8 @@ export default function handleStateUpdate<
 				}, ),
 			);
 		}
-		else if ( typeof parentDraft === 'object' && typeof valueKey !== 'undefined' && valueKey in parentDraft ) {
-			if ( typeof nextState === 'function' ) {
+		else if ( isObject( parentDraft, ) && typeof valueKey !== 'undefined' && valueKey in parentDraft ) {
+			if ( isFunction( nextState, ) ) {
 				nextState(
 					createArrayPathProxy( {
 						draft: parentDraft,
@@ -68,7 +73,7 @@ export default function handleStateUpdate<
 			}
 		}
 	}
-	else if ( typeof nextState === 'undefined' && isPlainObject( statePath, ) ) {
+	else if ( isUndefined( nextState, ) && isPlainObject( statePath, ) ) {
 		Object.assign( historyDraft, statePath, );
 	}
 
