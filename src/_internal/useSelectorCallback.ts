@@ -16,7 +16,7 @@ const isEqual = createCustomEqual( {
 export default function useSelectorCallback<
 	S extends DS,
 	AR extends ActRecord,
-	SP extends Record<string, unknown> | Record<never, never> = Record<never, never>,
+	SP extends Record<string, unknown>,
 >( defaultSelector: Selector<S, AR, SP>, selector?: Selector<S, AR, SP>, ) {
 	const _selector = useMemo(
 		() => {

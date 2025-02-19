@@ -24,7 +24,7 @@ describe( 'useCon', () => {
 		expect( result.current, ).toStrictEqual( [
 			initialState,
 			{
-				state: props.state,
+				acts: props.acts,
 				currySet: props.currySet,
 				currySetHistory: props.currySetHistory,
 				get: props.get,
@@ -34,7 +34,8 @@ describe( 'useCon', () => {
 				setHistory: props.setHistory,
 				setHistoryWrap: props.setHistoryWrap,
 				setWrap: props.setWrap,
-				acts: props.acts,
+				state: props.state,
+				subscribe: props.subscribe,
 				useSelector: props.useSelector,
 			},
 		], );
