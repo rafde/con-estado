@@ -10,9 +10,33 @@ export type CreateConSubscribe<
 	Snapshot extends Record<string, unknown>,
 > = CreateConReturnType<S, AR> & {
 /**
- * Subscribes to state changes in the store. Returns `function` to unsubscribe the listener
+ * Subscribes to state changes in the store.
  *
- * @typeParam listener - {@link Listener} function that will be called whenever the state changes
+ * @typeParam {Listener} listener - {@link Listener} function that will be called whenever the state changes
+ * @returns An unsubscribe listener `function`.
+ *
+ * @example
+ * ```ts
+ * const [
+ * 	state,
+ * 	{ subscribe }
+ * ] = useCon( { count: 0 }, );
+ *
+ * const {
+ * 	subscribe
+ * } = useConSelector(( { subscribe } ) => ( { subscribe } ));
+ *
+ * // Subscribe to state changes
+ * const unsubscribe = subscribe({{ state }} => {
+ *   if (state.count > 100) {
+ *     console.log('Why is the count so high?');
+ *     notifyCountReached(state.count);
+ *   }
+ * });
+ *
+ * // Later, when you want to stop listening
+ * unsubscribe();
+ * ```
  */
 	subscribe( listener: Listener<SelectorProps<S, AR, Snapshot>> ): () => void
 };
