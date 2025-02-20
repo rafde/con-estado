@@ -114,7 +114,7 @@ type SetHistory<
 	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
 	/**
-	 * Updates the complete state history with either a new state object or mutation callback
+	 * Updates the `state` and/or `initial` with either a new state object or mutation callback
 	 * Creates immutable history records while maintaining previous state versions
 	 * @overload
 	 *
@@ -643,7 +643,7 @@ type SetState<
 	): History<S>
 	/**
 	 *
-	 * Specialized overload for updates state  at a specified array of strings or numbers (for arrays) path with either a direct value or callback function.
+	 * Specialized overload for updating state  at a specified array of strings or numbers (for arrays) path with either a direct value or callback function.
 	 * @overload
 	 *
 	 * @template SP - Array path type (e.g., ['items', '0'] or ['users', '2', 'address'])
@@ -696,7 +696,7 @@ type CurrySet<
 	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
 > = {
 	/**
-	 * Creates a pre-bound set function for a specific dot-notation string path.
+	 * Creates a pre-bound `set` function for a specific dot-notation string path.
 	 * Enables partial application of path for reusable state updaters
 	 * @overload
 	 *
@@ -991,6 +991,16 @@ export type Setters<
 	 * Resets the state to its initial value, clearing any history of changes.
 	 * @template S - Current state type
 	 * @returns {History<S>} The updated history object reflecting the reset state.
+	 *
+	 * @example
+	 * ```ts
+	 * const [
+	 *   state,
+	 *   { reset }
+	 * ] = useCon( { count: 0 }, );
+	 *
+	 * reset();
+	 * ```
 	 *
 	 * @remarks
 	 * This method is useful for restoring the state to its original configuration,
