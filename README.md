@@ -28,6 +28,9 @@ deno add jsr:@rafde/con-estado
 like [Immer](https://immerjs.github.io/immer/) but faster,
 with the goal of helping with deeply nested state management.
 
+With TypeScript support, strongly infers as much as it can for state 
+and callback functions so you can use type-safe selectors and actions.
+
 ## Why Use `con-estado`?
 
 Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `con-estado` provides:
@@ -52,29 +55,45 @@ const initialState = {
   user: {
     name: 'John',
     preferences: {
-      theme: 'dark',
+      theme: 'dark' as 'dark' | 'light',
       notifications: {
         email: true,
         push: false,
       },
     },
   },
-  posts: [],
+  // since it's empty, you have to assert its type
+  posts: [] as Post[],
 };
 
 function MyComponent() {
   const [
     state,
-    { setWrap, }
- ] = useCon( initialState, );
+    { setWrap, acts, }
+  ] = useCon( 
+    initialState,
+    {
+      acts: ( { set, }, ) => ( {
+        onChangeInput: ( event: ChangeEvent<HTMLInputElement>, ) => {
+          set( event.target.name as Parameter<typeof set>[0], event.target.value )
+        }
+      })
+    }
+  );
 
   return <div>
     <h1>
       Welcome {state.user.name}
     </h1>
+    <input
+      type="text"
+      name="user.name"
+      value={state.user.name}
+      onChange={acts.onChangeInput}
+    />
     <button onClick={setWrap(
       'user.preferences.notifications.email',
-      (props) => props.draft = !props.stateProp
+      (props) => props.draft = !props.draft
     )}>
       Toggle Email Notifications
     </button>
@@ -94,30 +113,24 @@ type CounterState = {
 
 const useSelector = createConStore<CounterState>(
   { count: 0, },
-    {
-        acts: ( { set, }, ) => ( {
-            increment() {
-                set( ( { draft, }, ) => {
-                    draft.count++;
-                }, );
-            },
-            asyncIncrement() {
-                return new Promise ( resolve, => {
-                    setTimeout( () => {
-                        set( 'state', ( { draft, }, ) => {
-                            draft.count++;
-                        }, );
-                        resolve();
-                    }, 100);
-                });
-            },
-            incrementBy( amount: number, ) {
-                set( ( { draft, }, ) => {
-                    draft.count += amount;
-                }, );
-            },
-        } ),
-    }
+  {
+    acts: ( { set, setWrap }, ) => ( {
+        increment: setWrap( 'count', ( props ) => {
+          props.draft++;
+        }, ),
+        asyncIncrement: setWrap( 'count', ( props ) => {
+          return new Promise ( resolve => {
+            setTimeout( () => {
+              props.draft++;
+              resolve();
+            }, 100 );
+          });
+        }, ),
+        incrementBy: setWrap( 'count', ( props, amount: number, ) => {
+          props.draft += amount;
+        }, ),
+    } ),
+  }
 );
 
 // In component
@@ -126,30 +139,24 @@ function Counter() {
     const {
      increment,
       asyncIncrement,
-       incBy5
+      incBy5
     } = useSelector( ( {
-        acts: {
-            increment,
-            asyncIncrement,
-            incrementBy
-        }
+        acts
     }) => ( {
-        increment,
-        asyncIncrement,
-        incBy5(){ incrementBy(5,) }
+        increment: acts.increment,
+        asyncIncrement: acts.asyncIncrement,
+        incBy5(){ acts.incrementBy(5,) }
     } )
   );
 
-  return (
-    <div>
-      <h2>Count: {count}</h2>
-      <button onClick={increment}>Increment</button>
-      <button onClick={asyncIncrement}>Async Increment</button>
-      <button onClick={incBy5}>
-        Add 5
-      </button>
-    </div>
-  );
+  return <div>
+    <h2>Count: {count}</h2>
+    <button onClick={increment}>Increment</button>
+    <button onClick={asyncIncrement}>Async Increment</button>
+    <button onClick={incBy5}>
+      Add 5
+    </button>
+  </div>;
 }
 ```
 
@@ -176,16 +183,14 @@ function UserPreferences() {
     const preferences = useCon( initialState, {
       selector: props => ( {
         theme: props.state.user.preferences.theme,
-        updateTheme: props.setWrap(
-          'user.preferences.theme',
-          ( props, event: ChangeEvent<HTMLSelectElement>, ) => {
-            props.draft = event.target.value
-          },
-        ),
+        updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
+          props.set(event.target.name as Parameter<typeof props.set>[0], event.target.value, )
+        },
       } ),
     } );
     return <select
       value={preferences.theme}
+      name="user.preferences.theme"
       onChange={preferences.updateTheme}
     >
       <option value="light">Light</option>
@@ -413,7 +418,8 @@ createConStore(
 createConStore( initialState, selector, );
 ```
 
-**Note for all selectors**: Under the hood, any return value from `selector` will be evaluated by a custom [strictDeepEqual](https://github.com/planttheidea/fast-equals?tab=readme-ov-file#strictdeepequal) `function` that ignores checking `function`s for equality. This prevents infinite re-renders while allowing for deep comparison of objects, arrays, and primitives.
+**Note for all selectors**: Under the hood, any return value from `selector` will be evaluated by a custom [strictDeepEqual](https://github.com/planttheidea/fast-equals?tab=readme-ov-file#strictdeepequal) `function` that ignores checking `function`s for equality. 
+This prevents infinite re-renders while allowing for deep comparison of objects, arrays, and primitives.
 
 Example:
 
@@ -434,6 +440,9 @@ const [
 ```
 
 ## `useCon`
+
+Local state manager for a React Component
+
 ```ts
 const [ state, controls, ] = useCon( initialState, options, selector, );
 ```
@@ -506,7 +515,7 @@ const yourSelection = useConSelector(
 
 ## Shared Controls
 
-These `function`s
+The following `function`s
 - [options.acts](#21-optionsacts)
 - [selector](#3-selector)
 - [useSelector](#useselector)
@@ -514,9 +523,46 @@ These `function`s
 
 have access to the following controls:
 
+### `get`
+
+Gives you immutable access to [History](#history-object).
+
+```ts
+const [
+  state,
+  { get, }
+] = useCon( { count: 0, }, );
+
+const {
+  get,
+} = useConSelector( ( { get, } ) => ( { get, } ), ) ;
+
+const history = get();
+history.state;
+history.initial;
+history.changes;
+history.prev;
+history.prevInitial;
+```
+
+You can also use dot-notation to access properties.
+
+```ts
+const changesToSomeValue = get('changes.to.some.value');
+```
+
+#### `History` Object
+- **state**: Current immutable state object.
+- **prev**: The previous `state` immutable object before `state` was updated.
+- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for resync purposes like merging with server data while `state` keeps client side data.
+- **prevInitial**: The previous `initial` immutable object before `initial` was updated.
+- **changes**: Immutable object that keeps track of top level properties (shallow) difference between the `state` and `initial` object.
+
 ### `state`
 
 The current `state` value. Initialized from [options.initialState](#1-initial).
+
+Same value as `get( 'state' )`. Provided for convenience and to trigger re-render on default selector update.
 
 ```ts
 const [
@@ -543,14 +589,7 @@ const {
 } = useConSelector( ( { set, } ) => ( { set, }, ));
 ```
 
-All `set` calls returns a new `History` object that contains the following properties:
-
-### `History` Object
-- **state**: Current immutable state object.
-- **prev**: The previous `state` immutable object before `state` was updated.
-- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for resync purposes like merging with server data while `state` keeps client side data.
-- **prevInitial**: The previous `initial` immutable object before `initial` was updated.
-- **changes**: Immutable object that keeps track of top level properties (shallow) difference between the `state` and `initial` object.
+All `set` calls returns a new [History](#history-object) object that contains the following properties:
 
 ### `set( state )`
 
@@ -612,7 +651,7 @@ Specialized overload for updating state at a specified array of strings or numbe
 
 Array path to the state property to update, can have dot notation, e.g. `['items', 0]` or `['users', 2, 'address.name']`
 
-Callback works the same as [set( 'path.to.value', callback )](#set-dotnotation0pathtovalue-value--)
+Callback works the same as [set( 'path.to.value', callback )](#set-pathtovalue--path-to-value-callback-)
 
 ```ts
 set( ['string', 'path', 0, 'to.value'], [ 'new', 'value' ] );
@@ -665,34 +704,6 @@ const [
 const {
   acts,
 } = useConSelector( ( { acts, } ) => ( { acts, } ), );
-```
-
-### `get`
-
-Gives you immutable access to [History](#history-object).
-
-```ts
-const [
-  state,
-  { get, }
-] = useCon( { count: 0, }, );
-
-const {
-  get,
-} = useConSelector( ( { get, } ) => ( { get, } ), ) ;
-
-const history = get();
-history.state;
-history.initial;
-history.changes;
-history.prev;
-history.prevInitial;
-```
-
-You can also use dot-notation to access properties.
-
-```ts
-const changesToSomeValue = get('changes.to.some.value');
 ```
 
 ### `setWrap`
@@ -749,7 +760,7 @@ setCount( ( props, ) => props.draft += 1 );
 
 Works like [set](#set), but can be used to update both `state` and `initial`.
 
-### setHistoryWrap
+### `setHistoryWrap`
 
 Works like [setWrap](#setwrap), but can be used to update both `state` and `initial`.
 
@@ -777,9 +788,10 @@ reset();
 
 ### `subscribe`
 
-Subscribes to state changes outside [useSelector](#useselector) or [useConSelector](#useconselector) via `selector`.
+Subscribes to state changes outside [useSelector](#useselector) or [useConSelector](#useconselector) via [selector](#selector).
 Returns `function` to unsubscribe the listener.
-**ALERT**:When using subscribe, you have to manage when to unsubscribe the listener yourself.
+
+**ALERT**:When using subscribe, you have to manage when to unsubscribe the listener.
 
 ```ts
 const [
@@ -801,23 +813,6 @@ const unsubscribe = subscribe( ( { state, }, ) => {
 
 // Later, when you want to stop listening
 unsubscribe();
-```
-
-## TypeScript Support
-
-`con-estado` is written in TypeScript and can infer the state and actions types:
-
-```ts
-const [ state, { set, } ] = useCon( {
-  user: {
-    name: 'John',
-    preferences: {
-      theme: 'light' as 'light' | 'dark',
-      notifications: { email: true, push: false, },
-    },
-  },
-  posts: [] as string[],
-} );
 ```
 
 ## Credits to
