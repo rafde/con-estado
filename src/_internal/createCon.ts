@@ -103,7 +103,7 @@ export default function createCon<
 		return nextHistory;
 	}
 
-	function getDraft( stateHistoryPath: unknown = mutOptions, options = mutOptions, ) {
+	const getDraft: GetDraftRecord<S>['getDraft'] = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
 		const statePath = isPlainObject( stateHistoryPath, ) ? undefined : stateHistoryPath;
 		const _mutOptions = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
 		return getHistoryDraft(
@@ -115,7 +115,7 @@ export default function createCon<
 			statePath,
 			_mutOptions,
 		);
-	}
+	};
 
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
@@ -229,7 +229,7 @@ export default function createCon<
 		},
 		currySetHistory,
 		get,
-		getDraft: getDraft as GetDraftRecord<S>['getDraft'],
+		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
 			if ( isNil( history.changes, ) ) {
 				return history;

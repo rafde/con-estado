@@ -28,7 +28,7 @@ describe( 'useCon', () => {
 				currySet: props.currySet,
 				currySetHistory: props.currySetHistory,
 				get: props.get,
-				getDraft: props.getDraft,
+				// getDraft: props.getDraft,
 				reset: props.reset,
 				set: props.set,
 				setHistory: props.setHistory,
@@ -376,11 +376,12 @@ describe( 'useCon', () => {
 		}, );
 	}, );
 
-	describe( 'useCon - getDraft', () => {
+	describe.skip( 'useCon - getDraft', () => {
 		it( 'should update state when history changes after finalize', () => {
 			const initialState = { count: 0, };
 			const { result, } = renderHook( () => useCon( initialState, ), );
 
+			// @ts-expect-error disabled for now
 			const [draft, finalize,] = result.current[ 1 ].getDraft();
 			draft.state.count = 1;
 
@@ -396,6 +397,7 @@ describe( 'useCon', () => {
 			const initialState = { count: 0, };
 			const { result, } = renderHook( () => useCon( initialState, ), );
 
+			// @ts-expect-error disabled for now
 			const [, finalize,] = result.current[ 1 ].getDraft();
 
 			act( () => {

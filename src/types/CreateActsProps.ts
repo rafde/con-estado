@@ -1,7 +1,6 @@
 import type { DS, } from './DS';
 import type { History, } from './History';
 import type { Setters, } from './Setters';
-import type { GetDraftRecord, } from './GetDraftRecord';
 import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
@@ -77,5 +76,5 @@ export type CreateActsProps<
 		stateHistoryPath: SHP
 	): Immutable<GetStringPathValue<History<S>, SHP>>
 }
-& GetDraftRecord<S>
+// & GetDraftRecord<S>
 & Setters<S>;
