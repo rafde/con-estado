@@ -21,42 +21,35 @@ export type GetDraftRecord<
 	 *
 	 * @example
 	 * ```ts
-	 * const acts = (controls) => ({
-	 *   bulkUpdate: () => {
-	 *     const [draft, commit] = controls.getDraft()
-	 *     draft.state.count += 5
-	 *     draft.state.items.push('new item')
-	 *     draft.state.user.lastUpdated = Date.now()
-	 *     return commit()
-	 *   }
-	 * })
-	 * ```
+	 * const [
+	 * 	state,
+	 * 	controls,
+	 * ] = useCon( {status: '', error: '', data: {}}, {
+	 * 	acts( { getDraft } ) {
+	 * 		async modifyFirstItem() {
+	 * 			const [draft, commit] = getDraft();
+	 * 			draft.state.status = 'loading';
+	 * 			commit();
 	 *
-	 * @example
-	 * ```ts
-	 * const acts = (controls) => ({
-	 *   optimisticUpdate: async () => {
-	 *     const [draft, commit] = controls.getDraft()
-	 *     draft.state.status = 'loading'
-	 *     commit()
+	 * 			const [draft2, commit2] = controls.getDraft()
+	 * 			try {
+	 * 				const result = await api.fetchData()
 	 *
-	 *     try {
-	 *       const result = await api.fetchData()
-	 *       const [draft2, commit2] = controls.getDraft()
-	 *       draft2.state.data = result
-	 *       draft2.state.status = 'success'
-	 *       commit2()
-	 *     } catch (error) {
-	 *       const [draft3, commit3] = controls.getDraft()
-	 *       draft3.state.status = 'error'
-	 *       draft3.state.error = error.message
-	 *       commit3()
-	 *     }
-	 *   }
-	 * })
+	 * 				draft2.state.data = result
+	 * 				draft2.state.status = 'success'
+	 *
+	 * 			} catch (error) {
+	 * 				draft2.state.status = 'error'
+	 * 				draft2.state.error = error.message
+	 * 			}
+	 *
+	 * 			commit2()
+	 * 		}
+	 * 	}
+	 * });
 	 * ```
 	 */
-	getDraft( options?: MO ): [
+	getDraft( options?: MO ): readonly [
 		Draft<HistoryState<S>>,
 		() => History<S>,
 	]
@@ -71,37 +64,11 @@ export type GetDraftRecord<
 	 * @returns {[GetStringPathValue<Draft<HistoryState<S>>, SHP>, () => History<S>]} Tuple containing:
 	 *   - Mutable draft of the specified property
 	 *   - Function to commit draft changes and return updated history
-	 *
-	 * @example
-	 * ```ts
-	 * const acts = (controls) => ({
-	 *   updateUserProfile: (newData) => {
-	 *     const [userDraft, commit] = controls.getDraft('state.user')
-	 *     userDraft.name = newData.name
-	 *     userDraft.email = newData.email
-	 *     userDraft.lastUpdated = Date.now()
-	 *     return commit()
-	 *   }
-	 * })
-	 * ```
-	 *
-	 * @example
-	 * ```ts
-	 * const acts = (controls) => ({
-	 *   modifyFirstItem: () => {
-	 *     const [itemDraft, commit] = controls.getDraft('state.items.0')
-	 *     itemDraft.status = 'modified'
-	 *     itemDraft.count *= 2
-	 *     itemDraft.tags.push('updated')
-	 *     return commit()
-	 *   }
-	 * })
-	 * ```
 	 */
 	getDraft<
 		SHP extends NestedObjectKeys<HistoryState<S>>,
 		MO extends ConMutOptions = ConMutOptions,
-	>( stateHistoryPath: SHP, options?: MO ): [
+	>( stateHistoryPath: SHP, options?: MO ): readonly [
 		GetStringPathValue<
 			Draft<HistoryState<S>>,
 			SHP
