@@ -69,8 +69,8 @@
 	"module": "dist/esm/index.mjs",
 	"name": "con-estado",
 	"optionalDependencies": {
-		"@rollup/rollup-linux-x64-gnu": "*",
 		"@parcel/watcher-linux-x64-glibc": "*",
+		"@rollup/rollup-linux-x64-gnu": "*",
 		"@swc/core-linux-x64-gnu": "*"
 	},
 	"peerDependencies": {
