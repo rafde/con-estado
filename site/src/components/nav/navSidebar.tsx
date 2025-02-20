@@ -9,13 +9,13 @@ export default function NavSidebar() {
 		<NavHiddenCheck />
 		<aside
 			className={'overflow-hidden transition-[background,opacity,z-index,width] duration-300'
-			+ ' peer-not-checked/overlay:opacity-0 peer-not-checked/overlay:fixed peer-not-checked/overlay:inset-0 peer-not-checked/overlay:-z-10 peer-not-checked/overlay:bg-transparent'
-			+ ' peer-checked/overlay:opacity-100 peer-checked/overlay:fixed peer-checked/overlay:inset-0 peer-checked/overlay:z-10 peer-checked/overlay:bg-zinc-700'
-			+ ' peer-checked/overlay:*:translate-x-0'
+				+ ' peer-not-checked/overlay:opacity-0 peer-not-checked/overlay:fixed peer-not-checked/overlay:inset-0 peer-not-checked/overlay:-z-10 peer-not-checked/overlay:bg-transparent'
+				+ ' peer-checked/overlay:opacity-100 peer-checked/overlay:fixed peer-checked/overlay:inset-0 peer-checked/overlay:z-10 peer-checked/overlay:bg-zinc-700'
+				+ ' peer-checked/overlay:*:translate-x-0'
 
-			+ ' sm:max-w-(--navbar-max-width) sm:w-0 sm:opacity-0 static'
-			+ ' sm:peer-checked/side:opacity-100 sm:peer-checked/side:static sm:peer-checked/side:z-10 sm:peer-checked/side:w-full'
-			+ ' sm:peer-checked/side:*:translate-x-0'}>
+				+ ' sm:max-w-(--navbar-max-width) sm:w-0 sm:opacity-0 static'
+				+ ' sm:peer-checked/side:opacity-100 sm:peer-checked/side:static sm:peer-checked/side:z-10 sm:peer-checked/side:w-full'
+				+ ' sm:peer-checked/side:*:translate-x-0'}>
 			<nav
 				className="flex flex-col space-y-2 overflow-hidden bg-black pb-3 h-screen border-r border-white max-w-(--navbar-max-width) transition-[translate,opacity] duration-300 -translate-x-full"
 			>
