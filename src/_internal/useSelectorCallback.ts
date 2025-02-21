@@ -4,7 +4,6 @@ import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
 import isFunction from './isFunction';
-import isNil from './isNil';
 
 const isEqual = createCustomEqual( {
 	strict: true,
@@ -35,9 +34,10 @@ export default function useSelectorCallback<
 		( snapshot: Parameters<Selector<S, AR, SP>>[0], ) => {
 			const next = _selector( snapshot, );
 			const prev = resultRef.current;
-			resultRef.current = isNil( prev, ) || !isEqual( prev, next, )
-				? next
-				: prev;
+			if ( isEqual( prev, next, ) ) {
+				return resultRef.current;
+			}
+			resultRef.current = next;
 			return resultRef.current;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
