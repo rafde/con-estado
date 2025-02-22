@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import type { MDXComponents, } from 'mdx/types';
 import type { ReactNode, } from 'react';
-// @ts-expect-error this file does exist
 import ReadMe from '../../../../README.md';
 import childrenToString from '../../util/childrenToString';
 import mdHToHref from '../../util/md-h-to-href';

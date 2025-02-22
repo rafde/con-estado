@@ -1,6 +1,5 @@
 import type { CSSProperties, PropsWithChildren, } from 'react';
-import type { SyntaxHighlighterProps, } from 'react-syntax-highlighter';
-import { Prism as SyntaxHighlighter, } from 'react-syntax-highlighter';
+import { type SyntaxHighlighterProps, Prism as SyntaxHighlighter, } from 'react-syntax-highlighter';
 import { vscDarkPlus, } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const customStyleDefault = {
