@@ -56,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd site
-          npm ci --legacy-peer-deps --workspace=site
+          npm ci --legacy-peer-deps
 
       - name: Build with Next.js
         run: |
