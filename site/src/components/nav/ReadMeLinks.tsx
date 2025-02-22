@@ -1,7 +1,6 @@
 import type { MDXComponents, } from 'mdx/types';
 import type { PropsWithChildren, } from 'react';
 
-// @ts-expect-error this file does exist
 import ReadMe from '../../../../README.md';
 import Code from '../ui/code';
 import NavLi from './Li';
