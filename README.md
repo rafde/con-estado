@@ -1,3 +1,5 @@
+<section className="relative space-y-2">
+
 # con-estado
 
 [![NPM License](https://img.shields.io/npm/l/con-estado)](https://github.com/rafde/con-estado/blob/main/LICENSE)
@@ -5,8 +7,15 @@
 [![JSR Version](https://img.shields.io/jsr/v/%40rafde/con-estado)](https://jsr.io/@rafde/con-estado)
 ![Test](https://github.com/rafde/con-estado/actions/workflows/test.yml/badge.svg)
 
+</section>
+<section className="relative space-y-2">
+
 ## Docs
+
 For full documentation, with details and examples, see [con-estado docs](https://rafde.github.io/con-estado).
+
+</section>
+<section className="relative space-y-2">
 
 ## Installation
 
@@ -22,6 +31,9 @@ yarn add con-estado
 deno add jsr:@rafde/con-estado
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ## Introduction
 
 `con-estado` is a state management library built on top of [Mutative](https://mutative.js.org/),
@@ -30,6 +42,9 @@ with the goal of helping with deeply nested state management.
 
 With TypeScript support, strongly infers as much as it can for state 
 and callback functions so you can use type-safe selectors and actions.
+
+</section>
+<section className="relative space-y-2">
 
 ## Why Use `con-estado`?
 
@@ -46,139 +61,167 @@ Built on [Mutative](https://mutative.js.org/)'s efficient immutable updates, `co
 - Frequent partial state updates
 - Teams wanting to reduce state management boilerplate
 
-## Basic Usage
+</section>
+<section className="relative space-y-2">
+
+## Local State
+
+[Local State Basic Usage](https://stackblitz.com/edit/con-estado-basic-usage-suqy7jc6?ctl=1&embed=1&file=src%2FApp.tsx&theme=dark)
 
 ```tsx
+// Demo
+import { ChangeEvent } from 'react';
 import { useCon } from 'con-estado';
 // Define your initial state
 const initialState = {
   user: {
     name: 'John',
     preferences: {
-      theme: 'dark' as 'dark' | 'light',
+      theme: 'light' as 'light' | 'dark'
       notifications: {
         email: true,
-        push: false,
       },
     },
   },
-  // since it's empty, you have to assert its type
-  posts: [] as Post[],
 };
 
-function MyComponent() {
-  const [
-    state,
-    { setWrap, acts, }
-  ] = useCon( 
-    initialState,
-    {
-      acts: ( { set, }, ) => ( {
-        onChangeInput: ( event: ChangeEvent<HTMLInputElement>, ) => {
-          set( 
-            event.target.name as Parameter<typeof set>[0],
-            event.target.value
-          );
-        }
-      })
-    }
-  );
+function App() {
+  const [ state, { setWrap, acts } ] = useCon( initialState, {
+    acts: ({ set }) => ({
+      onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
+        const name = event.target.name;
+        const value = event.target.value;
+        console.log('onChangeInput', name, value);
+        set(
+          event.target.name as unknown as Parameters<typeof set>[0],
+          event.target.value
+        );
+      },
+    }),
+  });
 
-  return <div>
-    <h1>
-      Welcome {state.user.name}
-    </h1>
-    <input
-      type="text"
-      name="user.name"
-      value={state.user.name}
-      onChange={acts.onChangeInput}
-    />
-    <button onClick={setWrap(
-      'user.preferences.notifications.email',
-      (props) => props.draft = !props.draft
-    )}>
-      Toggle Email Notifications
-    </button>
-  </div>;
+  return (
+    <div>
+      <h1>Welcome {state.user.name}</h1>
+      <input
+        type="text"
+        name="user.name"
+        value={state.user.name}
+        onChange={acts.onChangeInput}
+      />
+      <button
+        onClick={setWrap('user.preferences.notifications.email', (props) => {
+          console.log('toggle email was ', props.draft);
+          props.draft = !props.draft;
+          console.log('toggle email is ', props.draft);
+        })}
+      >
+        Toggle Email Notifications:{' '}
+        {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
+      </button>
+      <select
+        value={state.user.preferences.theme}
+        name="user.preferences.theme"
+        onChange={acts.onChangeInput}
+      >
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  );
 }
 ```
+Key advantages:
+- **Optimized subscriptions** through selector-based consumption
+
+</section>
+<section className="relative space-y-2">
 
 ## Global Store
 
 For applications needing global state management, `createConStore` provides a solution for creating actions and optimized updates:
 
+[Global Store Basic Usage](https://stackblitz.com/edit/con-estado-global-state-basic-usage-suqy7jc6-gyigr8x4?ctl=1&embed=1&file=src%2FApp.tsx&theme=dark)
+
 ```tsx
-import { createConStore, } from 'con-estado';
+// Demo
+import { ChangeEvent } from 'react';
+import { createConStore } from 'con-estado';
 
-type CounterState = {
-  count: number
-}
+// Define your initial state
+const initialState = {
+  user: {
+    name: 'John',
+    preferences: {
+      theme: 'light' as 'light' | 'dark',
+      notifications: {
+        email: true,
+      },
+    },
+  },
+};
 
-const useSelector = createConStore<CounterState>(
-  { count: 0, },
-  {
-    acts: ( { set, setWrap }, ) => ( {
-        increment: setWrap( 'count', ( props ) => {
-          props.draft++;
-        }, ),
-        asyncIncrement: setWrap( 'count', ( props ) => {
-          return new Promise ( resolve => {
-            setTimeout( () => {
-              props.draft++;
-              resolve();
-            }, 100 );
-          });
-        }, ),
-        incrementBy: setWrap( 'count', ( props, amount: number, ) => {
-          props.draft += amount;
-        }, ),
-    } ),
-  }
-);
+const useSelector = createConStore( initialState, {
+  acts: ({ set }) => ({
+    onChangeInput: (
+      event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+      const name = event.target.name;
+      const value = event.target.value;
+      console.log('onChangeInput', name, value);
+      set(
+        event.target.name as unknown as Parameters<typeof set>[0],
+        event.target.value
+      );
+    },
+  }),
+});
 
-// In component
-function Counter() {
-    const { count, } = useSelector( props => props.state );
-    const {
-     increment,
-      asyncIncrement,
-      incBy5
-    } = useSelector( ( {
-        acts
-    }) => ( {
-        increment: acts.increment,
-        asyncIncrement: acts.asyncIncrement,
-        incBy5(){ acts.incrementBy(5,) }
-    } )
+function App() {
+  const [state, { setWrap, acts }] = useSelector();
+
+  return (
+    <div>
+      <h1>Welcome {state.user.name}</h1>
+      <input
+        type="text"
+        name="user.name"
+        value={state.user.name}
+        onChange={acts.onChangeInput}
+      />
+      <button
+        onClick={setWrap('user.preferences.notifications.email', (props) => {
+          console.log('toggle email was ', props.draft);
+          props.draft = !props.draft;
+          console.log('toggle email is ', props.draft);
+        })}
+      >
+        Toggle Email Notifications:{' '}
+        {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
+      </button>
+      <select
+        value={state.user.preferences.theme}
+        name="user.preferences.theme"
+        onChange={acts.onChangeInput}
+      >
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
   );
-
-  return <div>
-    <h2>Count: {count}</h2>
-    <button onClick={increment}>Increment</button>
-    <button onClick={asyncIncrement}>Async Increment</button>
-    <button onClick={incBy5}>
-      Add 5
-    </button>
-  </div>;
 }
 ```
 
 Key advantages:
 - **Global state** accessible across components
-- **Pre-bound actions** with type-safe parameters
-- **Async action support** with automatic state updates
 - **Optimized subscriptions** through selector-based consumption
 
-## Local State
-
-```tsx
-const [ state, controls ] = useCon( initialState, );
-```
-
-You get the advantages of `createConStore` but with local state.
+</section>
+<section className="relative space-y-2">
 
 ## Custom Selectors
+
+Selector is a `function` that returns the props you need. Only re-renders on non-`function` changes.
 
 Optimize renders by selecting only needed state:
 
@@ -206,7 +249,8 @@ function UserPreferences() {
 }
 ```
 
-Selector is a function that returns the state you need. Only re-renders on non-function changes.
+</section>
+<section className="relative space-y-2">
 
 ## Actions
 
@@ -259,6 +303,9 @@ function PostList() {
 }
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ## State History
 
 Track and access previous state values:
@@ -283,9 +330,22 @@ function StateHistory() {
 }
 ```
 
+</section>
+<section className="relative space-y-2">
+
+## To Don't example
+
+[To Don't Example](https://stackblitz.com/edit/con-estado-todont-app-fikb7k8w?ctl=1&embed=1&file=src%2Fstore%2Findex.ts)
+
+</section>
+<section className="relative space-y-2">
+
 ## API References
 
 `createConStore` and `useCon` take the same parameters.
+
+</section>
+<section className="relative space-y-2">
 
 ### 1. `initial`
 
@@ -300,6 +360,9 @@ useCon( () => ([]) );
 Used to initialize the [`state`](#state) value. non-null `Object` with data, `Array`,
 or a function that returns an `Object` or `Array`
 
+</section>
+<section className="relative space-y-2">
+
 ### 2. `options`
 
 Configuration options for `createConStore` and `useCon`.
@@ -307,6 +370,9 @@ Configuration options for `createConStore` and `useCon`.
 ```ts
 useCon( initial, options );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 #### 2.1. `options.acts`
 
@@ -336,6 +402,9 @@ useCon(
 );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 #### 2.2. `options.afterChange`
 
 Async callback after state changes.
@@ -352,6 +421,9 @@ useCon(
   }
 );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 #### 2.3. `options.transform`
 
@@ -372,9 +444,17 @@ useCon(
 );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 #### 2.4. `options.mutOptions`
 
-Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options). `{enablePatches: true}` not supported.
+Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options).
+
+`{enablePatches: true}` not supported.
+
+</section>
+<section className="relative space-y-2">
 
 ### 3. `selector`
 
@@ -431,11 +511,10 @@ createConStore(
 createConStore( initialState, selector, );
 ```
 
-**TIP**: If your `selector` return value is/has a `function`, function will not be seen as a change to
-trigger re-render. This is a precaution to prevent unnecessary re-renders since all dynamic functions create a new reference.
-If you need to conditional return a `function`, it's better if you make a `function` that can handle your condition.
+**TIP**: When selectors return a function or object with a function, those functions will not trigger re-render when changed.
+This is a precaution to prevent unnecessary re-renders since creating functions create a new reference.
 
-example
+Examples:
 
 ```ts
 // Won't re-render
@@ -455,7 +534,7 @@ const setCount = useCon( initialState, controls => (value) => {
 ```
 
 ```ts
-// This will re-render when `controls.state.count` value is updated
+// This will re-render when `controls.state.count` has updated. 
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
   setCount: controls.state.count < 10
@@ -463,8 +542,6 @@ const setCount = useCon( initialState, controls => ({
    : () => {}
 }));
 ```
-
-Example:
 
 ```ts
 const useConSelector = createConStore(
@@ -482,6 +559,9 @@ const [
 ] = useConSelector( ( { set, state, }, ) => [ set, state, ] as const );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ## `useCon`
 
 Local state manager for a React Component
@@ -489,8 +569,11 @@ Local state manager for a React Component
 ```ts
 const [ state, controls, ] = useCon( initialState, options, selector, );
 ```
+</section>
+<section className="relative space-y-2">
 
 ### `useSelector`
+
 `useCon` has access to additional control property from `selector` named `useSelector`. A `function` that works like what `createConStore` returns.
 - By default, returns `[state, controls]` when no selector is provided. If a `selector` is provided, it returns the result of the `selector`.
 - This allows you to use local state as a local store that can be passed down to other components, where each component can provide a custom `selector`.
@@ -530,6 +613,9 @@ const setCount = useCon( initialState, controls => ({
 }));
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ## `createConStore`
 
 Global store state manager.
@@ -537,6 +623,9 @@ Global store state manager.
 ```ts
 const useConSelector = createConStore( initialState, options, selector, );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 ### `useConSelector`
 Called `useConSelector` for reference. You have a choice in naming.
@@ -585,6 +674,9 @@ const yourSelection = useConSelector(
 );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ## Shared Controls
 
 The following `function`s
@@ -594,6 +686,9 @@ The following `function`s
 - [useConSelector](#useconselector)
 
 have access to the following controls:
+
+</section>
+<section className="relative space-y-2">
 
 ### `get`
 
@@ -623,6 +718,9 @@ You can also use dot-notation to access properties.
 const changesToSomeValue = get('changes.to.some.value');
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ### `state`
 
 The current `state` value. Initialized from [options.initialState](#1-initial).
@@ -638,6 +736,9 @@ const {
   state,
 } = useConSelector(( { state, } ) => ( { state, }, ));
 ```
+
+</section>
+<section className="relative space-y-2">
 
 ### `set`
 
@@ -656,6 +757,9 @@ const {
 
 All `set` calls returns a new [State History](#state-history) object that contains the following properties:
 
+</section>
+<section className="relative space-y-2">
+
 ### `set( state )`
 
 Updates state with a new state object.
@@ -663,6 +767,9 @@ Updates state with a new state object.
 ```ts
 set( { my: 'whole', data: ['items'], }, );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 ### `set( callback )`
 
@@ -684,11 +791,17 @@ set( ( {
 }, );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 #### `set` callback parameters
 
 Contains [State History](#state-history) properties plus:
 - **draft**: The mutable part of the `state` object that can be modified in the callback.
 - **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
+
+</section>
+<section className="relative space-y-2">
 
 ### `set('path.0.to\\.val', value)`
 
@@ -710,6 +823,9 @@ const initial = {
 }; // 'path.user\\.name'
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ### `set(['path', 0, 'to.val'], value)`
 
 Specialized overload for updating state at a specified array of strings or numbers (for arrays) path with a direct value.
@@ -721,6 +837,9 @@ Callback works the same as [set( 'path.to.value', callback )](#setpath--path-cal
 ```ts
 set( ['string', 'path', 0, 'to.val'], [ 'new', 'value' ] );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 ### `set('path' | ['path'], callback)`
 
@@ -743,6 +862,9 @@ set( 'my.data', ( {
 }, );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 #### `set` with path callback parameters
 
 Shares the same parameters as [set( callback )](#set-callback-parameters), in addition to:
@@ -755,6 +877,9 @@ Shares the same parameters as [set( callback )](#set-callback-parameters), in ad
 - **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
 - **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
 - **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+
+</section>
+<section className="relative space-y-2">
 
 ### `acts`
 
@@ -770,6 +895,9 @@ const {
   acts,
 } = useConSelector( ( { acts, } ) => ( { acts, } ), );
 ```
+
+</section>
+<section className="relative space-y-2">
 
 ### `setWrap`
 
@@ -806,6 +934,9 @@ The first parameter can be
 - a callback
 - dot-notated string, or array of string or numbers for state prop path, followed by a callback.
 
+</section>
+<section className="relative space-y-2">
+
 ### `currySet`
 
 Creates a pre-bound `set` function for a specific dot-notation string path.
@@ -826,17 +957,29 @@ setCount( 5, );
 setCount( ( props, ) => props.draft += 1 );
 ```
 
+</section>
+<section className="relative space-y-2">
+
 ### `setHistory`
 
 Works like [set](#set), but can be used to update both `state` and `initial`.
+
+</section>
+<section className="relative space-y-2">
 
 ### `setHistoryWrap`
 
 Works like [setWrap](#setwrap), but can be used to update both `state` and `initial`.
 
+</section>
+<section className="relative space-y-2">
+
 ### `currySetHistory`
 
 Works like [currySet](#curryset), but can be used to update both `state` and `initial`.
+
+</section>
+<section className="relative space-y-2">
 
 ### `reset`
 
@@ -855,6 +998,8 @@ const {
 
 reset();
 ```
+</section>
+<section className="relative space-y-2">
 
 ### `subscribe`
 
@@ -884,6 +1029,8 @@ const unsubscribe = subscribe( ( { state, }, ) => {
 // Later, when you want to stop listening
 unsubscribe();
 ```
+</section>
+<section className="relative space-y-2">
 
 ## Credits to
 
@@ -891,3 +1038,5 @@ unsubscribe();
 - [Immer](https://immerjs.github.io/immer/) for inspiring Mutative
 - [Zustand](https://github.com/pmndrs/zustand) for the inspiration
 - Øivind Loe for reminding me why I wanted to create a state management library.
+
+</section>

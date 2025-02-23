@@ -1,4 +1,3 @@
-'use client';
 import { createConStore, } from 'con-estado';
 
 const useTopicView = createConStore(
@@ -14,11 +13,11 @@ const useTopicView = createConStore(
 			const addTopic = setWrap( ( { draft, }, topicEntry: IntersectionObserverEntry, ) => {
 				const target = topicEntry.target as HTMLDivElement;
 				const topicHref = target.dataset.href as string;
-				const topicHrefs = draft.topicHrefs;
-				topicHrefs.push( topicHref, );
-				topicHrefMap.set( topicHref, target?.parentElement?.offsetTop, );
+				const offset = target?.parentElement?.offsetTop;
 
-				topicHrefs.sort( ( a, b, ) => {
+				draft.topicHrefs.push( topicHref, );
+				topicHrefMap.set( topicHref, offset, );
+				draft.topicHrefs = draft.topicHrefs.toSorted( ( a, b, ) => {
 					const aTop = topicHrefMap.get( a, );
 					const bTop = topicHrefMap.get( b, );
 					if ( aTop == null ) {
@@ -29,15 +28,16 @@ const useTopicView = createConStore(
 					}
 					return aTop - bTop;
 				}, );
-
-				draft.firstTopicHref = topicHrefs[ 0 ];
+				draft.firstTopicHref = draft.topicHrefs[ 0 ];
 			}, );
 			const removeTopic = setWrap( ( { draft, }, topicEntry: IntersectionObserverEntry, ) => {
 				const target = topicEntry.target as HTMLDivElement;
 				const topicHref = target.dataset.href as string;
 				const topicHrefs = draft.topicHrefs.filter( href => href !== topicHref, );
+
 				topicHrefMap.delete( topicHref, );
 				draft.topicHrefs = topicHrefs;
+				draft.firstTopicHref = topicHrefs[ 0 ];
 			}, );
 
 			return {

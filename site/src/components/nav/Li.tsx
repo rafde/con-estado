@@ -16,7 +16,7 @@ export default function NavLi(
 	const href = mdHToHref( title, );
 
 	return <li className={cn( 'group/nav-li', liClassName, )}>
-		<div className={cn( 'peer/folder relative flex border-l bg-black py-2 pl-2 peer-checked/viewing-topic:bg-slate-700 pr-4', wrapperClassName, )}>
+		<div className={cn( 'peer/folder relative flex border-l bg-transparent py-2 pl-2 peer-checked/viewing-topic:bg-slate-700 pr-4', wrapperClassName, )}>
 			<NavTopicInView href={href} />
 			<a href={`#${href}`} aria-label={`Go to ${title} section`} className="mr-auto grow overflow-hidden text-wrap break-words hover:underline">
 				{children}
