@@ -1,9 +1,12 @@
+import fs from 'fs';
+import path from 'path';
 import type { MDXComponents, } from 'mdx/types';
 import type { PropsWithChildren, } from 'react';
-
-import ReadMe from '../../../../README.md';
 import Code from '../ui/code';
 import NavLi from './Li';
+import { MDXRemote, } from 'next-mdx-remote/rsc';
+
+const fileContent = fs.readFileSync( path.join( process.cwd(), '../README.md', ), { encoding: 'utf8', }, );
 
 const nullOp = () => null;
 const childrenOp = ( props: PropsWithChildren, ) => props.children;
@@ -46,6 +49,29 @@ const components: MDXComponents = {
 	ul: nullOp,
 };
 
+const ReadMeMDX = <MDXRemote
+	source={fileContent}
+	components={components}
+	options={{
+		mdxOptions: {
+			remarkPlugins: [
+				() => ( tree, ) => {
+					const visit = ( node: {
+						name: string
+						children: unknown
+					}, ) => {
+						if ( node.name === 'section' ) {
+							return node.children;
+						}
+						return node;
+					};
+					tree.children = tree.children.map( visit, ).flat();
+				},
+			],
+		},
+	}}
+/>;
+
 export default function ReadMeLinks() {
-	return <ReadMe {...{ components, }} />;
+	return ReadMeMDX;
 }

@@ -34,7 +34,27 @@ function removeDocRef( children: ReactNode, ) {
 }
 
 const components: MDXComponents = {
-	a: Anchor,
+	a( props, ) {
+		if ( props.href.startsWith( 'https://stackblitz', ) ) {
+			return <iframe
+				src={props.href}
+				className="h-[800px] w-full overflow-hidden rounded-s border-0"
+				title={childrenToString( props.children, )}
+				allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+				sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+			/>;
+		}
+		let _props = props;
+
+		if ( props.href.startsWith( 'https', ) ) {
+			_props = {
+				..._props,
+				target: '_blank',
+			};
+		}
+
+		return <Anchor {..._props} />;
+	},
 	h1( props, ) {
 		return <HeaderLink
 			Header="h1"
@@ -79,12 +99,10 @@ const components: MDXComponents = {
 		if ( children == null ) {
 			return children;
 		}
-		return <article>{children}</article>;
+		return <p>{children}</p>;
 	},
-	code: Code,
-	blockquote( props, ) {
-		console.log( 'pre', props.children, );
-		return <pre>{props.children}</pre>;
+	code( props, ) {
+		return <Code {...props} />;
 	},
 	pre( props, ) {
 		const { children, } = props;
@@ -96,9 +114,14 @@ const components: MDXComponents = {
 		if ( !lang ) {
 			return <pre>{children}</pre>;
 		}
+		const propsChildren = children.props.children;
+
+		if ( typeof propsChildren === 'string' && propsChildren.startsWith( '// Demo', ) ) {
+			return null;
+		}
 
 		return <CodeBlock lang={lang} copyButton={lang === 'shell'}>
-			{children.props.children}
+			{propsChildren}
 		</CodeBlock>;
 	},
 	ol( props, ) {

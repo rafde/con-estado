@@ -41,7 +41,7 @@ export function useMDXComponents( components: MDXComponents, ): MDXComponents {
 			if ( children == null ) {
 				return children;
 			}
-			return <article>{children}</article>;
+			return <p>{children}</p>;
 		},
 		...components,
 	};

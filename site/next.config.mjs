@@ -9,6 +9,7 @@ const withBundleAnalyzer = bundleAnalyzer( {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	reactStrictMode: true,
 	eslint: {
 		ignoreDuringBuilds: true,
 	},
@@ -46,7 +47,14 @@ if ( process.env.NODE_ENV === 'production' ) {
 }
 
 const withMDX = createMDX( {
-	extension: /\.md(x)?$/,
+	extension: /\.md$/,
+	// Add markdown plugins here, as desired
+	options: {
+		format: 'mdx',
+		remarkPlugins: [],
+		rehypePlugins: [
+		],
+	},
 }, );
 
 export default withBundleAnalyzer( withMDX( nextConfig, ), );
