@@ -14,7 +14,7 @@
 		"@next/mdx": "15.1.7",
 		"@types/mdx": "2.0.13",
 		"@eslint/compat": "1.2.6",
-		"@eslint/eslintrc": "3.2.0",
+		"@eslint/eslintrc": "3.3.0",
 		"@eslint/js": "9.20.0",
 		"@parcel/bundler-library": "2.13.3",
 		"@parcel/packager-ts": "2.13.3",
