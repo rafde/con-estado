@@ -1,3 +1,4 @@
+import GithubIcon from '../ui/githubIcon';
 import NavHiddenCheck from './navHiddenCheck';
 import NavList from './navList';
 import NavOverlayCloseButton from './navOverlayCloseButton';
@@ -10,7 +11,7 @@ export default function NavSidebar() {
 		<aside
 			className={'overflow-hidden transition-[background,opacity,z-index,width] duration-300'
 				+ ' peer-not-checked/overlay:opacity-0 peer-not-checked/overlay:fixed peer-not-checked/overlay:inset-0 peer-not-checked/overlay:-z-10 peer-not-checked/overlay:bg-transparent'
-				+ ' peer-checked/overlay:opacity-100 peer-checked/overlay:fixed peer-checked/overlay:inset-0 peer-checked/overlay:z-10 peer-checked/overlay:bg-zinc-700'
+				+ ' peer-checked/overlay:opacity-100 peer-checked/overlay:fixed peer-checked/overlay:inset-0 peer-checked/overlay:z-10 peer-checked/overlay:bg-slate-500/50'
 				+ ' peer-checked/overlay:*:translate-x-0'
 
 				+ ' sm:max-w-(--navbar-max-width) sm:w-0 sm:opacity-0 static'
@@ -19,8 +20,19 @@ export default function NavSidebar() {
 			<nav
 				className="flex flex-col space-y-2 overflow-hidden bg-black pb-3 h-screen border-r border-white max-w-(--navbar-max-width) transition-[translate,opacity] duration-300 -translate-x-full"
 			>
-				<header className="flex p-1">
-					<h1 className="grow text-wrap text-2xl font-bold text-center">con-estado</h1>
+				<header className="flex px-2 py-1 justify-items-center mb-0">
+					<a
+						href="https://github.com/rafde/con-estado"
+						target="_blank"
+						className="size-5 overflow-hidden self-center"
+						rel="noreferrer"
+						aria-label="Link to open new window con-estado GitHub repository"
+					>
+						<GithubIcon />
+					</a>
+					<h1 className="grow text-wrap text-2xl font-bold text-center">
+						con-estado
+					</h1>
 					<NavOverlayCloseButton />
 				</header>
 				<NavList />
