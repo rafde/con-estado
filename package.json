@@ -15,7 +15,7 @@
 		"@types/mdx": "2.0.13",
 		"@eslint/compat": "1.2.7",
 		"@eslint/eslintrc": "3.3.0",
-		"@eslint/js": "9.20.0",
+		"@eslint/js": "9.21.0",
 		"@parcel/bundler-library": "2.13.3",
 		"@parcel/packager-ts": "2.13.3",
 		"@parcel/transformer-typescript-types": "2.13.3",
