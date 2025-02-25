@@ -1,6 +1,6 @@
 import process from 'node:process';
 import bundleAnalyzer from '@next/bundle-analyzer';
-import pkg from './package.json' with { type: 'json',};
+import pkg from '../package.json' with { type: 'json',};
 import createMDX from '@next/mdx';
 
 const withBundleAnalyzer = bundleAnalyzer( {
