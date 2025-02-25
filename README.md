@@ -227,8 +227,7 @@ Optimize renders by selecting only needed state:
 
 ```tsx
 function UserPreferences() {
-    const preferences = useCon( initialState, {
-      selector: props => ( {
+    const preferences = useCon( initialState, props => ( {
         theme: props.state.user.preferences.theme,
         updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
           props.set(
@@ -237,7 +236,7 @@ function UserPreferences() {
           );
         },
       } ),
-    } );
+    );
     return <select
       value={preferences.theme}
       name="user.preferences.theme"
