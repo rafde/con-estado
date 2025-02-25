@@ -8,6 +8,7 @@ import Anchor from '../ui/anchor';
 import Code from '../ui/code';
 import CodeBlock from '../ui/codeBlock';
 import HeaderLink from '../ui/headerLink';
+import { ExternalLink, } from 'lucide-react';
 
 let hasRemoveDocRef = false;
 function removeDocRef( children: ReactNode, ) {
@@ -50,6 +51,11 @@ const components: MDXComponents = {
 			_props = {
 				..._props,
 				target: '_blank',
+				className: 'inline-flex items-center',
+				children: <>
+					{props.children}
+					<ExternalLink size={12} className="text-blue-400 self-start" />
+				</>,
 			};
 		}
 
@@ -136,7 +142,7 @@ const components: MDXComponents = {
 	img( props, ) {
 		const _props = {
 			...props,
-			className: 'inline-block',
+			className: 'inline-flex align-baseline',
 			width: '75',
 			height: '20',
 		};
