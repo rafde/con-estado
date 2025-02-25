@@ -32,7 +32,7 @@
 		"eslint-plugin-testing-library": "7.1.1",
 		"fast-equals": "5.2.2",
 		"globals": "16.0.0",
-		"happy-dom": "17.1.1",
+		"happy-dom": "17.1.8",
 		"husky": "9.1.7",
 		"lint-staged": "15.4.3",
 		"parcel": "2.13.3",
