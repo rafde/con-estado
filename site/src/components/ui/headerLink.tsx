@@ -22,7 +22,7 @@ export default function HeaderLink( props: PropsWithChildren<HeaderLinkProps>, )
 		href,
 	} = props;
 	return <>
-		<div id={href} className={cn( 'group flex flex-row contents-center gap-2 border-b border-b-white bg-black py-2 pl-4 pr-2', wrapperClassName, )}>
+		<div className={cn( 'group flex flex-row contents-center gap-2 border-b border-b-white bg-black py-2 pl-4 pr-2', wrapperClassName, )}>
 			{props.href && <a href={`#${href}`} className="mt-3 flex flex-col self-start" aria-label={`Section anchor for ${title}`}>
 				<ChainLink className="size-4 self-center" />
 			</a>}

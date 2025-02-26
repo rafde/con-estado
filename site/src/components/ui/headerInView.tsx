@@ -20,5 +20,5 @@ export default function TopicInView( { href, }: { href: string }, ) {
 			topicObserver.unobserve( el, );
 		};
 	}, [topicObserver,], );
-	return <div className="opacity-0 absolute inset-0 -z-10" ref={elRef} data-href={href} />;
+	return <div className="opacity-0 absolute inset-0 -z-10" ref={elRef} data-href={href} id={href} />;
 }
