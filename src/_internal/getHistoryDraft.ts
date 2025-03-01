@@ -1,9 +1,10 @@
-import { create, isDraft, type Draft, } from 'mutative';
+import { create, isDraft, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { ConOptions, } from '../types/ConOptions';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import type { ConMutOptions, } from '../types/ConMutOptions';
+import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -34,9 +35,18 @@ export default function getHistoryDraft<
 			...mutOptions,
 		},
 	);
+	const [
+		draft,
+		patches,
+	] = createDraftChangeTrackingProxy( _draft, );
 
 	function finalize() {
-		transform( _draft, history, type, );
+		transform( {
+			draft,
+			history,
+			type,
+			patches,
+		}, );
 		const next = _finalize() as History<S>;
 		if ( history.state === next.state && history.initial === next.initial ) {
 			return history;
@@ -47,11 +57,6 @@ export default function getHistoryDraft<
 
 		return setHistory( nextHistory, );
 	}
-
-	const draft: Draft<{
-		initial: S
-		state: S
-	}> = _draft;
 
 	if ( isString( stateHistoryPath, ) ) {
 		const value = getDeepValueParentByArray(

@@ -1,6 +1,7 @@
 import type { Draft, } from 'mutative';
 import type { ActRecord, } from './ActRecord';
 import type { CreateActsProps, } from './CreateActsProps';
+import type { DeepPartial, } from './DeepPartial';
 import type { History, } from './History';
 import type { HistoryState, } from './HistoryState';
 import type { Immutable, } from './Immutable';
@@ -108,29 +109,17 @@ export type ConOptions<
 	 * Enables validation, normalization, or transformation of state updates.
 	 *
 	 * @template S - The state type
-	 * @param {Draft<HistoryState>} draft - Mutable draft of the {@link HistoryState history state}
-	 * @param {History} history - Current immutable {@link History history}
-	 * @param {'set' | 'reset'} type - The type ('set' | 'reset') of operation being performed
+	 * @param {object} params - available parameters
+	 * @param {Draft<HistoryState>} params.draft - Mutable draft of the {@link HistoryState history state}
+	 * @param {Partial<HistoryState>} params.patches - A partial representation of {@link HistoryState history state} with
+	 * latest deeply nested changes made during `set` or `reset`
+	 * @param {History} params.history - Current immutable {@link History history}
+	 * @param {'set' | 'reset'} params.type - The type ('set' | 'reset') of operation being performed
 	 *
 	 * @example
 	 * ```ts
 	 * const options = {
-	 *   transform: (draft) => {
-	 *     // Ensure count never goes negative
-	 *     draft.state.count = Math.max(0, draft.state.count)
-	 *     // Format all names to title case
-	 *     draft.state.users.forEach(user => {
-	 *       user.name = user.name.split(' ')
-	 *         .map(w => w[0].toUpperCase() + w.slice(1))
-	 *         .join(' ')
-	 *     })
-	 *   }
-	 * }
-	 *```
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   transform: (draft) => {
+	 *   transform: ({draft}) => {
 	 *     // Add timestamps to all updates
 	 *     draft.state.lastModified = Date.now()
 	 *     // Maintain sorted order of items
@@ -138,6 +127,26 @@ export type ConOptions<
 	 *   }
 	 * }
 	 * ```
+	 *
+	 * @example
+	 * ```ts
+	 * const options = {
+	 *   transform: ({draft, patches}) => {
+	 *     // Ensure count never goes negative
+	 *     const patchCount = patches?.state?.count;
+	 *     if (typeof patchCount === 'number' && count > 10) {
+	 *       // don't let count go over 10 for whatever reason
+	 *       draft.count = 10;
+	 *     }
+	 *   }
+	 * }
+	 *```
+
 	 */
-	transform?: ( draft: Draft<HistoryState<S>>, history: History<S>, type: 'set' | 'reset' ) => void
+	transform?: ( params: {
+		draft: Draft<HistoryState<S>>
+		history: History<S>
+		patches: DeepPartial<HistoryState<S>>
+		type: 'set' | 'reset'
+	} ) => void
 };

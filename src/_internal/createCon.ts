@@ -10,6 +10,7 @@ import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import createArrayPathProxy from './createArrayPathProxy';
+import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -243,8 +244,17 @@ export default function createCon<
 						initial,
 						state,
 					},
-					( draft, ) => {
-						transform( draft, history, 'reset', );
+					( _draft, ) => {
+						const [
+							draft,
+							patches,
+						] = createDraftChangeTrackingProxy( _draft, );
+						transform( {
+							draft,
+							history,
+							type: 'reset',
+							patches,
+						}, );
 					},
 				);
 				if ( res.initial !== initial ) {

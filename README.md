@@ -432,11 +432,12 @@ Callback `function` to transform the `state` and/or `initial` properties before 
 useCon(
   initial,
   {
-    transform: (
-      { state, initial, }: HistoryDraft,
-      { state, initial, prev, prevInitial, changes, }: History,
-      type: 'set' | 'reset',
-    ) => {
+    transform: ({
+      draft: { state, initial }, // Draft<HistoryState<S>>
+      history: { changes, initial, prev, prevInitial, state }, // History<S>
+      patches: { state, initial }, // DeepPartial<HistoryState<S>>
+      type, // 'set' | 'reset'
+    }) => {
       // your code
     }
   }
