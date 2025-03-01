@@ -1,4 +1,3 @@
-// import { strictDeepEqual, } from 'fast-equals';
 import type { DS, } from '../types/DS';
 import isPlainObject from './isPlainObject';
 
@@ -9,7 +8,7 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 	const bValue = isPlainObject( b, ) || Array.isArray( b, )
 		? Reflect.get( b, key, )
 		: b;
-	if ( aValue === bValue ) {
+	if ( Object.is( aValue, bValue, ) ) {
 		return false;
 	}
 	const areObjects = isPlainObject( aValue, ) && isPlainObject( bValue, );
@@ -27,7 +26,7 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 }
 
 export default function findChanges<T extends DS,>( a: T, b: T, ) {
-	if ( a === b ) {
+	if ( Object.is( a, b, ) ) {
 		return;
 	}
 	let changes: Record<string, unknown> | Array<unknown> = {};
