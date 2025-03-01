@@ -311,9 +311,10 @@ Track and access previous state values:
 
 - **state**: Current immutable state object.
 - **prev**: The previous `state` immutable object before `state` was updated.
-- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for resync purposes like merging with server data while `state` keeps client side data.
+- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
+such as merging with server data into `initial` while `state` keeps client side data.
 - **prevInitial**: The previous `initial` immutable object before `initial` was updated.
-- **changes**: Immutable object that keeps track of top level properties (shallow) difference between the `state` and `initial` object.
+- **changes**: Immutable object that keeps track of deeply nested difference between the `state` and `initial` object.
 
 ```tsx
 function StateHistory() {
