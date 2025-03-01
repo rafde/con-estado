@@ -22,7 +22,7 @@ describe( 'createCon - reset', () => {
 	it( 'should reset the state to the initial value', () => {
 		const changes = {
 			counter: 10,
-			list: ['item1', 'item2',],
+			list: [undefined, 'item2',],
 		};
 
 		estado.setHistory( 'state', ( { draft, }, ) => {
@@ -38,6 +38,7 @@ describe( 'createCon - reset', () => {
 		expect( estado.get( 'changes', ), ).toStrictEqual( changes, );
 		expect( estado.get( 'prevInitial', ), ).toBe( undefined, );
 
+		const prev = estado.get( 'state', );
 		// Reset the state using createActProps.reset()
 		estado.reset();
 
@@ -47,7 +48,7 @@ describe( 'createCon - reset', () => {
 		expect( newHistory.state, ).toBe( history.initial, );
 		expect( newHistory.state.counter, ).toBe( 0, );
 		expect( newHistory.state.list, ).toEqual( ['item1',], );
-		expect( newHistory.prev, ).toStrictEqual( changes, );
+		expect( newHistory.prev, ).toStrictEqual( prev, );
 		expect( newHistory.prevInitial, ).toBe( undefined, );
 	}, );
 

@@ -120,7 +120,13 @@ describe( 'createCon - setHistory', () => {
 					...changes,
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( {
+					ooo: {
+						oooa: [{
+							's.s': 'next',
+						},],
+					},
+				}, );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -162,7 +168,14 @@ describe( 'createCon - setHistory', () => {
 					...changes,
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( {
+					oo: {
+						ooa: [
+							undefined,
+							99,
+						],
+					},
+				}, );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -185,7 +198,14 @@ describe( 'createCon - setHistory', () => {
 					...changes,
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( {
+					ooo: {
+						oooa: [
+							undefined,
+							...initialObject.ooo.oooa,
+						],
+					},
+				}, );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -240,7 +260,14 @@ describe( 'createCon - setHistory', () => {
 					...changes,
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( {
+					oo: {
+						ooa: [
+							undefined,
+							100,
+						],
+					},
+				}, );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -294,7 +321,11 @@ describe( 'createCon - setHistory', () => {
 			expect( next.initial, ).toStrictEqual( changes.initial, );
 			expect( next.prev, ).toBe( initialArray, );
 			expect( next.prevInitial, ).toBe( undefined, );
-			expect( next.changes, ).toStrictEqual( changes.state, );
+			expect( next.changes, ).toStrictEqual( [
+				{
+					n: 11,
+				},
+			], );
 		}, );
 
 		describe( 'setHistory(function)', () => {
@@ -311,7 +342,11 @@ describe( 'createCon - setHistory', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [
+					{
+						n: 11,
+					},
+				], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -359,7 +394,14 @@ describe( 'createCon - setHistory', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [
+					{
+						n: 7,
+						o: {
+							on: 0,
+						},
+					},
+				], );
 				expect( next.prev, ).toBe( history.initial, );
 				expect( next.prevInitial, ).toBe( undefined, );
 			}, );
@@ -398,7 +440,11 @@ describe( 'createCon - setHistory', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [
+					{
+						n: 3,
+					},
+				], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -417,7 +463,13 @@ describe( 'createCon - setHistory', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [
+					{
+						o: {
+							on: 7,
+						},
+					},
+				], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -445,7 +497,11 @@ describe( 'createCon - setHistory', () => {
 				], );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( [
-					item,
+					{
+						o: {
+							on: 99,
+						},
+					},
 				], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );

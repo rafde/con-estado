@@ -5,7 +5,7 @@ import type { DS, RDS, } from './DS';
  *
  * @template S - State type extending {@link DS} (Data Structure)
  *
- * @property changes - Shallow differences between current and initial state (`undefined` if there are no changes)
+ * @property changes - Deep differences between current and initial state (`undefined` if there are no changes)
  *   - For arrays: Sparse array where `undefined` means the item has no changes
  *   - For objects: Partial object with changes to top level properties
  * @property initial - Original state reference. It can be changed if needed.

@@ -180,7 +180,7 @@ describe( 'createCon - set', () => {
 				const changes = {
 					oo: {
 						ooa: [
-							1,
+							undefined,
 							99,
 						],
 					},
@@ -191,7 +191,13 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
-					...changes,
+					oo: {
+						...initialObject.oo,
+						ooa: [
+							...initialObject.oo.ooa,
+							99,
+						],
+					},
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
@@ -203,7 +209,7 @@ describe( 'createCon - set', () => {
 				const changes = {
 					ooo: {
 						oooa: [
-							...initialObject.ooo.oooa,
+							undefined,
 							...initialObject.ooo.oooa,
 						],
 					},
@@ -214,7 +220,13 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
-					...changes,
+					ooo: {
+						...initialObject.ooo,
+						oooa: [
+							...initialObject.ooo.oooa,
+							...initialObject.ooo.oooa,
+						],
+					},
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
@@ -257,7 +269,7 @@ describe( 'createCon - set', () => {
 			it( 'should modify draft array by callback using path array', () => {
 				const changes = {
 					oo: {
-						ooa: [1, 100,],
+						ooa: [undefined, 100,],
 					},
 				};
 				const next = estado.set(
@@ -269,7 +281,13 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
-					...changes,
+					oo: {
+						...initialObject.oo,
+						ooa: [
+							...initialObject.oo.ooa,
+							100,
+						],
+					},
 				}, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
@@ -320,7 +338,11 @@ describe( 'createCon - set', () => {
 			expect( next.initial, ).toStrictEqual( initialArray, );
 			expect( next.prev, ).toBe( initialArray, );
 			expect( next.prevInitial, ).toBe( undefined, );
-			expect( next.changes, ).toStrictEqual( changes, );
+			expect( next.changes, ).toStrictEqual( [
+				{
+					n: 11,
+				},
+			], );
 		}, );
 
 		describe( 'set(function)', () => {
@@ -328,15 +350,19 @@ describe( 'createCon - set', () => {
 				const estado = createCon( initialArray, );
 				const changes = [
 					{
-						...initialArray[ 0 ],
 						n: 11,
 					},
 				];
 				const next = estado.set( ( { draft, }, ) => {
 					draft[ 0 ].n = 11;
 				}, );
+				const newState = [...initialArray,];
+				newState[ 0 ] = {
+					...newState[ 0 ],
+					n: 11,
+				};
 
-				expect( next.state, ).toStrictEqual( changes, );
+				expect( next.state, ).toStrictEqual( newState, );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.prev, ).toBe( history.state, );
@@ -372,21 +398,24 @@ describe( 'createCon - set', () => {
 
 		describe( 'set(stringPathToValue, non-function)', () => {
 			it( 'should set a new array value by string path', () => {
-				const changes = [
+				const changes = {
+					n: 7,
+					o: {
+						on: 0,
+					},
+				};
+				const newState = [
 					{
 						...initialArray[ 0 ],
-						n: 7,
-						o: {
-							on: 0,
-						},
+						...changes,
 					},
 				];
 				const estado = createCon( initialArray, );
-				const next = estado.set( changes, );
+				const next = estado.set( newState, );
 
-				expect( next.state, ).toStrictEqual( changes, );
+				expect( next.state, ).toStrictEqual( newState, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [changes,], );
 				expect( next.prev, ).toBe( history.initial, );
 				expect( next.prevInitial, ).toBe( undefined, );
 			}, );
@@ -425,7 +454,7 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [{ n: 3, },], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -444,7 +473,7 @@ describe( 'createCon - set', () => {
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
-				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.changes, ).toStrictEqual( [{ o: { on: 7, }, },], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
@@ -472,7 +501,11 @@ describe( 'createCon - set', () => {
 				], );
 				expect( next.initial, ).toBe( history.initial, );
 				expect( next.changes, ).toStrictEqual( [
-					item,
+					{
+						o: {
+							on: 99,
+						},
+					},
 				], );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
