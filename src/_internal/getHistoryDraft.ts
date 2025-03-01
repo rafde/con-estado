@@ -33,6 +33,7 @@ export default function getHistoryDraft<
 		},
 		{
 			...mutOptions,
+			enablePatches: false,
 		},
 	);
 	const [
@@ -42,17 +43,19 @@ export default function getHistoryDraft<
 
 	function finalize() {
 		transform( {
-			draft,
+			draft: _draft,
 			history,
 			type,
 			patches,
 		}, );
 		const next = _finalize() as History<S>;
-		if ( history.state === next.state && history.initial === next.initial ) {
+		const areStatesEqual = Object.is( history.state, next.state, );
+		const areInitialsEqual = Object.is( history.initial, next.initial, );
+		if ( areStatesEqual && areInitialsEqual ) {
 			return history;
 		}
-		next.prev = history.state === next.state ? history.prev : history.state;
-		next.prevInitial = history.initial === next.initial ? history.prevInitial : history.initial;
+		next.prev = areStatesEqual ? history.prev : history.state;
+		next.prevInitial = areInitialsEqual ? history.prevInitial : history.initial;
 		const nextHistory: History<S> = createHistoryProxy( next, );
 
 		return setHistory( nextHistory, );
@@ -60,7 +63,7 @@ export default function getHistoryDraft<
 
 	if ( isString( stateHistoryPath, ) ) {
 		const value = getDeepValueParentByArray(
-			_draft,
+			draft,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
 		)[ 0 ];
 		if ( isNil( value, ) || !isDraft( value, ) ) {

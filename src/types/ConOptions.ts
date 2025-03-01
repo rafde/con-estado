@@ -14,11 +14,11 @@ export type ConOptions<
 	MO extends ConMutOptions = ConMutOptions,
 > = {
 	/**
-	 * Optional factory function for creating action handlers and state transformations.
+	 * Optional factory function for creating a Record of action handlers and state transformations.
+	 * The action handlers have access to a subset of the controls object.
 	 *
-	 * @template S - The state type
-	 * @template AR - The action record type
-	 * @param {CreateActsProps<S>} props - Accessing state {@link CreateActsProps setters and getters}
+	 * @param {object} props - Accessing state {@link CreateActsProps setters and getters}
+	 * @param {SetState.set} props.set - See {@link SetState.set set}
 	 * @returns Record of keys with {@link ActRecord sync and async functions}
 	 * @example
 	 * ```ts
@@ -36,11 +36,11 @@ export type ConOptions<
 	 */
 	acts?: ( props: CreateActsProps<S> ) => AR
 	/**
-	 * Post-change callback function executed after state changes are applied.
-	 * Provides access to the updated history state and previous values.
+	 * Post-change async callback function executed after state changes are applied.
+	 * Provides access to the updated {@link History history}.
 	 *
 	 * @template S - The state type
-	 * @param {Immutable<History<S>>} history - The updated immutable history state
+	 * @param {Immutable<History<S>>} history - The updated immutable {@link History history}.
 	 * @returns {Promise<void> | void} Optional promise if async operations needed
 	 *
 	 * @example
@@ -111,10 +111,10 @@ export type ConOptions<
 	 * @template S - The state type
 	 * @param {object} params - available parameters
 	 * @param {Draft<HistoryState>} params.draft - Mutable draft of the {@link HistoryState history state}
-	 * @param {Partial<HistoryState>} params.patches - A partial representation of {@link HistoryState history state} with
-	 * latest deeply nested changes made during `set` or `reset`
 	 * @param {History} params.history - Current immutable {@link History history}
-	 * @param {'set' | 'reset'} params.type - The type ('set' | 'reset') of operation being performed
+	 * @param {'set' | 'reset'} params.type - The operation type ('set' | 'reset') that triggered changes.
+	 * @param {Partial<HistoryState>} params.patches -  A partial state object that contains the latest deeply nested
+	 * changes made to `state` and/or `initial`. Useful for when you want to include additional changes based on what `patches` contains.
 	 *
 	 * @example
 	 * ```ts

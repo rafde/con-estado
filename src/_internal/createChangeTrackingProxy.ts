@@ -1,5 +1,6 @@
 import { strictDeepEqual, } from 'fast-equals';
-import type { DS, } from '../types/DS';
+import isNil from './isNil';
+import isObject from './isObject';
 
 type ArrayPath = Array<string | symbol | number>;
 
@@ -10,7 +11,7 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 	const len = propPath.length;
 	const end = len - 1;
 	while ( i < len ) {
-		if ( currentTarget == null ) {
+		if ( isNil( currentTarget, ) ) {
 			// it should't get here. You can only make a nested change if the target has the nested value
 			return false;
 		}
@@ -36,7 +37,7 @@ export function applyChange( propPath: ArrayPath, target: object, changes: objec
 	const end = len - 1;
 	// Traverse the property path
 	while ( i < len ) {
-		if ( currentTarget == null ) {
+		if ( isNil( currentTarget, ) ) {
 			// it should't get here. You can only make a nested change if the target has the nested value
 			return false;
 		}
@@ -95,33 +96,70 @@ export function deleteChange( propPath: ArrayPath, changes: object, ) {
 	return true;
 }
 
+type TrackerProxyOptions = {
+	target: object // The target object being proxied
+	propPath: Array<string | number | symbol> // Array path for nested property tracking
+	changes: object // Tracks changes as they happen
+	valueWM: WeakMap<object, object> // WeakMap to store already proxied values
+	parent: object // Parent object in case of nested proxies
+	prop: string | number | symbol
+};
+
+/**
+ * Handle property access with a proxy.
+ * @param options - TrackerProxyOptions containing target, propPath, changes, valueWM, prop, and parent.
+ * @returns The value of the property, proxied if it's an object.
+ */
+function handleProxyGet(
+	options: TrackerProxyOptions,
+) {
+	const { target, propPath, changes, valueWM, parent, prop, } = options;
+
+	// Access the value using Reflect
+	const value = Reflect.get( target, prop, );
+
+	// Return primitive or non-object values directly
+	if ( !isObject( value, ) ) {
+		return value;
+	}
+
+	// If the value is already proxied, return the existing proxy
+	if ( valueWM.has( value, ) ) {
+		return valueWM.get( value, );
+	}
+
+	// Otherwise, create a new proxy and store it in the WeakMap
+	const proxy = trackerProxy( {
+		target: value,
+		propPath: [...propPath, prop,],
+		changes,
+		valueWM,
+		parent: parent || target,
+	}, );
+	valueWM.set( value, proxy, );
+
+	return proxy;
+}
+
 function trackerProxy( {
 	target, propPath, changes, valueWM, parent,
 }: {
 	target: object
 	propPath: ArrayPath
-	changes: DS
+	changes: object
 	valueWM: WeakMap<object, object>
 	parent: object
 }, ) {
 	return new Proxy( target, {
-		get( valueProxy, p, ) {
-			const value = Reflect.get( target, p, );
-			if ( typeof value !== 'object' || value == null ) {
-				return value;
-			}
-			if ( valueWM.has( value, ) ) {
-				return valueWM.get( value, );
-			}
-			const proxy = trackerProxy( {
-				target: value,
-				propPath: [...propPath, p,],
+		get( valueProxy, prop, ) {
+			return handleProxyGet( {
+				target,
+				propPath,
 				changes,
 				valueWM,
 				parent,
+				prop,
 			}, );
-			valueWM.set( value, proxy, );
-			return proxy;
 		},
 		set( valueProxy, prop, value, ) {
 			const path = [...propPath, prop,];
@@ -146,24 +184,14 @@ export default function createDraftChangeTrackingProxy<S extends object,>( paren
 
 	const targetProxy = new Proxy( parent, {
 		get( proxy, prop, ) {
-			const target = Reflect.get( parent, prop, );
-			if ( typeof target !== 'object' || target == null ) {
-				return target;
-			}
-
-			if ( valueWM.has( target, ) ) {
-				return valueWM.get( target, );
-			}
-
-			const valueProxy = trackerProxy( {
-				target,
-				propPath: [prop,],
+			return handleProxyGet( {
+				target: parent,
+				propPath: [],
 				changes,
 				valueWM,
 				parent,
+				prop,
 			}, );
-			valueWM.set( target, valueProxy, );
-			return valueProxy;
 		},
 		set( proxy, prop, value, ) {
 			const oldValue = Reflect.get( parent, prop, );

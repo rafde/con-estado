@@ -376,7 +376,10 @@ useCon( initial, options );
 
 #### 2.1. `options.acts`
 
-Callback `function` for creating a Record of action handlers. The action handlers have access to a subset of the controls object.
+Optional factory function for creating a Record of action handlers and state transformations.
+The action handlers have access to a subset of the controls object.
+
+**Return type**: `Record<string | number, (...args: unknown[]) => unknown>`
 
 ```ts
 useCon(
@@ -407,7 +410,10 @@ useCon(
 
 #### 2.2. `options.afterChange`
 
-Async callback after state changes.
+Post-change async callback function executed after state changes are applied.
+Provides access to the updated [State History](#state-history)
+
+**Return type**: `void`
 
 ```ts
 useCon(
@@ -427,7 +433,16 @@ useCon(
 
 #### 2.3. `options.transform`
 
-Callback `function` to transform the `state` and/or `initial` properties before it is set/reset. Receives a draft and current history
+Transform function to modify state before it's committed to history.
+Enables validation, normalization, or transformation of state updates.
+
+- **draft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
+- **history**: Immutable [State History](#state-history). Does not have latest changes.
+- **type**: The operation type ('set' | 'reset') that triggered changes.
+- **patches**: A partial state object that contains the latest deeply nested changes made to `state` and/or `initial`.
+  Useful for when you want to include additional changes based on what `patches` contains.
+
+**Return type**: `void`
 
 ```ts
 useCon(
