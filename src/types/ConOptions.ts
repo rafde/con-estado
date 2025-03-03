@@ -147,6 +147,6 @@ export type ConOptions<
 		draft: Draft<HistoryState<S>>
 		history: History<S>
 		patches: DeepPartial<HistoryState<S>>
-		type: 'set' | 'reset'
+		type: 'set' | 'reset' | 'merge'
 	} ) => void
 };

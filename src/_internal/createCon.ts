@@ -18,6 +18,7 @@ import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
+import merge from './mergeHistory';
 import noop from './noop';
 import parseSegments from './parseSegments';
 import reset from './reset';
@@ -102,7 +103,6 @@ export default function createCon<
 			history,
 			_dispatch,
 			transform,
-			'set',
 			statePath,
 			_mutOptions,
 		);
@@ -135,9 +135,17 @@ export default function createCon<
 		return handleStateUpdate( draftHistory, history, args, finalize, );
 	}
 
+	function mergeHistory( ...args: unknown[] ) {
+		return merge( args, history, getDraft, );
+	}
+
 	const props: CreateActsProps<S> = {
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
+		mergeHistory,
+		merge( ...args: unknown[] ) {
+			return mergeHistory( ..._returnStateArgs( args, ), );
+		},
 		reset() {
 			return _dispatch( reset( history, transform, ), );
 		},
