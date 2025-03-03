@@ -102,9 +102,9 @@ export function useCon<
  * const { count, increment } = useCon(
  *   { count: 0 },
  *   // Custom selector
- *   ({ state, currySet }) => ({
+ *   ({ state, set }) => ({
  *     count: state.count,
- *     increment: currySet(({draft}) => draft.count++ )
+ *     increment: () => set(({draft}) => draft.count++ )
  *   })
  * );
  * ```

@@ -25,8 +25,6 @@ describe( 'useCon', () => {
 			initialState,
 			{
 				acts: props.acts,
-				currySet: props.currySet,
-				currySetHistory: props.currySetHistory,
 				get: props.get,
 				// getDraft: props.getDraft,
 				reset: props.reset,
@@ -152,22 +150,6 @@ describe( 'useCon', () => {
 				props => ( {
 					test: props.state.text,
 					setText: ( text: string, ) => props.setHistory( 'state.text', text, ),
-				} ),
-			), );
-
-			act( () => {
-				result.current.setText( 'world', );
-			}, );
-
-			expect( result.current.test, ).toBe( 'world', );
-		}, );
-
-		it( 'should use a custom selector with curry setter', () => {
-			const { result, } = renderHook( () => useCon(
-				initialState,
-				props => ( {
-					test: props.state.text,
-					setText: props.currySetHistory( 'state.text', ),
 				} ),
 			), );
 
