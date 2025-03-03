@@ -8,24 +8,18 @@ import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import createArrayPathProxy from './createArrayPathProxy';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
+import handleSetHistoryWrap from './handleSetWrapHistory';
 import handleStateUpdate from './handleStateUpdate';
-import isFunction from './isFunction';
 import isNil from './isNil';
 import isObject from './isObject';
 import isPlainObject from './isPlainObject';
 import isString from './isString';
-import isUndefined from './isUndefined';
-import isValidStatePath from './isValidStatePath';
 import noop from './noop';
 import reset from './reset';
-
-const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
-	&& 'then' in value && isFunction( value?.then, );
 
 function _returnStateArgs( args: unknown[], ) {
 	const [statePath, nextState,] = args;
@@ -119,62 +113,7 @@ export default function createCon<
 	}
 
 	function setHistoryWrap( ...args: unknown[] ) {
-		const [statePath, nextState,] = args;
-		const isStatePathFunction = isFunction( statePath, );
-		const isNextStateType = isFunction( nextState, );
-
-		if ( !isStatePathFunction && !isNextStateType ) {
-			throw new Error( 'Wrapper methods needs a callback function to wrap', );
-		}
-
-		const _isValidStatePath = isValidStatePath( statePath, );
-		if ( _isValidStatePath && !isNextStateType ) {
-			throw new Error( 'Wrapper method second parameter needs a callback function to wrap', );
-		}
-
-		return function wrap( ...wrapArgs: unknown[] ) {
-			const [historyDraft, finalize,] = getDraft();
-			let result: unknown;
-			if ( isStatePathFunction ) {
-				result = statePath(
-					{
-						...history,
-						historyDraft,
-					},
-					...wrapArgs,
-				);
-			}
-			else if ( _isValidStatePath && isNextStateType ) {
-				const statePathArray = isString( statePath, )
-					? getCacheStringPathToArray( arrayPathMap, statePath, )
-					: statePath as ( string | number )[];
-				const valueKey = statePathArray.at( -1, );
-				const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-				if ( !isObject( parentDraft, ) || isUndefined( valueKey, ) || !( valueKey in parentDraft ) ) {
-					return;
-				}
-				const pathArray = statePathArray.slice( 1, );
-				result = nextState(
-					createArrayPathProxy( {
-						draft: parentDraft,
-						historyDraft,
-						pathArray,
-						history,
-						valueKey,
-					}, ),
-					...wrapArgs,
-				);
-			}
-
-			if ( _isPromiseLike( result, ) ) {
-				return result.then( ( res, ) => {
-					finalize();
-					return res;
-				}, );
-			}
-			finalize();
-			return result;
-		};
+		return handleSetHistoryWrap( getDraft, arrayPathMap, history, ...args, );
 	}
 
 	function setHistory( ...args: unknown[] ) {
