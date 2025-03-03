@@ -1,4 +1,5 @@
 import type { Draft, } from 'mutative';
+import type { DeepPartial, } from './DeepPartial';
 import type { DS, } from './DS';
 import type { History, } from './History';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
@@ -71,10 +72,38 @@ type CallbackDraftProps<
 	draft: Draft<S>
 }>;
 
+type MergeHistory<
+	S extends DS,
+	NS extends HistoryState<S> = HistoryState<S>,
+> = {
+	mergeHistory( nextState: DeepPartial<NS> ): History<S>
+	mergeHistory<SP extends NestedRecordKeys<NS>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<NS, StringPathToArray<SP>>
+	): History<S>
+	mergeHistory<SP extends StringPathToArray<NestedRecordKeys<NS>>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<NS, SP>
+	): History<S>
+};
+
+type Merge<
+	S extends DS,
+> = {
+	merge( nextState: DeepPartial<S> ): History<S>
+	merge<SP extends NestedRecordKeys<S>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<S, StringPathToArray<SP>>
+	): History<S>
+	merge<SP extends StringPathToArray<NestedRecordKeys<S>>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<S, SP>
+	): History<S>
+};
+
 type SetHistory<
 	S extends DS,
 	NS extends HistoryState<S> = HistoryState<S>,
-	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
 > = {
 	/**
 	 * Updates the `state` and/or `initial` with either a new state object or mutation callback
@@ -156,7 +185,7 @@ type SetHistory<
 	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
 	 */
 	setHistory<
-		SP extends RK,
+		SP extends NestedRecordKeys<NS>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<NS, StringPathToArray<SP>> | (
@@ -204,7 +233,7 @@ type SetHistory<
 	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
 	 */
 	setHistory<
-		SP extends StringPathToArray<RK>,
+		SP extends StringPathToArray<NestedRecordKeys<NS>>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<NS, SP> | (
@@ -408,7 +437,6 @@ type SetHistoryWrap<
 
 type SetState<
 	S extends DS,
-	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
 > = {
 	/**
 	 * Updates state with either a new state object or mutation callback
@@ -487,7 +515,7 @@ type SetState<
 	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
 	 */
 	set<
-		SP extends RK,
+		SP extends NestedRecordKeys<S>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<S, StringPathToArray<SP>> | (
@@ -535,7 +563,7 @@ type SetState<
 	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
 	 */
 	set<
-		SP extends StringPathToArray<RK>,
+		SP extends StringPathToArray<NestedRecordKeys<S>>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<S, SP> | (
@@ -760,6 +788,8 @@ export type Setters<
   	 */
 	reset(): History<S>
 }
+& MergeHistory<S>
+& Merge<S>
 & SetHistory<S>
 & SetHistoryWrap<S>
 & SetState<S>

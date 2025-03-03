@@ -18,7 +18,6 @@ export default function getHistoryDraft<
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
 	transform: Exclude<ConOptions<S, ActRecord, MO>['transform'], undefined>,
-	type: 'set' | 'reset',
 	stateHistoryPath?: unknown,
 	mutOptions?: MO,
 ) {
@@ -40,7 +39,7 @@ export default function getHistoryDraft<
 		patches,
 	] = createDraftChangeTrackingProxy( _draft, );
 
-	function finalize() {
+	function finalize( type: 'set' | 'reset' | 'merge' = 'set', ) {
 		transform( {
 			draft: _draft,
 			history,

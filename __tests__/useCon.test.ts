@@ -27,6 +27,8 @@ describe( 'useCon', () => {
 				acts: props.acts,
 				get: props.get,
 				// getDraft: props.getDraft,
+				merge: props.merge,
+				mergeHistory: props.mergeHistory,
 				reset: props.reset,
 				set: props.set,
 				setHistory: props.setHistory,
