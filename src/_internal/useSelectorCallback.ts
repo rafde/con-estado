@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef, } from 'react';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { Selector, } from '../types/Selector';
-import isFunction from './isFunction';
+import isFunc from './isFunc';
 
 const isEqual = createCustomEqual( {
 	strict: true,
@@ -21,7 +21,7 @@ export default function useSelectorCallback<
 >( defaultSelector: Selector<S, AR, SP>, selector?: Selector<S, AR, SP>, ) {
 	const _selector = useMemo(
 		() => {
-			if ( isFunction( selector, ) ) {
+			if ( isFunc( selector, ) ) {
 				return selector;
 			}
 			return defaultSelector;

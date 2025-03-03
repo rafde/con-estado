@@ -9,7 +9,7 @@ import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isNil from './isNil';
-import isString from './isString';
+import isStr from './isStr';
 
 export default function getHistoryDraft<
 	S extends DS,
@@ -61,7 +61,7 @@ export default function getHistoryDraft<
 		return setHistory( nextHistory, );
 	}
 
-	if ( isString( stateHistoryPath, ) ) {
+	if ( isStr( stateHistoryPath, ) ) {
 		const value = getDeepValueParentByArray(
 			draft,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),

@@ -6,7 +6,7 @@ import type { HistoryState, } from '../types/HistoryState';
 import type { NestedObjectKeys, } from '../types/NestedObjectKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
-import isUndefined from './isUndefined';
+import isUndef from './isUndef';
 
 const PROP_TO_HISTORY = {
 	changesProp: 'changes',
@@ -81,7 +81,7 @@ export default function createArrayPathProxy<
 			}
 
 			// Handle draft property
-			if ( prop === 'draft' && isUndefined( parentDraft, ) && !isUndefined( valueKey, ) ) {
+			if ( prop === 'draft' && isUndef( parentDraft, ) && !isUndef( valueKey, ) ) {
 				return Reflect.get( target.draft, valueKey, );
 			}
 

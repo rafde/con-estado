@@ -1,17 +1,17 @@
 import type { DS, } from '../types/DS';
-import isPlainObject from './isPlainObject';
+import isPlainObj from './isPlainObj';
 
 function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boolean {
-	const aValue = isPlainObject( a, ) || Array.isArray( a, )
+	const aValue = isPlainObj( a, ) || Array.isArray( a, )
 		? Reflect.get( a, key, )
 		: a;
-	const bValue = isPlainObject( b, ) || Array.isArray( b, )
+	const bValue = isPlainObj( b, ) || Array.isArray( b, )
 		? Reflect.get( b, key, )
 		: b;
 	if ( Object.is( aValue, bValue, ) ) {
 		return false;
 	}
-	const areObjects = isPlainObject( aValue, ) && isPlainObject( bValue, );
+	const areObjects = isPlainObj( aValue, ) && isPlainObj( bValue, );
 	const areArrays = Array.isArray( aValue, ) && Array.isArray( bValue, );
 	if ( !areObjects && !areArrays ) {
 		Reflect.set( changes, key, bValue, );
@@ -48,7 +48,7 @@ export default function findChanges<T extends DS,>( a: T, b: T, ) {
 			}
 		}
 	}
-	else if ( isPlainObject( a, ) && isPlainObject( b, ) ) {
+	else if ( isPlainObj( a, ) && isPlainObj( b, ) ) {
 		for ( const key in a ) {
 			const _hasChanges = setChanges(
 				a,

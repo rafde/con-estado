@@ -1,7 +1,7 @@
 import { useMemo, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
-import isPlainObject from './_internal/isPlainObject';
+import isPlainObj from './_internal/isPlainObj';
 import { createConStore, } from './createConStore';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
@@ -158,7 +158,7 @@ export function useCon<
 			const [
 				opts,
 				sel,
-			] = isPlainObject( options, )
+			] = isPlainObj( options, )
 				? [options as ConOptions<S, AR>, selector as Sel,]
 				: [{} as ConOptions<S, AR>, options as Sel,];
 			const _useSelector = createConStore<S, AR, US, Sel>(

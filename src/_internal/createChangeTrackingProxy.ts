@@ -1,6 +1,6 @@
 import { strictDeepEqual, } from 'fast-equals';
 import isNil from './isNil';
-import isObject from './isObject';
+import isObj from './isObj';
 
 type ArrayPath = Array<string | symbol | number>;
 
@@ -119,7 +119,7 @@ function handleProxyGet(
 	const value = Reflect.get( target, prop, );
 
 	// Return primitive or non-object values directly
-	if ( !isObject( value, ) ) {
+	if ( !isObj( value, ) ) {
 		return value;
 	}
 

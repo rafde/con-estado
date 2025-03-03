@@ -4,14 +4,14 @@ import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
-import isFunction from './isFunction';
-import isObject from './isObject';
-import isString from './isString';
-import isUndefined from './isUndefined';
+import isFunc from './isFunc';
+import isObj from './isObj';
+import isStr from './isStr';
+import isUndef from './isUndef';
 import isValidStatePath from './isValidStatePath';
 
-const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
-	&& 'then' in value && isFunction( value?.then, );
+const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObj( value, )
+	&& 'then' in value && isFunc( value?.then, );
 
 export default function handleSetHistoryWrap<
 	S extends DS,
@@ -22,8 +22,8 @@ export default function handleSetHistoryWrap<
 	...args: unknown[]
 ) {
 	const [statePath, nextState,] = args;
-	const isStatePathFunction = isFunction( statePath, );
-	const isNextStateType = isFunction( nextState, );
+	const isStatePathFunction = isFunc( statePath, );
+	const isNextStateType = isFunc( nextState, );
 
 	if ( !isStatePathFunction && !isNextStateType ) {
 		throw new Error( 'Wrapper methods needs a callback function to wrap', );
@@ -47,12 +47,12 @@ export default function handleSetHistoryWrap<
 			);
 		}
 		else if ( _isValidStatePath && isNextStateType ) {
-			const statePathArray = isString( statePath, )
+			const statePathArray = isStr( statePath, )
 				? getCacheStringPathToArray( arrayPathMap, statePath, )
 				: statePath as ( string | number )[];
 			const valueKey = statePathArray.at( -1, );
 			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-			if ( !isObject( parentDraft, ) || isUndefined( valueKey, ) || !( valueKey in parentDraft ) ) {
+			if ( !isObj( parentDraft, ) || isUndef( valueKey, ) || !( valueKey in parentDraft ) ) {
 				return;
 			}
 			const pathArray = statePathArray.slice( 1, );
