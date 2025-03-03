@@ -23,19 +23,8 @@ import isString from './isString';
 import isUndefined from './isUndefined';
 import isValidStatePath from './isValidStatePath';
 
-function _escapeDots( key: string | number, ) {
-	if ( isString( key, ) ) {
-		return key.replace( /(?<!\\)\./g, '\\\\.', );
-	}
-	return key;
-}
-
 const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
 	&& 'then' in value && isFunction( value?.then, );
-
-function _joinPath( path: string | ( string | number )[], ) {
-	return isString( path, ) ? path : path.map( _escapeDots, ).join( '.', );
-}
 
 function _returnStateArgs( args: unknown[], ) {
 	const [statePath, nextState,] = args;
@@ -199,35 +188,7 @@ export default function createCon<
 		return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
 	}
 
-	const curryMap = new Map<unknown, ( nextState: unknown ) => History<S>>();
-	function currySetHistory( statePath?: string | ( string | number )[], ) {
-		if ( isNil( statePath, ) ) {
-			throw new Error( `curry methods accepts "string" or "Array<string | number>", path is ${statePath}`, );
-		}
-
-		const path = _joinPath( statePath, );
-		const curryFn = curryMap.get( path, );
-		if ( isFunction( curryFn, ) ) {
-			return curryFn;
-		}
-
-		const curried = ( nextState: unknown, ) => setHistory( statePath, nextState, );
-
-		curryMap.set( statePath, curried, );
-		return curried;
-	}
-
 	const props: CreateActsProps<S> = {
-		currySet( statePath: Parameters<CreateActsProps<S>['currySet']>[0], ) {
-			const _statePath = Array.isArray( statePath, )
-				? ['state', ...statePath,]
-				: isString( statePath, )
-					? `state.${statePath}`
-					: undefined;
-
-			return currySetHistory( _statePath, );
-		},
-		currySetHistory,
 		get,
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
