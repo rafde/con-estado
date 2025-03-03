@@ -260,10 +260,7 @@ function PostList() {
   const [ state, { acts, } ] = useCon(
     { posts: [ { id: 1, text: 'post', } ] },
     {
-      acts: ( { currySet, wrapSet, } ) => {
-        // currySet is a function that
-        // returns a function that can be called with the posts array
-        const setPost = currySet('posts');
+      acts: ( { wrapSet, } ) => {
 
         return {
           addPost( post: Post, ) {
@@ -280,7 +277,7 @@ function PostList() {
           ),
           async fetchPosts() {
             const posts = await api.getPosts();
-            setPost( posts );
+            set('posts', posts );
           },
         },
       },
@@ -387,13 +384,11 @@ useCon(
   {
     acts: ( {
       set,
-      currySet,
       setWrap,
       get,
       reset,
       getDraft,
       setHistory,
-      currySetHistory,
       setHistoryWrap,
     }: ActControls ) => ( {
       // your actions with async support
@@ -486,13 +481,11 @@ useCon(
     state,
     acts,
     set,
-    currySet,
     setWrap,
     get,
     reset,
     getDraft,
     setHistory,
-    currySetHistory,
     setHistoryWrap,
     useSelector, // only available in `useCon`
     subscribe,
@@ -511,13 +504,11 @@ createConStore(
     state,
     acts,
     set,
-    currySet,
     setWrap,
     get,
     reset,
     getDraft,
     setHistory,
-    currySetHistory,
     setHistoryWrap,
     subscribe,
   }: CreateConStoreControls, ) => unknown // unknown represents the return type of your choice
@@ -659,12 +650,10 @@ const [ state, controls, ] = useConSelector();
 const {
   acts,
   set,
-  currySet,
   setWrap,
   get,
   reset,
   setHistory,
-  currySetHistory,
   setHistoryWrap,
   subscribe,
 }: UseConSelectorControls = useConSelector
@@ -678,12 +667,10 @@ const yourSelection = useConSelector(
     state,
     acts,
     set,
-    currySet,
     setWrap,
     get,
     reset,
     setHistory,
-    currySetHistory,
     setHistoryWrap,
     subscribe,
   }, ) => unknown
@@ -951,29 +938,7 @@ The first parameter can be
 - dot-notated string, or array of string or numbers for state prop path, followed by a callback.
 
 </section>
-<section className="relative space-y-2">
 
-### `currySet`
-
-Creates a pre-bound `set` function for a specific dot-notation string path.
-Enables partial application of path for reusable state updaters
-
-```ts
-const [
-  state,
-  { currySet, },
-] = useCon( { count: 0, }, );
-
-const {
-  currySet,
-} = useConSelector( ( { currySet, } ) => ( { currySet, } ), );
-
-const setCount = currySet( 'count', );
-setCount( 5, );
-setCount( ( props, ) => props.draft += 1 );
-```
-
-</section>
 <section className="relative space-y-2">
 
 ### `setHistory`
@@ -988,13 +953,7 @@ Works like [set](#set), but can be used to update both `state` and `initial`.
 Works like [setWrap](#setwrap), but can be used to update both `state` and `initial`.
 
 </section>
-<section className="relative space-y-2">
 
-### `currySetHistory`
-
-Works like [currySet](#curryset), but can be used to update both `state` and `initial`.
-
-</section>
 <section className="relative space-y-2">
 
 ### `reset`
