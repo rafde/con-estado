@@ -1,10 +1,10 @@
 import { useCallback, useSyncExternalStore, } from 'react';
-import isFunction from './_internal/isFunction';
+import isFunc from './_internal/isFunc';
 import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
-import isPlainObject from './_internal/isPlainObject';
+import isPlainObj from './_internal/isPlainObj';
 import useSelectorCallback from './_internal/useSelectorCallback';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
@@ -192,7 +192,7 @@ export function createConStore<
 	const [
 		opts,
 		sel,
-	] = isPlainObject( options, )
+	] = isPlainObj( options, )
 		? [options as CreateConStoreOptions<S, AR, SP>, ( selector ?? defaultSelector<S, AR, SP> ) as Selector<S, AR, SP>,]
 		: [{} as CreateConStoreOptions<S, AR, SP>, ( options ?? defaultSelector<S, AR, SP> ) as Selector<S, AR, SP>,];
 
@@ -205,12 +205,12 @@ export function createConStore<
 			state: nextHistory.state,
 			...estado,
 		};
-		snapshot = isFunction( _getSnapshot, ) ? _getSnapshot( _snapshot, ) : _snapshot as unknown as SelectorProps<S, AR, SP>;
+		snapshot = isFunc( _getSnapshot, ) ? _getSnapshot( _snapshot, ) : _snapshot as unknown as SelectorProps<S, AR, SP>;
 		return snapshot;
 	};
 	let snapshot: ReturnType<GetSnapshot<S, AR, SP>>;
 	const estadoSubLis = createConSubLis<S, AR, SP>(
-		isFunction( initial, ) ? initial() : initial,
+		isFunc( initial, ) ? initial() : initial,
 		getSnapshot as GetSnapshot<S, AR, SP>,
 		opts,
 	);

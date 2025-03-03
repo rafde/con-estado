@@ -15,9 +15,9 @@ import getHistoryDraft from './getHistoryDraft';
 import handleSetHistoryWrap from './handleSetWrapHistory';
 import handleStateUpdate from './handleStateUpdate';
 import isNil from './isNil';
-import isObject from './isObject';
-import isPlainObject from './isPlainObject';
-import isString from './isString';
+import isObj from './isObj';
+import isPlainObj from './isPlainObj';
+import isStr from './isStr';
 import noop from './noop';
 import reset from './reset';
 
@@ -30,7 +30,7 @@ function _returnStateArgs( args: unknown[], ) {
 		];
 	}
 
-	if ( isString( statePath, ) ) {
+	if ( isStr( statePath, ) ) {
 		return [
 			`state.${statePath}`,
 			nextState,
@@ -60,7 +60,7 @@ export default function createCon<
 	initial: S,
 	options: CreateConOptions<S, AR> = EMPTY_OBJECT as CreateConOptions<S, AR>,
 ): CreateConReturnType<S, AR> {
-	if ( !isObject( initial, ) ) {
+	if ( !isObj( initial, ) ) {
 		throw new Error( `Only works with plain objects or arrays. Value is ${initial} of type ${typeof initial}`, );
 	}
 	let history: History<S> = createHistoryProxy( {
@@ -86,8 +86,8 @@ export default function createCon<
 	}
 
 	const getDraft: GetDraftRecord<S>['getDraft'] = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
-		const statePath = isPlainObject( stateHistoryPath, ) ? undefined : stateHistoryPath;
-		const _mutOptions = isPlainObject( stateHistoryPath, ) ? stateHistoryPath : options;
+		const statePath = isPlainObj( stateHistoryPath, ) ? undefined : stateHistoryPath;
+		const _mutOptions = isPlainObj( stateHistoryPath, ) ? stateHistoryPath : options;
 		return getHistoryDraft(
 			history,
 			_dispatch,

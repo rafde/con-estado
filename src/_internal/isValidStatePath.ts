@@ -1,5 +1,5 @@
-import isString from './isString';
+import isStr from './isStr';
 
 export default function isValidStatePath( statePath: unknown, ) {
-	return isString( statePath, ) || Array.isArray( statePath, );
+	return isStr( statePath, ) || Array.isArray( statePath, );
 }
