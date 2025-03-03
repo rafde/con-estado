@@ -41,7 +41,6 @@ const components: MDXComponents = {
 				src={props.href}
 				className="h-[800px] w-full overflow-hidden rounded-s border-0"
 				title={childrenToString( props.children, )}
-				allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
 				sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 			/>;
 		}
@@ -142,15 +141,19 @@ const components: MDXComponents = {
 	img( props, ) {
 		const _props = {
 			...props,
-			className: 'inline-flex align-baseline',
+			className: 'inline-flex align-baseline h-[20px]',
 			width: '75',
 			height: '20',
 		};
 		switch ( props.alt ) {
 			case 'Test': {
 				_props.width = '110';
+				_props.className += ' w-[110px]';
 				break;
 			}
+			default:
+				_props.className += ' w-[75px]';
+				break;
 		}
 		return <Image {..._props} />;
 	},
