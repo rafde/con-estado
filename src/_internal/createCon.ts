@@ -1,4 +1,3 @@
-import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
@@ -22,6 +21,8 @@ import isPlainObject from './isPlainObject';
 import isString from './isString';
 import isUndefined from './isUndefined';
 import isValidStatePath from './isValidStatePath';
+import noop from './noop';
+import reset from './reset';
 
 const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
 	&& 'then' in value && isFunction( value?.then, );
@@ -53,8 +54,6 @@ function _returnStateArgs( args: unknown[], ) {
 }
 
 const EMPTY_OBJECT = Object.freeze( {}, );
-function noop(): void {
-}
 
 const fo = <
 	AR extends ActRecord,
@@ -192,42 +191,7 @@ export default function createCon<
 		get,
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
-			if ( isNil( history.changes, ) ) {
-				return history;
-			}
-
-			let initial = history.initial;
-			let state = history.initial;
-			if ( transform !== noop ) {
-				const res = create(
-					{
-						initial,
-						state,
-					},
-					( draft, ) => {
-						transform( {
-							draft,
-							history,
-							type: 'reset',
-							patches: {},
-						}, );
-					},
-				);
-				if ( res.initial !== initial ) {
-					initial = res.initial;
-				}
-				if ( res.state !== state ) {
-					state = res.state;
-				}
-			}
-			const nextHistory: History<S> = createHistoryProxy( {
-				initial,
-				prev: isNil( history.prev, ) ? undefined : history.state,
-				prevInitial: isNil( history.prevInitial, ) ? undefined : history.initial,
-				state,
-			}, );
-
-			return _dispatch( nextHistory, );
+			return _dispatch( reset( history, transform, ), );
 		},
 		set( ...args: unknown[] ) {
 			return setHistory( ..._returnStateArgs( args, ), );
