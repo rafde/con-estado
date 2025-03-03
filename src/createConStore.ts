@@ -5,7 +5,7 @@ import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
 import isPlainObj from './_internal/isPlainObj';
-import useSelectorCallback from './_internal/useSelectorCallback';
+import useSelCb from './_internal/useSelCb';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';
 import type { DS, } from './types/DS';
@@ -223,7 +223,7 @@ export function createConStore<
 	const initialSnapshot = getSnapshot( estado.get(), );
 
 	function useConSelector<Sel extends Selector<S, AR, SP>,>( select?: Sel, ) {
-		const selectorCallback = useSelectorCallback<S, AR, SP>(
+		const selectorCallback = useSelCb<S, AR, SP>(
 			sel,
 			select,
 		);
