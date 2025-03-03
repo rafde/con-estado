@@ -14,7 +14,7 @@ const isEqual = createCustomEqual( {
 	},
 }, );
 
-export default function useSelectorCallback<
+export default function useSelCb<
 	S extends DS,
 	AR extends ActRecord,
 	SP extends Record<string, unknown>,
