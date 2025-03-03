@@ -1,4 +1,5 @@
 import type { Draft, } from 'mutative';
+import type { DeepPartial, } from './DeepPartial';
 import type { DS, } from './DS';
 import type { History, } from './History';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
@@ -107,6 +108,37 @@ type CallbackDraftProps<
 > = CallbackHistoryDraftProps<S> & Readonly<{
 	draft: Draft<S>
 }>;
+
+type MergeHistory<
+	S extends DS,
+	NS extends HistoryState<S> = HistoryState<S>,
+	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
+> = {
+	mergeHistory( nextState: DeepPartial<NS> ): History<S>
+	mergeHistory<SP extends RK,>(
+		statePath: SP,
+		nextState: GetStringPathValue<NS, SP>
+	): History<S>
+	mergeHistory<SP extends StringPathToArray<RK>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<NS, SP>
+	): History<S>
+};
+
+type Merge<
+	S extends DS,
+	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
+> = {
+	merge( nextState: DeepPartial<S> ): History<S>
+	merge<SP extends RK,>(
+		statePath: SP,
+		nextState: GetStringPathValue<S, SP>
+	): History<S>
+	merge<SP extends StringPathToArray<RK>,>(
+		statePath: SP,
+		nextState: GetArrayPathValue<S, SP>
+	): History<S>
+};
 
 type SetHistory<
 	S extends DS,
@@ -805,6 +837,8 @@ export type Setters<
   	 */
 	reset(): History<S>
 }
+& MergeHistory<S>
+& Merge<S>
 & SetHistory<S>
 & SetHistoryWrap<S>
 & SetState<S>

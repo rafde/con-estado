@@ -51,7 +51,7 @@ export type GetDraftRecord<
 	 */
 	getDraft( options?: MO ): readonly [
 		Draft<HistoryState<S>>,
-		() => History<S>,
+		( type?: 'set' | 'reset' | 'merge' ) => History<S>,
 	]
 	/**
 	 * Gets a mutable draft of a specific property in the state history and a function to commit changes.

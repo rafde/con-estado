@@ -1,4 +1,3 @@
-import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConOptions, } from '../types/CreateConOptions';
@@ -11,6 +10,7 @@ import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import createArrayPathProxy from './createArrayPathProxy';
 import createHistoryProxy from './createHistoryProxy';
+import { deepMerge, } from './deepMerge';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
@@ -22,6 +22,8 @@ import isPlainObject from './isPlainObject';
 import isString from './isString';
 import isUndefined from './isUndefined';
 import isValidStatePath from './isValidStatePath';
+import noop from './noop';
+import reset from './reset';
 
 const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObject( value, )
 	&& 'then' in value && isFunction( value?.then, );
@@ -53,8 +55,6 @@ function _returnStateArgs( args: unknown[], ) {
 }
 
 const EMPTY_OBJECT = Object.freeze( {}, );
-function noop(): void {
-}
 
 const fo = <
 	AR extends ActRecord,
@@ -100,7 +100,6 @@ export default function createCon<
 			_dispatch,
 			arrayPathMap,
 			transform,
-			'set',
 			statePath,
 			_mutOptions,
 		);
@@ -179,55 +178,62 @@ export default function createCon<
 	}
 
 	function setHistory( ...args: unknown[] ) {
-		const [draftHistory, finalize,] = getDraft();
-
 		if ( args.length === 0 ) {
-			return finalize();
+			return history;
 		}
+
+		const [draftHistory, finalize,] = getDraft();
 
 		return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
 	}
 
+	function mergeHistory( ...args: unknown[] ) {
+		if ( args.length === 0 ) {
+			return history;
+		}
+
+		const [draftHistory, finalize,] = getDraft();
+		const [
+			statePath,
+			nextState,
+		] = args;
+
+		if ( isString( statePath, ) || Array.isArray( statePath, ) ) {
+			// Case 2: arg1 is a path (`NestedRecordKeys`), and arg2 is the value
+			const statePathArray = isString( statePath, )
+				? getCacheStringPathToArray( arrayPathMap, statePath, )
+				: statePath as ( string | number )[];
+			const [draft, parentDraft,] = getDeepValueParentByArray( draftHistory, statePathArray, );
+
+			if ( !draft || !parentDraft ) {
+				throw new Error( `Invalid path "${statePath}"`, );
+			}
+
+			const valueKey = statePathArray.at( -1, );
+
+			if ( isObject( nextState, ) && isObject( draft, ) ) {
+				deepMerge( draft, nextState, );
+			}
+			else if ( isObject( parentDraft, ) && typeof valueKey !== 'undefined' && valueKey in parentDraft ) {
+				Reflect.set( parentDraft, valueKey, nextState, );
+			}
+		}
+		else if ( isPlainObject( statePath, ) ) {
+			deepMerge( draftHistory, statePath, );
+		}
+
+		return finalize( 'merge', );
+	}
+
 	const props: CreateActsProps<S> = {
 		get,
+		mergeHistory,
+		merge( ...args: unknown[] ) {
+			return mergeHistory( ..._returnStateArgs( args, ), );
+		},
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
-			if ( isNil( history.changes, ) ) {
-				return history;
-			}
-
-			let initial = history.initial;
-			let state = history.initial;
-			if ( transform !== noop ) {
-				const res = create(
-					{
-						initial,
-						state,
-					},
-					( draft, ) => {
-						transform( {
-							draft,
-							history,
-							type: 'reset',
-							patches: {},
-						}, );
-					},
-				);
-				if ( res.initial !== initial ) {
-					initial = res.initial;
-				}
-				if ( res.state !== state ) {
-					state = res.state;
-				}
-			}
-			const nextHistory: History<S> = createHistoryProxy( {
-				initial,
-				prev: isNil( history.prev, ) ? undefined : history.state,
-				prevInitial: isNil( history.prevInitial, ) ? undefined : history.initial,
-				state,
-			}, );
-
-			return _dispatch( nextHistory, );
+			return _dispatch( reset( history, transform, ), );
 		},
 		set( ...args: unknown[] ) {
 			return setHistory( ..._returnStateArgs( args, ), );
