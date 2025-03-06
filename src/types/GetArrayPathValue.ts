@@ -1,13 +1,9 @@
-export type GetArrayPathValue<T, K extends ( string | number | symbol )[],> = K extends [infer First,]
+export type GetArrayPathValue<T, K extends Array<string | number>,> = K extends [infer First, ...infer Rest,]
 	? First extends keyof T
-		? T[First]
-		: never
-	: K extends [infer First, ...infer Rest,]
-		? First extends keyof T
-			? Rest extends ( string | number | symbol )[]
-				? T[First] extends object
-					? GetArrayPathValue<T[First], Rest>
-					: never
+		? Rest extends [string | number, ...Array<string | number>,]
+			? T[First] extends object
+				? GetArrayPathValue<T[First], Rest>
 				: never
-			: never
-		: never;
+			: T[First]
+		: never
+	: never;

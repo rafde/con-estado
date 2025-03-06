@@ -2,47 +2,10 @@ import type { Draft, } from 'mutative';
 import type { DS, } from './DS';
 import type { History, } from './History';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
-import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { HistoryState, } from './HistoryState';
 import type { StringPathToArray, } from './StringPathToArray';
-
-/**
- * Properties passed to callback functions when updating state through string path-based mutations.
- * Combines immutable history state with mutable drafts for property modifications.
- *
- * @template S - Base state type that extends DS (Data Structure)
- * @template NS - Next state type, extending either HistoryState<S> or S
- * @template SP - String path type for accessing nested properties
- * @template History<S> - The current history state (immutable)
- *
- * @typeParam {GetStringPathValue<NS, SP> | undefined} changesProp - Changes made to the property
- * @typeParam {GetStringPathValue<NS, SP>} initialProp - Initial value of the property
- * @typeParam {GetStringPathValue<NS, SP> | undefined} prevInitialProp - Previous initial value
- * @typeParam {GetStringPathValue<NS, SP> | undefined} prevProp - Previous value
- * @typeParam {GetStringPathValue<NS, SP>} stateProp - Current value
- * @typeParam {GetStringPathValue<NS, SP>} draft - Mutable draft for modifications
- * @typeParam {Draft<HistoryState<S>>} historyDraft - Mutable draft for history state
- *
- * @see {@link History} For history state structure
- * @see {@link HistoryState} For history state type definition
- */
-type StringPathProps<
-	S extends DS,
-	NS extends HistoryState<S> | S,
-	SP extends NestedRecordKeys<NS>,
-> = Immutable<
-	History<S> & {
-		changesProp: GetStringPathValue<NS, SP> | undefined
-		initialProp: GetStringPathValue<NS, SP>
-		prevInitialProp: GetStringPathValue<NS, SP> | undefined
-		prevProp: GetStringPathValue<NS, SP> | undefined
-		stateProp: GetStringPathValue<NS, SP>
-	}> & {
-		draft: GetStringPathValue<NS, SP>
-		historyDraft: Draft<HistoryState<S>>
-	};
 
 /**
  * Properties passed to callback functions when updating state through string path-based mutations.
@@ -72,7 +35,7 @@ type ArrayPathProps<
 	prevProp: GetArrayPathValue<NS, SP> | undefined
 	stateProp: GetArrayPathValue<NS, SP>
 }> & {
-	draft: GetArrayPathValue<NS, SP>
+	draft: GetArrayPathValue<Draft<NS>, SP>
 	historyDraft: Draft<HistoryState<S>>
 };
 
@@ -164,8 +127,8 @@ type SetHistory<
 	 * @template S - Current state type
 	 * @template NS - Next state type (must extend S)
 	 *
-	 * @property {SP} statePath - Dot-notation string path to the state property to update
-	 * @property {GetStringPathValue<S, SP> | ((props: StringPathProps<S, SP>) => void)} nextState -
+	 * @property statePath - Dot-notation string path to the state property to update
+	 * @property nextState -
 	 *   Either:
 	 *   - Direct value to set at the specified path
 	 *   - Callback function receiving string path to prop, allowing draft mutations
@@ -186,7 +149,6 @@ type SetHistory<
 	 * ```
 	 *
 	 * @see {@link History} For full history object structure
-	 * @see {@link StringPathProps} For callback parameter details
 	 *
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., 'state.items.0' not 'state.items.first')
@@ -197,9 +159,9 @@ type SetHistory<
 		SP extends RK,
 	>(
 		statePath: SP,
-		nextState: GetStringPathValue<NS, SP> | (
+		nextState: GetArrayPathValue<NS, StringPathToArray<SP>> | (
 			(
-				props: StringPathProps<S, NS, SP>
+				props: ArrayPathProps<S, NS, StringPathToArray<SP>>
 			) => void
 		),
 	): History<S>
@@ -386,8 +348,8 @@ type SetHistoryWrap<
 	 * @template NS - Next state type (must extend S)
 	 * @template RK - Runtime key constraints
 	 *
-	 * @param {SP} statePath - Dot-notation string path to target property
-	 * @param {(props: StringPathProps<S, NS, SP>, ...args: A) => void} nextState -
+	 * @param statePath - Dot-notation string path to target property
+	 * @param nextState -
 	 *   Callback function that:
 	 *   - Receives path-specific draft props
 	 *   - Accepts additional parameters of type A
@@ -425,9 +387,6 @@ type SetHistoryWrap<
 	 * updateUserProfile('Alice', 32);
 	 * ```
 	 *
-	 * @see {@link StringPathProps} For path draft details
-	 * @see {@link GetStringPathValue} For path value resolution
-	 *
 	 * @remarks
 	 * - Handles escaped dots in path keys (e.g., 'user\\.profile.age')
 	 * - Maintains full type safety for path, draft, and arguments
@@ -440,7 +399,7 @@ type SetHistoryWrap<
 		statePath: SP,
 		nextState: (
 			(
-				props: StringPathProps<S, NS, SP>,
+				props: ArrayPathProps<S, NS, StringPathToArray<SP>>,
 				...args: A
 			) => R
 		),
@@ -498,8 +457,8 @@ type SetState<
 	 * @template S - Current state type
 	 * @template NS - Next state type (must extend S)
 	 *
-	 * @property {SP} statePath - Dot-notation string path to the state property to update
-	 * @property {GetStringPathValue<S, SP> | ((props: StringPathProps<S, S, SP>) => void)} nextState -
+	 * @property statePath - Dot-notation string path to the state property to update
+	 * @property nextState -
 	 *   Either:
 	 *   - Direct value to set at the specified path
 	 *   - Callback function receiving string path to prop, allowing draft mutations
@@ -521,7 +480,6 @@ type SetState<
 	 * ```
 	 *
 	 * @see {@link History} For full history object structure
-	 * @see {@link StringPathProps} For callback parameter details
 	 *
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., 'items.0' not 'items.first')
@@ -532,9 +490,9 @@ type SetState<
 		SP extends RK,
 	>(
 		statePath: SP,
-		nextState: GetStringPathValue<S, SP> | (
+		nextState: GetArrayPathValue<S, StringPathToArray<SP>> | (
 			(
-				props: StringPathProps<S, S, SP>
+				props: ArrayPathProps<S, S, StringPathToArray<SP>>
 			) => void
 		),
 	): History<S>
@@ -720,8 +678,8 @@ type SetWrap<
 	 * @template NS - Next state type (must extend S)
 	 * @template RK - Runtime key constraints
 	 *
-	 * @property {SP} statePath - Dot-notation string path to target element (supports numeric indexes)
-	 * @property {(props: StringPathProps<S, S, SP>, ...args: A) => void} nextState -
+	 * @property statePath - Dot-notation string path to target element (supports numeric indexes)
+	 * @property nextState -
 	 *   Callback function that:
 	 *   - Receives array element draft props
 	 *   - Accepts additional parameters of type A
@@ -758,9 +716,6 @@ type SetWrap<
 	 *
 	 * updateUserScore('math', 95);
 	 *```
-
-	 * @see {@link StringPathProps} For dot-notation string path element draft details
-	 * @see {@link GetStringPathValue} For dot-notation string path value resolution
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
@@ -774,7 +729,7 @@ type SetWrap<
 		statePath: SP,
 		nextState: (
 			(
-				props: StringPathProps<S, S, SP>,
+				props: ArrayPathProps<S, S, StringPathToArray<SP>>,
 				...args: A
 			) => R
 		),

@@ -1,10 +1,11 @@
 import type { Draft, } from 'mutative';
 import type { DS, } from './DS';
+import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { History, } from './History';
-import type { GetStringPathValue, } from './GetStringPathValue';
 import type { HistoryState, } from './HistoryState';
 import type { NestedObjectKeys, } from './NestedObjectKeys';
 import type { ConMutOptions, } from './ConMutOptions';
+import type { StringPathToArray, } from './StringPathToArray';
 
 export type GetDraftRecord<
 	S extends DS,
@@ -61,7 +62,7 @@ export type GetDraftRecord<
 	 *
 	 * @param {SHP} stateHistoryPath - Dot notation path to the desired property
 	 * @param {ConMutOptions} [options] - Optional mutation options
-	 * @returns {[GetStringPathValue<Draft<HistoryState<S>>, SHP>, () => History<S>]} Tuple containing:
+	 * @returns {[Draft<HistoryState<S>>, () => History<S>]} Tuple containing:
 	 *   - Mutable draft of the specified property
 	 *   - Function to commit draft changes and return updated history
 	 */
@@ -69,9 +70,9 @@ export type GetDraftRecord<
 		SHP extends NestedObjectKeys<HistoryState<S>>,
 		MO extends ConMutOptions = ConMutOptions,
 	>( stateHistoryPath: SHP, options?: MO ): readonly [
-		GetStringPathValue<
+		GetArrayPathValue<
 			Draft<HistoryState<S>>,
-			SHP
+			StringPathToArray<SHP>
 		>,
 		() => History<S>,
 	]
