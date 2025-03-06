@@ -1,9 +1,10 @@
 import type { DS, } from './DS';
+import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { History, } from './History';
 import type { Setters, } from './Setters';
-import type { GetStringPathValue, } from './GetStringPathValue';
 import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
+import type { StringPathToArray, } from './StringPathToArray';
 
 export type CreateActsProps<
 	S extends DS,
@@ -74,7 +75,7 @@ export type CreateActsProps<
 	 */
 	get<SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath: SHP
-	): Immutable<GetStringPathValue<History<S>, SHP>>
+	): Immutable<GetArrayPathValue<History<S>, StringPathToArray<SHP>>>
 }
 // & GetDraftRecord<S>
 & Setters<S>;

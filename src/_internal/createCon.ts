@@ -1,13 +1,14 @@
 import type { ActRecord, } from '../types/ActRecord';
+import type { ConOptions, } from '../types/ConOptions';
 import type { CreateActsProps, } from '../types/CreateActsProps';
-import type { CreateConOptions, } from '../types/CreateConOptions';
 import type { CreateConReturnType, } from '../types/CreateConReturnType';
 import type { DS, } from '../types/DS';
+import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
-import type { GetStringPathValue, } from '../types/GetStringPathValue';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
+import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
 import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
@@ -53,6 +54,13 @@ const fo = <
 	AR extends ActRecord,
 >() => EMPTY_OBJECT as AR;
 
+type CreateConOptions<
+	S extends DS,
+	AR extends ActRecord,
+> = ConOptions<S, AR> & {
+	dispatcher?: ( history: Immutable<History<S>> ) => void
+};
+
 export default function createCon<
 	S extends DS,
 	AR extends ActRecord,
@@ -85,7 +93,7 @@ export default function createCon<
 		return nextHistory;
 	}
 
-	const getDraft: GetDraftRecord<S>['getDraft'] = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
+	const getDraft = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
 		const statePath = isPlainObj( stateHistoryPath, ) ? undefined : stateHistoryPath;
 		const _mutOptions = isPlainObj( stateHistoryPath, ) ? stateHistoryPath : options;
 		return getHistoryDraft(
@@ -101,7 +109,7 @@ export default function createCon<
 
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
-	): Immutable<History<S>> | Immutable<GetStringPathValue<S, SHP>> {
+	): Immutable<History<S>> | Immutable<GetArrayPathValue<S, StringPathToArray<SHP>>> {
 		if ( isNil( stateHistoryPath, ) ) {
 			// No argument version
 			return history as Immutable<History<S>>;
@@ -109,11 +117,11 @@ export default function createCon<
 		return getDeepValueParentByArray(
 			history,
 			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
-		)[ 0 ] as Immutable<GetStringPathValue<S, typeof stateHistoryPath>>;
+		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 
 	function setHistoryWrap( ...args: unknown[] ) {
-		return handleSetHistoryWrap( getDraft, arrayPathMap, history, ...args, );
+		return handleSetHistoryWrap( getDraft as GetDraftRecord<S>['getDraft'], arrayPathMap, history, ...args, );
 	}
 
 	function setHistory( ...args: unknown[] ) {
@@ -127,7 +135,7 @@ export default function createCon<
 	}
 
 	const props: CreateActsProps<S> = {
-		get,
+		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		reset() {
 			return _dispatch( reset( history, transform, ), );
