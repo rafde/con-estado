@@ -1,13 +1,13 @@
-import type { EscapeDots, } from './EscapeDots';
+import type { EscapeSpecial, } from './EscapeSpecial';
 import type { ADS, DS, } from './DS';
 import type { IsPlainObject, } from './IsPlainObject';
 
 type ArrayIndexKey<T,> = {
-	[K in keyof T & number]: `${K}` | `${K}.${NestedRecordKeys<T[K]>}`;
+	[K in keyof T & number]: `[${K}]` | `[${K}]${IsPlainObject<T[K]> extends true ? `.${NestedRecordKeys<T[K]>}` : NestedRecordKeys<T[K]>}`;
 }[keyof T & number];
 
 type RecordKey<T,> = {
-	[K in keyof T & ( string | number )]: EscapeDots<K> | `${EscapeDots<K>}.${NestedRecordKeys<T[K]>}`;
+	[K in keyof T & ( string | number )]: EscapeSpecial<K> | `${EscapeSpecial<K>}${IsPlainObject<T[K]> extends true ? `.${NestedRecordKeys<T[K]>}` : NestedRecordKeys<T[K]>}`;
 }[keyof T & ( string | number )];
 
 export type NestedRecordKeys<T,> = T extends DS
