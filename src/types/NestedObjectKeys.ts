@@ -1,4 +1,4 @@
-import type { EscapeDots, } from './EscapeDots';
+import type { EscapeSpecial, } from './EscapeSpecial';
 import type { ADS, DS, } from './DS';
 import type { IsPlainObject, } from './IsPlainObject';
 
@@ -10,7 +10,7 @@ type ArrayIndexKey<T,> = {
 
 type RecordKey<T,> = {
 	[K in keyof T & ( string | number )]: T[K] extends object
-		? EscapeDots<K> | `${EscapeDots<K>}.${NestedObjectKeys<T[K]>}`
+		? EscapeSpecial<K> | `${EscapeSpecial<K>}.${NestedObjectKeys<T[K]>}`
 		: never;
 }[keyof T & ( string | number )];
 
