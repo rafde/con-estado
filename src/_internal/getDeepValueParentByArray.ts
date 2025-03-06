@@ -1,12 +1,10 @@
 import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
-import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
-import type { StringPathToArray, } from '../types/StringPathToArray';
 import isNil from './isNil';
 import isPlainObj from './isPlainObj';
 
 export default function getDeepValueParentByArray<
 	S extends object,
-	AP extends StringPathToArray<NestedRecordKeys<S>> | Array<string | number>,
+	AP extends Array<string | number>,
 >(
 	state: S | null | undefined,
 	arrayPath: AP,
