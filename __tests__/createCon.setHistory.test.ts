@@ -20,6 +20,15 @@ describe( 'createCon - setHistory', () => {
 				},
 			],
 		},
+		'.s': {
+			'.s.s': '.s.s',
+		},
+		's.s[1]': {
+			's.s[1]': 's.s[1]',
+		},
+		'[0]': {
+			'[0]': [[0,],],
+		},
 	};
 
 	describe( 'object', () => {
@@ -75,6 +84,15 @@ describe( 'createCon - setHistory', () => {
 							},
 						],
 					},
+					'.s': {
+						'.s.s': '.s.s next',
+					},
+					's.s[1]': {
+						's.s[1]': 's.s[1] next',
+					},
+					'[0]': {
+						'[0]': [[1,],],
+					},
 				};
 				const next = estado.setHistory( 'state', state, );
 
@@ -113,7 +131,7 @@ describe( 'createCon - setHistory', () => {
 						},],
 					},
 				};
-				const next = estado.setHistory( 'state.ooo.oooa.0.s\\.s', changes.ooo.oooa[ 0 ][ 's.s' ], );
+				const next = estado.setHistory( 'state.ooo.oooa[0].s\\.s', changes.ooo.oooa[ 0 ][ 's.s' ], );
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -130,6 +148,29 @@ describe( 'createCon - setHistory', () => {
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
+
+			it( 'should setHistory for complex path', () => {
+				const changes = {
+					'[0]': {
+						'[0]': [[7,],],
+					},
+					's.s[1]': {
+						's.s[1]': 'next2',
+					},
+				};
+				const prev = estado.setHistory( 'state.\\[0].\\[0][0][0]', 7, );
+				const next = estado.setHistory( 'state.s\\.s\\[1].s\\.s\\[1]', 'next2', );
+
+				expect( next.state, ).toStrictEqual( {
+					...initialObject,
+					...changes,
+				}, );
+				expect( next.initial, ).toBe( history.initial, );
+				expect( next.changes, ).toStrictEqual( changes, );
+				expect( next.prev, ).toStrictEqual( prev.state, );
+				expect( next.prevInitial, ).toBe( history.prevInitial, );
+			}, );
+
 			it( 'should setHistory a new nested value by path', () => {
 				const changes = {
 					o: {

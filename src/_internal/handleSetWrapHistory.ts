@@ -2,13 +2,13 @@ import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
-import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isFunc from './isFunc';
 import isObj from './isObj';
 import isStr from './isStr';
 import isUndef from './isUndef';
 import isValidStatePath from './isValidStatePath';
+import parseSegments from './parseSegments';
 
 const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObj( value, )
 	&& 'then' in value && isFunc( value?.then, );
@@ -48,7 +48,7 @@ export default function handleSetHistoryWrap<
 		}
 		else if ( _isValidStatePath && isNextStateType ) {
 			const statePathArray = isStr( statePath, )
-				? getCacheStringPathToArray( arrayPathMap, statePath, )
+				? parseSegments( statePath, )
 				: statePath as ( string | number )[];
 			const valueKey = statePathArray.at( -1, );
 			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
