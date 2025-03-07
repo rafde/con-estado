@@ -2,7 +2,6 @@ import type { Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
-import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isFunc from './isFunc';
 import isObj from './isObj';
@@ -10,6 +9,7 @@ import isPlainObj from './isPlainObj';
 import isStr from './isStr';
 import isUndef from './isUndef';
 import isValidStatePath from './isValidStatePath';
+import parseSegments from './parseSegments';
 
 export default function handleStateUpdate<
 	S extends DS,
@@ -37,7 +37,7 @@ export default function handleStateUpdate<
 	// Handle path-based updates
 	if ( isValidStatePath( statePath, ) ) {
 		const statePathArray = isStr( statePath, )
-			? getCacheStringPathToArray( arrayPathMap, statePath, )
+			? parseSegments( statePath, )
 			: statePath as ( string | number )[];
 
 		const valueKey = statePathArray.at( -1, );

@@ -71,7 +71,7 @@ describe( 'createCon - set', () => {
 					s: 'next',
 				};
 				const initialPropValue = initialObject.ooo.oooa[ 0 ];
-				const nextHistory = estado.set( 'ooo.oooa.0', ( props, ) => {
+				const nextHistory = estado.set( 'ooo.oooa[0]', ( props, ) => {
 					// Test StringPathProps properties
 					expect( props.changesProp, ).toBeUndefined(); // No changes yet
 					expect( props.initialProp, ).toEqual( initialPropValue, );
@@ -86,7 +86,7 @@ describe( 'createCon - set', () => {
 				// Verify changes were applied
 				expect( nextHistory.state.ooo.oooa[ 0 ], ).toEqual( changes, );
 
-				estado.set( 'ooo.oooa.0', ( props, ) => {
+				estado.set( 'ooo.oooa[0]', ( props, ) => {
 					// Test StringPathProps properties
 					expect( props.changesProp, ).toStrictEqual( changes, );
 					expect( props.initialProp, ).toEqual( initialPropValue, );
@@ -99,7 +99,7 @@ describe( 'createCon - set', () => {
 			it( 'should provide correct StringPathProps value to updater', () => {
 				const changes = 'next';
 				const initialPropValue = initialObject.ooo.oooa[ 0 ].s;
-				const nextHistory = estado.set( 'ooo.oooa.0.s', ( props, ) => {
+				const nextHistory = estado.set( 'ooo.oooa[0].s', ( props, ) => {
 					// Test StringPathProps properties
 					expect( props.changesProp, ).toBeUndefined(); // No changes yet
 					expect( props.initialProp, ).toEqual( initialPropValue, );
@@ -114,7 +114,7 @@ describe( 'createCon - set', () => {
 				// Verify changes were applied
 				expect( nextHistory.state.ooo.oooa[ 0 ].s, ).toEqual( changes, );
 
-				estado.set( 'ooo.oooa.0.s', ( props, ) => {
+				estado.set( 'ooo.oooa[0].s', ( props, ) => {
 					// Test StringPathProps properties
 					expect( props.changesProp, ).toStrictEqual( changes, );
 					expect( props.initialProp, ).toEqual( initialPropValue, );

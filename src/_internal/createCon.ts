@@ -10,7 +10,6 @@ import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
-import getCacheStringPathToArray from './getCacheStringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
 import handleSetHistoryWrap from './handleSetWrapHistory';
@@ -20,6 +19,7 @@ import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
 import noop from './noop';
+import parseSegments from './parseSegments';
 import reset from './reset';
 
 function _returnStateArgs( args: unknown[], ) {
@@ -116,7 +116,7 @@ export default function createCon<
 		}
 		return getDeepValueParentByArray(
 			history,
-			getCacheStringPathToArray( arrayPathMap, stateHistoryPath, ),
+			parseSegments( stateHistoryPath, ),
 		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 

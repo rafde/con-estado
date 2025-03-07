@@ -1,56 +1,67 @@
 type SegmentsType = Array<string | number>;
 
 const SPLIT_DOT = /(?<!\\)\./g;
+const SPLIT_BRACKET_IDX = /(?<!\\)\[(-?\d+)\]/;
+const BRACKET_TEST = /(?<!\\)\[/;
+const CLEAN_STRING = /\\(\[|\.)/g;
 
-const SPLIT_BRACKET = /(?<!\\)\[(\d+)\]/g;
+const EMPTY_ARRAY = Object.freeze( [], ) as unknown as SegmentsType;
 
-const UNESCAPE_DOT = /\\\./g;
-function unescapeDots( path: string, ) {
-	return path.replaceAll( UNESCAPE_DOT, '.', );
+function cleanString( str: string, ) {
+	return str.replaceAll( CLEAN_STRING, '$1', );
 }
 
-const UNESCAPE_BRACKET = /\\\[/g;
-function unescapeBracket( path: string, ) {
-	return path.replaceAll( UNESCAPE_BRACKET, '[', );
-}
-
-function reJoinStringBrackets( arr: SegmentsType, ) {
-	return arr.reduce( ( memo, v, ) => `${memo}${Number.isInteger( v, ) ? `[${v}]` : v}`, '', );
-}
-
-function arraySegments( arr: string[], ) {
-	if ( arr.at( -1, ) ) {
-		return [];
-	}
-	arr.pop();
-	let res: SegmentsType = [];
-	for ( const v of arr ) {
-		if ( !v ) {
+function extractArraySegments( input: string[], ) {
+	const result = [];
+	let isArr = false;
+	for ( const str of input ) {
+		if ( !str ) {
 			continue;
 		}
-		if ( v[ 0 ] === '[' ) {
-			res = [reJoinStringBrackets( [...res, v,], ),];
+		if ( BRACKET_TEST.test( str, ) ) {
+			return EMPTY_ARRAY;
+		}
+		const num = parseInt( str, 10, );
+		const isInt = Number.isInteger( num, );
+		if ( isArr && !isInt ) {
+			return EMPTY_ARRAY;
+		}
+
+		if ( Number.isInteger( num, ) ) {
+			result.push( num, );
+			isArr = true;
 			continue;
 		}
-		const num = Number( v, );
-		res.push( !isNaN( num, ) && num >= 0 ? num : unescapeBracket( v, ), );
+		const clean = cleanString( str, );
+		result.push( clean, );
 	}
-
-	return res;
+	return result;
 }
 
-function arrMapSegments( s: string, ) {
-	if ( s[ 0 ] === '[' ) {
-		return [unescapeBracket( s, ),];
+const cache = new Map<string, SegmentsType>();
+
+function handleExtract( str: string, handleEmpty = false, ) {
+	const c = str.split( SPLIT_BRACKET_IDX, );
+	if ( c.length > 1 ) {
+		const extract = extractArraySegments( c, );
+		if ( !extract.length ) {
+			return EMPTY_ARRAY;
+		}
+
+		if ( handleEmpty && c[ 0 ] === '' ) {
+			extract.unshift( '', );
+		}
+
+		return extract;
 	}
-	const b = s.split( SPLIT_BRACKET, );
-	const bSegs = arraySegments( b, );
-	return bSegs.length ? bSegs : [unescapeBracket( s, ),];
+
+	if ( BRACKET_TEST.test( str, ) ) {
+		return EMPTY_ARRAY;
+	}
+
+	const clean = cleanString( str, );
+	return [clean,];
 }
-
-const EMPTY_ARRAY = Object.freeze( [] as Readonly<SegmentsType>, );
-
-const cache = new Map<string, Readonly<SegmentsType>>();
 
 export default function parseSegments( path: string, ) {
 	if ( cache.has( path, ) ) {
@@ -62,19 +73,29 @@ export default function parseSegments( path: string, ) {
 		return EMPTY_ARRAY;
 	}
 
-	const a1 = path.split( SPLIT_DOT, )
-		.map( unescapeDots, );
+	const objPath = path.split( SPLIT_DOT, );
+	const first = objPath.shift();
 
-	let first: Array<string | number> = [];
-	if ( a1[ 0 ][ 0 ] === '[' ) {
-		const f1 = a1.shift() as string;
-		const aSegs = arraySegments( f1.split( SPLIT_BRACKET, ), );
-		first = aSegs.length ? aSegs : [unescapeBracket( f1, ),];
+	if ( first == null ) {
+		cache.set( path, EMPTY_ARRAY, );
+		return EMPTY_ARRAY;
 	}
 
-	const a2 = a1.map( arrMapSegments, ).flat();
+	const segments = handleExtract( first, );
+	if ( !segments.length ) {
+		cache.set( path, EMPTY_ARRAY, );
+		return EMPTY_ARRAY;
+	}
 
-	const final = [...first, ...a2,] as const;
-	cache.set( path, final, );
-	return final;
+	for ( const seg of objPath ) {
+		const segs = handleExtract( seg, true, );
+		if ( !segs.length ) {
+			cache.set( path, EMPTY_ARRAY, );
+			return EMPTY_ARRAY;
+		}
+		segments.push( ...segs, );
+	}
+
+	cache.set( path, segments, );
+	return segments;
 }

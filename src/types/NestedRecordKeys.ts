@@ -7,8 +7,8 @@ type ArrayIndexKey<T,> = {
 }[keyof T & number];
 
 type RecordKey<T,> = {
-	[K in keyof T & ( string | number )]: EscapeSpecial<K> | `${EscapeSpecial<K>}${IsPlainObject<T[K]> extends true ? `.${NestedRecordKeys<T[K]>}` : NestedRecordKeys<T[K]>}`;
-}[keyof T & ( string | number )];
+	[K in keyof T & string]: EscapeSpecial<K> | `${EscapeSpecial<K>}${IsPlainObject<T[K]> extends true ? `.${NestedRecordKeys<T[K]>}` : NestedRecordKeys<T[K]>}`;
+}[keyof T & string];
 
 export type NestedRecordKeys<T,> = T extends DS
 	? T extends ADS
