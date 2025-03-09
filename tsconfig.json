@@ -5,6 +5,7 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"baseUrl": "./",
+		"erasableSyntaxOnly": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"incremental": true,
@@ -18,18 +19,23 @@
 		"module": "esnext",
 		"moduleResolution": "node",
 		"noEmit": true,
+		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"noUnusedLocals": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": true,
 		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
 		"strictNullChecks": true,
-		"types": [
-		  "vitest/globals"
-		],
+		"strictPropertyInitialization": true,
 		"target": "ESNext",
-		"noImplicitAny": true
+		"types": [
+			"vitest/globals"
+		],
+		"useDefineForClassFields": true,
+		"useUnknownInCatchVariables": true,
+		"verbatimModuleSyntax": true
 	},
 	"exclude": [
 		"./node_modules",

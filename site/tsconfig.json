@@ -5,6 +5,7 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"baseUrl": "./",
+		"erasableSyntaxOnly": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"incremental": true,
@@ -36,8 +37,13 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
 		"strictNullChecks": true,
-		"target": "ESNext"
+		"strictPropertyInitialization": true,
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"useUnknownInCatchVariables": true,
+		"verbatimModuleSyntax": true
 	},
 	"exclude": [
 		"./node_modules",
