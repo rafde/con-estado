@@ -20,7 +20,6 @@ export default function handleStateUpdate<
 	}>,
 	history: History<S>,
 	args: unknown[],
-	arrayPathMap: Map<string | number, Array<string | number>>,
 	finalize: () => History<S>,
 ) {
 	const [statePath, nextState,] = args;

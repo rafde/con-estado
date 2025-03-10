@@ -84,9 +84,11 @@ export default function createCon<
 		transform = noop,
 		mutOptions,
 	} = options;
-	const arrayPathMap = new Map<string | number, Array<string | number>>();
 
 	function _dispatch( nextHistory: History<S>, ) {
+		if ( Object.is( history, nextHistory, ) ) {
+			return history;
+		}
 		history = nextHistory;
 		dispatcher( history as Immutable<History<S>>, );
 		queueMicrotask( () => afterChange( history as Immutable<History<S>>, ), );
@@ -99,7 +101,6 @@ export default function createCon<
 		return getHistoryDraft(
 			history,
 			_dispatch,
-			arrayPathMap,
 			transform,
 			'set',
 			statePath,
@@ -121,17 +122,17 @@ export default function createCon<
 	}
 
 	function setHistoryWrap( ...args: unknown[] ) {
-		return handleSetHistoryWrap( getDraft as GetDraftRecord<S>['getDraft'], arrayPathMap, history, ...args, );
+		return handleSetHistoryWrap( getDraft as GetDraftRecord<S>['getDraft'], history, ...args, );
 	}
 
 	function setHistory( ...args: unknown[] ) {
-		const [draftHistory, finalize,] = getDraft();
-
 		if ( args.length === 0 ) {
-			return finalize();
+			return history;
 		}
 
-		return handleStateUpdate( draftHistory, history, args, arrayPathMap, finalize, );
+		const [draftHistory, finalize,] = getDraft();
+
+		return handleStateUpdate( draftHistory, history, args, finalize, );
 	}
 
 	const props: CreateActsProps<S> = {

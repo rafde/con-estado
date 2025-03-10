@@ -17,7 +17,6 @@ export default function getHistoryDraft<
 >(
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
-	arrayPathMap: Map<string | number, Array<string | number>>,
 	transform: Exclude<ConOptions<S, ActRecord, MO>['transform'], undefined>,
 	type: 'set' | 'reset',
 	stateHistoryPath?: unknown,
@@ -56,7 +55,7 @@ export default function getHistoryDraft<
 		}
 		next.prev = areStatesEqual ? history.prev : history.state;
 		next.prevInitial = areInitialsEqual ? history.prevInitial : history.initial;
-		const nextHistory: History<S> = createHistoryProxy( next, );
+		const nextHistory = createHistoryProxy( next, );
 
 		return setHistory( nextHistory, );
 	}

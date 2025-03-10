@@ -17,7 +17,6 @@ export default function handleSetHistoryWrap<
 	S extends DS,
 >(
 	getDraft: GetDraftRecord<S>['getDraft'],
-	arrayPathMap: Map<string | number, Array<string | number>>,
 	history: History<S>,
 	...args: unknown[]
 ) {
