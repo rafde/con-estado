@@ -1,5 +1,6 @@
 import { afterEach, describe, } from 'vitest';
 import createCon from '../src/_internal/createCon';
+import type { DeepPartial, } from 'src/types/DeepPartial';
 
 describe( 'createCon - setHistory', () => {
 	const initialObject = {
@@ -187,6 +188,65 @@ describe( 'createCon - setHistory', () => {
 				expect( next.changes, ).toStrictEqual( changes, );
 				expect( next.prev, ).toBe( history.state, );
 				expect( next.prevInitial, ).toStrictEqual( history.prevInitial, );
+			}, );
+
+			describe( 'update partial state', () => {
+				const initial = {} as DeepPartial<typeof initialObject>;
+				let estado = createCon( initial, );
+
+				afterEach( () => {
+					estado = createCon( initial, );
+				}, );
+
+				it( 'should setHistory with undefined nested value by string path', () => {
+					const changes = {
+						o: {
+							on: 2,
+						},
+					};
+					const next = estado.setHistory( 'state.o.on', 2, );
+					expect( next.state, ).toStrictEqual( changes, );
+					expect( next.initial, ).toStrictEqual( initial, );
+					expect( next.prev, ).toBe( initial, );
+					expect( next.prevInitial, ).toBe( undefined, );
+					expect( next.changes, ).toStrictEqual( changes, );
+				}, );
+
+				it( 'should setHistory with undefined nested value by index', () => {
+					let changes = {
+						oo: {
+							ooa: [
+								,
+								,
+								2,
+							],
+						},
+					};
+					let prev = initial as DeepPartial<typeof initialObject>;
+					let next = estado.setHistory( 'state.oo.ooa[2]', 2, );
+					expect( next.state, ).toStrictEqual( changes, );
+					expect( next.initial, ).toStrictEqual( initial, );
+					expect( next.prev, ).toBe( prev, );
+					expect( next.prevInitial, ).toBe( undefined, );
+					expect( next.changes, ).toStrictEqual( changes, );
+
+					changes = {
+						oo: {
+							ooa: [
+								,
+								-2,
+								2,
+							],
+						},
+					};
+					prev = next.state;
+					next = estado.setHistory( 'state.oo.ooa[-2]', -2, );
+					expect( next.state, ).toStrictEqual( changes, );
+					expect( next.initial, ).toStrictEqual( initial, );
+					expect( next.prev, ).toBe( prev, );
+					expect( next.prevInitial, ).toBe( undefined, );
+					expect( next.changes, ).toStrictEqual( changes, );
+				}, );
 			}, );
 		}, );
 
