@@ -2,11 +2,9 @@ import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
 import isFunc from './isFunc';
 import isObj from './isObj';
 import isStr from './isStr';
-import isUndef from './isUndef';
 import isValidStatePath from './isValidStatePath';
 import parseSegments from './parseSegments';
 
@@ -48,20 +46,12 @@ export default function handleSetHistoryWrap<
 		else if ( _isValidStatePath && isNextStateType ) {
 			const statePathArray = isStr( statePath, )
 				? parseSegments( statePath, )
-				: statePath as ( string | number )[];
-			const valueKey = statePathArray.at( -1, );
-			const [, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-			if ( !isObj( parentDraft, ) || isUndef( valueKey, ) || !( valueKey in parentDraft ) ) {
-				return;
-			}
-			const pathArray = statePathArray.slice( 1, );
+				: statePath as Array<string | number>;
 			result = nextState(
 				createArrayPathProxy( {
-					draft: parentDraft,
 					historyDraft,
-					pathArray,
 					history,
-					valueKey,
+					statePathArray,
 				}, ),
 				...wrapArgs,
 			);

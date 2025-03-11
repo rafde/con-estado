@@ -5,8 +5,8 @@ import type { History, } from '../types/History';
 import type { HistoryState, } from '../types/HistoryState';
 import type { NestedObjectKeys, } from '../types/NestedObjectKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
+import deepUpdate from './deepUpdate';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
-import isUndef from './isUndef';
 
 const PROP_TO_HISTORY = {
 	changesProp: 'changes',
@@ -17,7 +17,6 @@ const PROP_TO_HISTORY = {
 } as const;
 
 type PropKeys = keyof typeof PROP_TO_HISTORY;
-type HistoryKeys = typeof PROP_TO_HISTORY[PropKeys];
 type ArrayPathDraftProps<
 	S extends DS,
 	TS extends DS,
@@ -34,69 +33,63 @@ type ArrayPathDraftProps<
 	historyDraft: Draft<HistoryState<S>>
 }> & History<S>;
 
+function getHistoryPropValue(
+	value: object | null | undefined,
+	propCache: Map<PropKeys, unknown>,
+	propKey: PropKeys,
+	pathArray: Array<string | number>,
+) {
+	if ( propCache.has( propKey, ) ) {
+		return propCache.get( propKey, );
+	}
+	const [prop,] = getDeepValueParentByArray( value, pathArray, );
+	propCache.set( propKey, prop, );
+	return prop;
+}
+
 export default function createArrayPathProxy<
 	S extends DS,
-	D extends object,
 >( {
-	pathArray,
-	draft,
 	historyDraft,
-	parentDraft,
 	history,
-	valueKey,
+	statePathArray,
 }: {
-	pathArray: Array<string | number>
-	draft: D
 	historyDraft: Draft<HistoryState<S>>
-	parentDraft?: Draft<unknown>
 	history: History<S>
-	valueKey?: string | number
+	statePathArray: Array<string | number>
 }, ) {
 	// Cache history property lookups
 	const propCache = new Map<PropKeys, unknown>();
-
-	function getHistoryProp( historyKey: HistoryKeys, propKey: PropKeys, ) {
-		if ( propCache.has( propKey, ) ) {
-			return propCache.get( propKey, );
-		}
-		const [prop,] = getDeepValueParentByArray( history[ historyKey ], pathArray, );
-		propCache.set( propKey, prop, );
-		return prop;
-	}
-
 	const baseTarget: ArrayPathDraftProps<S, DS, StringPathToArray<NestedObjectKeys<DS>>> = {
 		...history,
-		draft,
 		historyDraft,
 	} as ArrayPathDraftProps<S, DS, StringPathToArray<NestedObjectKeys<DS>>>;
+	const pathArray = statePathArray.slice( 1, );
 
 	return new Proxy( baseTarget, {
 		get( target, prop, ) {
 			// Handle history property lookups
 			if ( prop in PROP_TO_HISTORY ) {
-				const historyPropKey = prop as PropKeys;
-				const value = getHistoryProp( PROP_TO_HISTORY[ historyPropKey ], historyPropKey, );
-				target[ historyPropKey ] = value as never;
+				const propKey = prop as PropKeys;
+				const historyKey = PROP_TO_HISTORY[ propKey ];
+				const historyValue = history[ historyKey ];
+				const value = getHistoryPropValue( historyValue, propCache, propKey, pathArray, );
+				target[ propKey ] = value as never;
 				return value;
 			}
 
 			// Handle draft property
-			if ( prop === 'draft' && isUndef( parentDraft, ) && !isUndef( valueKey, ) ) {
-				return Reflect.get( target.draft, valueKey, );
+			if ( prop === 'draft' ) {
+				return getDeepValueParentByArray( historyDraft, statePathArray, )[ 0 ];
 			}
 
 			return Reflect.get( target, prop, );
 		},
 
-		set( target, prop, value, ) {
+		set( _target, prop, value, ) {
 			if ( prop === 'draft' ) {
-				if ( parentDraft && typeof valueKey !== 'undefined' ) {
-					return Reflect.set( parentDraft, valueKey, value, );
-				}
-				if ( typeof valueKey !== 'undefined' ) {
-					return Reflect.set( target.draft, valueKey, value, );
-				}
-				return Reflect.set( target, prop, value, );
+				deepUpdate( historyDraft, statePathArray, value, );
+				return true;
 			}
 			return false;
 		},

@@ -1,4 +1,4 @@
-export type IsPlainObject<T,> = T extends Record<string | number | symbol, unknown>
+export type IsPlainObject<T,> = NonNullable<T> extends Record<string | number | symbol, unknown>
 	? T extends Array<unknown>
 		? false
 		: T extends Date

@@ -49,7 +49,7 @@ export default function findChanges<T extends DS,>( a: T, b: T, ) {
 		}
 	}
 	else if ( isPlainObj( a, ) && isPlainObj( b, ) ) {
-		for ( const key in a ) {
+		for ( const key in b ) {
 			const _hasChanges = setChanges(
 				a,
 				b,

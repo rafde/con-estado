@@ -2,9 +2,8 @@ import type { Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import createArrayPathProxy from './createArrayPathProxy';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
+import deepUpdate from './deepUpdate';
 import isFunc from './isFunc';
-import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
 import isUndef from './isUndef';
@@ -37,39 +36,19 @@ export default function handleStateUpdate<
 	if ( isValidStatePath( statePath, ) ) {
 		const statePathArray = isStr( statePath, )
 			? parseSegments( statePath, )
-			: statePath as ( string | number )[];
+			: statePath as Array<string | number>;
 
-		const valueKey = statePathArray.at( -1, );
-		const [draft, parentDraft,] = getDeepValueParentByArray( historyDraft, statePathArray, );
-		const pathArray = statePathArray.slice( 1, );
-
-		if ( isFunc( nextState, ) && isPlainObj( draft, ) ) {
+		if ( isFunc( nextState, ) ) {
 			nextState(
 				createArrayPathProxy( {
-					pathArray,
-					draft,
 					historyDraft,
-					parentDraft,
 					history,
-					valueKey,
+					statePathArray,
 				}, ),
 			);
 		}
-		else if ( isObj( parentDraft, ) && typeof valueKey !== 'undefined' && valueKey in parentDraft ) {
-			if ( isFunc( nextState, ) ) {
-				nextState(
-					createArrayPathProxy( {
-						draft: parentDraft,
-						historyDraft,
-						pathArray,
-						history,
-						valueKey,
-					}, ),
-				);
-			}
-			else {
-				Reflect.set( parentDraft, valueKey, nextState, );
-			}
+		else {
+			deepUpdate( historyDraft, statePathArray, nextState, );
 		}
 	}
 	else if ( isUndef( nextState, ) && isPlainObj( statePath, ) ) {
