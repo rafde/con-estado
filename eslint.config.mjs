@@ -152,6 +152,7 @@ export default tseslint.config(
 			'no-promise-executor-return': 'error',
 			'no-regex-spaces': 'error',
 			'no-restricted-imports': 'error',
+			'no-sparse-arrays': 'off',
 			'no-undef-init': 'error',
 			'no-unmodified-loop-condition': 'error',
 			'no-unneeded-ternary': 'error',
