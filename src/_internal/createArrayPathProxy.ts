@@ -88,7 +88,7 @@ export default function createArrayPathProxy<
 
 		set( _target, prop, value, ) {
 			if ( prop === 'draft' ) {
-				deepUpdate( historyDraft, statePathArray, value, );
+				deepUpdate( historyDraft, statePathArray, () => value, );
 				return true;
 			}
 			return false;

@@ -48,7 +48,7 @@ export default function handleStateUpdate<
 			);
 		}
 		else {
-			deepUpdate( historyDraft, statePathArray, nextState, );
+			deepUpdate( historyDraft, statePathArray, () => nextState, );
 		}
 	}
 	else if ( isUndef( nextState, ) && isPlainObj( statePath, ) ) {
