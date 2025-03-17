@@ -11,11 +11,7 @@ function getIndex( path: unknown, currentTarget: Array<unknown>, ) {
 	}
 
 	if ( path < 0 ) {
-		const index = currentTarget.length + path;
-		if ( index < 0 ) {
-			return;
-		}
-		return index;
+		return currentTarget.length + path;
 	}
 
 	return path;
@@ -33,10 +29,11 @@ function getKey( path: unknown, currentTarget: unknown, ) {
 	return path;
 }
 
-export default function deepUpdate<T extends object,>( target: T, arrayPath: Array<string | number>, value: unknown, ) {
+export default function deepUpdate<T extends object,>( target: T, arrayPath: Array<string | number>, value: ( oldValue: unknown ) => unknown, ) {
 	const arrayPathLength = arrayPath.length;
 	const lastIndex = arrayPathLength - 1;
 	let currentTarget: unknown = target;
+	const pathArr: Array<string | number> = [];
 
 	for (
 		let i = 0, path = arrayPath[ i ];
@@ -44,19 +41,36 @@ export default function deepUpdate<T extends object,>( target: T, arrayPath: Arr
 		path = arrayPath[ ++i ]
 	) {
 		if ( !isObj( currentTarget, ) ) {
-			return;
+			pathArr.push( path, );
+			throw new Error( `${pathArr.map( String, ).join( '.', )} is invalid target type of ${typeof currentTarget}. Must be array or object`, );
 		}
 
 		const key = getKey( path, currentTarget, );
 		if ( isNil( key, ) ) {
-			return;
+			pathArr.push( path, );
+			throw new Error( `Invalid target key: ${pathArr.map( String, ).join( '.', )} of type ${typeof key}`, );
+		}
+
+		if ( typeof key === 'number' && key < 0 ) {
+			pathArr.push( key, );
+			throw new Error( `Array index for ${pathArr.map( String, ).join( '.', )} was out of bounds for array length ${( currentTarget as Array<unknown> )?.length}`, );
 		}
 
 		if ( i === lastIndex ) {
-			Reflect.set( currentTarget, key, value, );
+			const oldValue = Reflect.get( currentTarget, key, );
+			const newValue = value( oldValue, );
+			if ( Object.is( oldValue, newValue, ) ) {
+				return;
+			}
+			Reflect.set(
+				currentTarget,
+				key,
+				newValue,
+			);
 			return;
 		}
 
+		pathArr.push( path, );
 		// how to handle undefined??
 		if ( Object.hasOwn( currentTarget, key, ) ) {
 			currentTarget = Reflect.get( currentTarget, key, );
