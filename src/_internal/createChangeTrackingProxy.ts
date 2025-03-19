@@ -27,7 +27,7 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 	return false;
 }
 
-export function applyChange( propPath: ArrayPath, target: object, changes: object, value: unknown, ) {
+function applyChange( propPath: ArrayPath, target: object, changes: object, value: unknown, ) {
 	// Clone the property path to avoid mutating the input array
 	let currentTarget = target; // Tracks the current target level
 	let currentChanges = changes; // Tracks the current changes level
