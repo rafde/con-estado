@@ -426,12 +426,12 @@ useCon(
 </section>
 <section className="relative space-y-2">
 
-#### 2.3. `options.transform`
+#### 2.3. `options.beforeChange`
 
-Transform function to modify state before it's committed to history.
+Function to modify state before it's committed to history.
 Enables validation, normalization, or transformation of state updates.
 
-- **draft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
+- **historyDraft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
 - **history**: Immutable [State History](#state-history). Does not have latest changes.
 - **type**: The operation type ('set' | 'reset') that triggered changes.
 - **patches**: A partial state object that contains the latest deeply nested changes made to `state` and/or `initial`.
@@ -443,8 +443,8 @@ Enables validation, normalization, or transformation of state updates.
 useCon(
   initial,
   {
-    transform: ({
-      draft: { state, initial }, // Draft<HistoryState<S>>
+    beforeChange: ({
+      historyDraft: { state, initial }, // Draft<HistoryState<S>>
       history: { changes, initial, prev, prevInitial, state }, // History<S>
       patches: { state, initial }, // DeepPartial<HistoryState<S>>
       type, // 'set' | 'reset'

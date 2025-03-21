@@ -78,7 +78,7 @@ export default function createArrayPathProxy<
 				return value;
 			}
 
-			// Handle draft property
+			// Handle historyDraft property
 			if ( prop === 'draft' ) {
 				return getDeepValueParentByArray( historyDraft, statePathArray, )[ 0 ];
 			}

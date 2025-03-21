@@ -8,7 +8,7 @@ import noop from './noop';
 
 export default function reset<S extends DS,>(
 	history: History<S>,
-	transform: Exclude<ConOptions<S, Record<never, never>>['transform'], undefined> = noop,
+	beforeChange: Exclude<ConOptions<S, Record<never, never>>['beforeChange'], undefined> = noop,
 ) {
 	if ( isNil( history.changes, ) ) {
 		return history;
@@ -17,15 +17,15 @@ export default function reset<S extends DS,>(
 	let initial = history.initial;
 	let state = history.initial;
 
-	if ( transform !== noop ) {
+	if ( beforeChange !== noop ) {
 		const res = create(
 			{
 				initial,
 				state,
 			},
-			( draft, ) => {
-				transform( {
-					draft,
+			( historyDraft, ) => {
+				beforeChange( {
+					historyDraft,
 					history,
 					type: 'reset',
 					patches: {},
