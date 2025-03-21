@@ -727,7 +727,7 @@ describe( 'createCon - setHistory', () => {
 			type State = {
 				users: {
 					[key: string]: {
-						posts: Array<{
+						[key: string]: Array<{
 							id: number
 							comments: Array<{
 								id: number
@@ -756,8 +756,11 @@ describe( 'createCon - setHistory', () => {
 				},
 			} as State, );
 
-			const next = con.setHistory( 'state.users.user1.posts[0].comments[0].text', 'updated', );
-			expect( next.state.users.user1.posts[ 0 ].comments[ 0 ].text, ).toBe( 'updated', );
+			con.setHistory( 'state.users.user1\\.1.posts[0].comments[0].text', 'updated', );
+			expect( con.get().state.users[ 'user1.1' ].posts[ 0 ].comments[ 0 ].text, ).toBe( 'updated', );
+
+			con.setHistory( 'state.users.user1\\.2.megaPosts[5].comments[2].text', 'updated', );
+			expect( con.get().state.users[ 'user1.2' ].megaPosts[ 5 ].comments[ 2 ].text, ).toBe( 'updated', );
 		}, );
 	}, );
 }, );
