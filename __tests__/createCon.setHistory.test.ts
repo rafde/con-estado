@@ -609,4 +609,155 @@ describe( 'createCon - setHistory', () => {
 			}, );
 		}, );
 	}, );
+
+	describe( 'setHistory edge cases', () => {
+		it( 'should handle empty arrays', () => {
+			const con = createCon( [] as number[], );
+
+			const next = con.setHistory( 'state', [1, 2, 3,], );
+			expect( next.state, ).toEqual( [1, 2, 3,], );
+
+			const next2 = con.setHistory( 'state', [], );
+			expect( next2.state, ).toEqual( [], );
+		}, );
+
+		it( 'should handle sparse arrays', () => {
+			const con = createCon( [1, 2, 3,] as Array<number | undefined>, );
+
+			const next = con.setHistory( 'state', [,, 5,], );
+			expect( next.state, ).toEqual( [, , 5,], );
+
+			const next2 = con.setHistory( ['state', 1,], 1, );
+			expect( next2.state, ).toEqual( [, 1, 5,], );
+		}, );
+
+		it( 'should handle deeply nested sparse arrays', () => {
+			const con = createCon( {
+				matrix: [[1, 2,], [3, 4,],] as Array<Array<number | undefined> | undefined>,
+			}, );
+
+			const next = con.setHistory( 'state.matrix', [, [, 5,],], );
+			expect( next.state.matrix, ).toEqual( [, [, 5,],], );
+		}, );
+
+		it( 'should handle array with mixed types', () => {
+			const con = createCon( [
+				1,
+				{ id: 2,
+					value: 'two', },
+				'three',
+				[4, 5,],
+			] as ( number | { id: number
+				value: string } | string | number[] )[], );
+
+			const next = con.setHistory( ['state', 1,], { id: 20,
+				value: 'twenty', }, );
+			expect( next.state[ 1 ], ).toEqual( { id: 20,
+				value: 'twenty', }, );
+
+			const next2 = con.setHistory( ['state', 3, 0,], 40, );
+			expect( next2.state[ 3 ], ).toEqual( [40, 5,], );
+		}, );
+
+		it( 'should handle undefined and null values', () => {
+			const con = createCon( {
+				a: undefined as number | undefined,
+				b: null as number | null,
+				c: {
+					value: 1,
+				} as {
+					value: number
+				} | null,
+			}, );
+
+			const next = con.setHistory( ( { historyDraft, }, ) => {
+				historyDraft.state.a = 1;
+				historyDraft.state.b = 2;
+				historyDraft.state.c = null;
+			}, );
+
+			expect( next.state, ).toEqual( {
+				a: 1,
+				b: 2,
+				c: null,
+			}, );
+		}, );
+
+		it( 'should handle array with object that has optional properties', () => {
+			type Item = {
+				id: number
+				value?: string
+				meta?: {
+					tags?: string[]
+					active?: boolean
+				}
+			};
+
+			const con = createCon( [
+				{ id: 1, },
+				{ id: 2,
+					value: 'two', },
+			] as Item[], );
+
+			const next = con.setHistory( ['state', 0,], {
+				id: 1,
+				meta: { tags: ['new',], },
+			}, );
+
+			expect( next.state[ 0 ], ).toEqual( {
+				id: 1,
+				meta: { tags: ['new',], },
+			}, );
+
+			const next2 = con.setHistory( 'state[0].meta.active', true, );
+			expect( next2.state[ 0 ].meta?.active, ).toBe( true, );
+		}, );
+
+		it( 'should handle array index out of bounds', () => {
+			const con = createCon( [1, 2,] as number[], );
+
+			const next = con.setHistory( ['state', 5,], 6, );
+			expect( next.state, ).toEqual( [1, 2, undefined, undefined, undefined, 6,], );
+
+			const next2 = con.setHistory( 'state[10]', 10, );
+			expect( next2.state, ).toEqual( [1, 2, undefined, undefined, undefined, 6, undefined, undefined, undefined, undefined, 10,], );
+		}, );
+
+		it( 'should handle complex nested path updates', () => {
+			type State = {
+				users: {
+					[key: string]: {
+						posts: Array<{
+							id: number
+							comments: Array<{
+								id: number
+								text: string
+							}>
+						}>
+					}
+				}
+			};
+
+			const con = createCon( {
+				users: {
+					user1: {
+						posts: [
+							{
+								id: 1,
+								comments: [
+									{
+										id: 1,
+										text: 'first',
+									},
+								],
+							},
+						],
+					},
+				},
+			} as State, );
+
+			const next = con.setHistory( 'state.users.user1.posts[0].comments[0].text', 'updated', );
+			expect( next.state.users.user1.posts[ 0 ].comments[ 0 ].text, ).toBe( 'updated', );
+		}, );
+	}, );
 }, );
