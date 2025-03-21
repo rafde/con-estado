@@ -17,12 +17,12 @@ export default function getHistoryDraft<
 >(
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
-	transform: Exclude<ConOptions<S, ActRecord, MO>['transform'], undefined>,
+	beforeChange: Exclude<ConOptions<S, ActRecord, MO>['beforeChange'], undefined>,
 	stateHistoryPath?: unknown,
 	mutOptions?: MO,
 ) {
 	const [
-		_draft,
+		historyDraft,
 		_finalize,
 	] = create(
 		{
@@ -37,11 +37,11 @@ export default function getHistoryDraft<
 	const [
 		draft,
 		patches,
-	] = createDraftChangeTrackingProxy( _draft, );
+	] = createDraftChangeTrackingProxy( historyDraft, );
 
 	function finalize( type: 'set' | 'reset' | 'merge' = 'set', ) {
-		transform( {
-			draft: _draft,
+		beforeChange( {
+			historyDraft,
 			history,
 			type,
 			patches,

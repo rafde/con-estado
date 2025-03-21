@@ -13,19 +13,19 @@ describe.skip( 'createCon - getDraft', () => {
 		estado = createCon( initialState, );
 	}, );
 
-	it( 'should return a draft object and a commit function using getDraft', () => {
-		// Get the draft and commit function
+	it( 'should return a historyDraft object and a commit function using getDraft', () => {
+		// Get the historyDraft and commit function
 		// @ts-expect-error -- disabled for now
 		const [draft, commit,] = estado.getDraft();
 
-		// Modify the draft
+		// Modify the historyDraft
 		draft.state.counter = 10;
 		draft.state.list.push( 'item2', );
 
 		// Commit the changes
 		const newState = commit();
 
-		// Verify the draft modifications
+		// Verify the historyDraft modifications
 		expect( newState.state.counter, ).toBe( 10, );
 		expect( newState.state.list, ).toEqual( ['item1', 'item2',], );
 		expect( newState.changes, ).toEqual( {
@@ -39,7 +39,7 @@ describe.skip( 'createCon - getDraft', () => {
 		expect( newHistory.prev, ).toStrictEqual( initialState, );
 	}, );
 
-	it( 'should return a draft object and a commit function using getDraft', () => {
+	it( 'should return a historyDraft object and a commit function using getDraft', () => {
 		// @ts-expect-error -- disabled for now
 		const [draft, commit,] = estado.getDraft( 'state.list', );
 
@@ -47,7 +47,7 @@ describe.skip( 'createCon - getDraft', () => {
 		expect( commit, ).toBeTypeOf( 'function', );
 	}, );
 
-	it( 'should return a draft object and a commit function using getDraft', () => {
+	it( 'should return a historyDraft object and a commit function using getDraft', () => {
 		expect(
 			// @ts-expect-error -- should throw error
 			() => estado.getDraft( 'state.list.0', ),

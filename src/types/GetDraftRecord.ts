@@ -9,13 +9,13 @@ export type GetDraftRecord<
 	MO extends ConMutOptions = ConMutOptions,
 > = {
 	/**
-	 * Gets a mutable draft of the state history and a function to commit changes.
+	 * Gets a mutable historyDraft of the state history and a function to commit changes.
 	 * @template S - The state type
 	 *
 	 * @param {ConMutOptions} [options] - Optional mutation options
 	 * @returns {[Draft<HistoryState<S>>, () => History<S>]} Tuple containing:
-	 *   - Mutable draft of the state history
-	 *   - Function to commit draft changes and return updated history
+	 *   - Mutable historyDraft of the state history
+	 *   - Function to commit historyDraft changes and return updated history
 	 *
 	 * @example
 	 * ```ts
@@ -25,8 +25,8 @@ export type GetDraftRecord<
 	 * ] = useCon( {status: '', error: '', data: {}}, {
 	 * 	acts( { getDraft } ) {
 	 * 		async modifyFirstItem() {
-	 * 			const [draft, commit] = getDraft();
-	 * 			draft.state.status = 'loading';
+	 * 			const [historyDraft, commit] = getDraft();
+	 * 			historyDraft.state.status = 'loading';
 	 * 			commit();
 	 *
 	 * 			const [draft2, commit2] = controls.getDraft()

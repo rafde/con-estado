@@ -110,7 +110,7 @@ export type ConOptions<
 	 *
 	 * @template S - The state type
 	 * @param {object} params - available parameters
-	 * @param {Draft<HistoryState>} params.draft - Mutable draft of the {@link HistoryState history state}
+	 * @param {Draft<HistoryState>} params.historyDraft - Mutable historyDraft of the {@link HistoryState history state}
 	 * @param {History} params.history - Current immutable {@link History history}
 	 * @param {'set' | 'reset'} params.type - The operation type ('set' | 'reset') that triggered changes.
 	 * @param {Partial<HistoryState>} params.patches -  A partial state object that contains the latest deeply nested
@@ -119,11 +119,11 @@ export type ConOptions<
 	 * @example
 	 * ```ts
 	 * const options = {
-	 *   transform: ({draft}) => {
+	 *   beforeChange: ({historyDraft}) => {
 	 *     // Add timestamps to all updates
-	 *     draft.state.lastModified = Date.now()
+	 *     historyDraft.state.lastModified = Date.now()
 	 *     // Maintain sorted order of items
-	 *     draft.state.items.sort((a, b) => a.priority - b.priority)
+	 *     historyDraft.state.items.sort((a, b) => a.priority - b.priority)
 	 *   }
 	 * }
 	 * ```
@@ -131,20 +131,19 @@ export type ConOptions<
 	 * @example
 	 * ```ts
 	 * const options = {
-	 *   transform: ({draft, patches}) => {
+	 *   beforeChange: ({historyDraft, patches}) => {
 	 *     // Ensure count never goes negative
 	 *     const patchCount = patches?.state?.count;
 	 *     if (typeof patchCount === 'number' && count > 10) {
 	 *       // don't let count go over 10 for whatever reason
-	 *       draft.count = 10;
+	 *       historyDraft.state.count = 10;
 	 *     }
 	 *   }
 	 * }
 	 *```
-
 	 */
-	transform?: ( params: {
-		draft: Draft<HistoryState<S>>
+	beforeChange?: ( params: {
+		historyDraft: Draft<HistoryState<S>>
 		history: History<S>
 		patches: DeepPartial<HistoryState<S>>
 		type: 'set' | 'reset' | 'merge'

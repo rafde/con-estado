@@ -236,7 +236,7 @@ describe( 'createCon - set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			it( 'should push a new nested draft value by callback', () => {
+			it( 'should push a new nested historyDraft value by callback', () => {
 				const changes = {
 					oo: {
 						ooa: [
@@ -265,7 +265,7 @@ describe( 'createCon - set', () => {
 				expect( next.prevInitial, ).toBe( history.prevInitial, );
 			}, );
 
-			it( 'should push stateProp draft value by callback', () => {
+			it( 'should push stateProp historyDraft value by callback', () => {
 				const changes = {
 					ooo: {
 						oooa: [
@@ -326,7 +326,7 @@ describe( 'createCon - set', () => {
 		}, );
 
 		describe( 'set(["array", "path", "to", "value"], function)', () => {
-			it( 'should modify draft array by callback using path array', () => {
+			it( 'should modify historyDraft array by callback using path array', () => {
 				const changes = {
 					oo: {
 						ooa: [undefined, 100,],
@@ -482,7 +482,7 @@ describe( 'createCon - set', () => {
 		}, );
 
 		describe( 'set(stringPathToValue, function)', () => {
-			it( 'should set draft with a new array value by string path', () => {
+			it( 'should set historyDraft with a new array value by string path', () => {
 				const changes = {
 					...initialArray[ 0 ],
 					n: 7,

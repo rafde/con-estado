@@ -1,11 +1,12 @@
 import type { Draft, } from 'mutative';
-import type { DeepPartial, } from './DeepPartial';
 import type { DS, } from './DS';
-import type { History, } from './History';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
-import type { Immutable, } from './Immutable';
-import type { NestedRecordKeys, } from './NestedRecordKeys';
+import type { History, } from './History';
 import type { HistoryState, } from './HistoryState';
+import type { Immutable, } from './Immutable';
+import type { Merge, } from './Merge';
+import type { MergeHistory, } from './MergeHistory';
+import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
 /**
@@ -22,8 +23,8 @@ import type { StringPathToArray, } from './StringPathToArray';
  * @typeParam {GetArrayPathValue<NS, SP> | undefined} - prevInitialProp - Previous initial value
  * @typeParam {GetArrayPathValue<NS, SP> | undefined} - prevProp Previous value
  * @typeParam {GetArrayPathValue<NS, SP>} stateProp - Current value
- * @typeParam {GetArrayPathValue<NS, SP>} draft - Mutable draft for modifications
- * @typeParam {Draft<HistoryState<S>>} historyDraft - Mutable draft for history state
+ * @typeParam {GetArrayPathValue<NS, SP>} historyDraft - Mutable historyDraft for modifications
+ * @typeParam {Draft<HistoryState<S>>} historyDraft - Mutable historyDraft for history state
  */
 type ArrayPathProps<
 	S extends DS,
@@ -41,8 +42,8 @@ type ArrayPathProps<
 };
 
 /**
- * Properties passed to callback functions when updating state history through draft mutations.
- * Combines the current history state with a mutable draft for making changes.
+ * Properties passed to callback functions when updating state history through historyDraft mutations.
+ * Combines the current history state with a mutable historyDraft for making changes.
  *
  * @template S - The current state type
  * @template History<S> - The current history state (immutable)
@@ -64,42 +65,13 @@ type CallbackHistoryDraftProps<
  * @template SP - Array path type for accessing nested elements
  * @template CallbackHistoryDraftProps<S> - The current history state (immutable)
  *
- * @typeParam {Draft} draft - The current state
+ * @typeParam {Draft} historyDraft - The current state
  */
 type CallbackDraftProps<
 	S extends DS,
 > = CallbackHistoryDraftProps<S> & Readonly<{
 	draft: Draft<S>
 }>;
-
-type MergeHistory<
-	S extends DS,
-	NS extends HistoryState<S> = HistoryState<S>,
-> = {
-	mergeHistory( nextState: DeepPartial<NS> ): History<S>
-	mergeHistory<SP extends NestedRecordKeys<NS>,>(
-		statePath: SP,
-		nextState: GetArrayPathValue<NS, StringPathToArray<SP>>
-	): History<S>
-	mergeHistory<SP extends StringPathToArray<NestedRecordKeys<NS>>,>(
-		statePath: SP,
-		nextState: GetArrayPathValue<NS, SP>
-	): History<S>
-};
-
-type Merge<
-	S extends DS,
-> = {
-	merge( nextState: DeepPartial<S> ): History<S>
-	merge<SP extends NestedRecordKeys<S>,>(
-		statePath: SP,
-		nextState: GetArrayPathValue<S, StringPathToArray<SP>>
-	): History<S>
-	merge<SP extends StringPathToArray<NestedRecordKeys<S>>,>(
-		statePath: SP,
-		nextState: GetArrayPathValue<S, SP>
-	): History<S>
-};
 
 type SetHistory<
 	S extends DS,
@@ -115,7 +87,7 @@ type SetHistory<
 	 *
 	 * @property {NS | ((props: CallbackHistoryDraftProps<S>) => void)} nextState - Either:
 	 *   - Complete new state object that extends current state type
-	 *   - Mutation callback receiving draft state props for direct modification
+	 *   - Mutation callback receiving historyDraft state props for direct modification
 	 *
 	 * @returns Updated {@link History<S> history} object
 	 *
@@ -129,15 +101,15 @@ type SetHistory<
 	 *```
 	 * @example
 	 * ```ts
-	 * // Mutate draft state
-	 * setHistory(({ draft }) => {
-	 *    draft.state.count++
-	 *    draft.initial.items.push('new-item')
+	 * // Mutate historyDraft state
+	 * setHistory(({ historyDraft }) => {
+	 *    historyDraft.state.count++
+	 *    historyDraft.initial.items.push('new-item')
 	 * });
 	 * ```
 	 *
 	 * @see {@link History} For detailed history structure
-	 * @see {@link CallbackHistoryDraftProps} For draft callback parameters
+	 * @see {@link CallbackHistoryDraftProps} For historyDraft callback parameters
 	 *
 	 * @remarks
 	 * This overload handles full state updates rather than path-specific modifications.
@@ -160,7 +132,7 @@ type SetHistory<
 	 * @property nextState -
 	 *   Either:
 	 *   - Direct value to set at the specified path
-	 *   - Callback function receiving string path to prop, allowing draft mutations
+	 *   - Callback function receiving string path to prop, allowing historyDraft mutations
 	 *
 	 * @returns Updated {@link History<S> history} object
 	 *
@@ -172,8 +144,8 @@ type SetHistory<
 	 * @example
 	 * ```ts
 	 * // Update via callback
-	 * setHistory('state.cart.items', ({ draft }) => {
-	 *    draft.push({ id: 123, quantity: 2 });
+	 * setHistory('state.cart.items', ({ historyDraft }) => {
+	 *    historyDraft.push({ id: 123, quantity: 2 });
 	 * });
 	 * ```
 	 *
@@ -182,7 +154,7 @@ type SetHistory<
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., 'state.items.0' not 'state.items.first')
 	 * - Keys with dot in name require you to escape dot, e.g. `state.user\\.profile.age`
-	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
+	 * - Path to non-array or non-object requires you to update through `props.historyDraft` because of how Proxy works
 	 */
 	setHistory<
 		SP extends NestedRecordKeys<NS>,
@@ -207,7 +179,7 @@ type SetHistory<
 	 * @property {SP} statePath - Array path to the state property to update, can have dot notation, e.g. `['state', 'items', 0]` or `['initial', 'users', 2, 'address.name']`
 	 * @property {GetArrayPathValue<NS, SP> | ((props: ArrayPathProps<S, NS, SP>) => void)} nextState - Either:
 	 *   - Direct value to set at specified array index
-	 *   - Callback function receiving array path to prop for draft mutations
+	 *   - Callback function receiving array path to prop for historyDraft mutations
 	 *
 	 * @returns {History<S>} Updated history object with array changes tracked
 	 *
@@ -221,7 +193,7 @@ type SetHistory<
 	 * ```ts
 	 * // Modify array element via callback
 	 * setHistory(['state', 'users', 1, 'age'], (props) => {
-	 *    props.draft += 1;
+	 *    props.historyDraft += 1;
 	 * });
 	 * ```
 	 *
@@ -230,7 +202,7 @@ type SetHistory<
 	 *
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., ['state', 'items', 0] not ['state', 'items', '0')
-	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
+	 * - Path to non-array or non-object requires you to update through `props.historyDraft` because of how Proxy works
 	 */
 	setHistory<
 		SP extends StringPathToArray<NestedRecordKeys<NS>>,
@@ -259,9 +231,9 @@ type SetHistoryWrap<
 	 *
 	 * @property {(props: CallbackHistoryDraftProps<S>, ...args: A) => void} nextState -
 	 *   Callback function that:
-	 *   - Receives draft state props as first parameter
+	 *   - Receives historyDraft state props as first parameter
 	 *   - Accepts additional parameters of type unknown
-	 *   - Performs state mutations on draft
+	 *   - Performs state mutations on historyDraft
 	 *
 	 * @returns Wrapped function that:
 	 *   - Accepts parameters of type A
@@ -271,8 +243,8 @@ type SetHistoryWrap<
 	 * ```ts
 	 * // Create parameterized updater
 	 * const updateWithFactor = controls.setHistoryWrap(
-	 *   ({ draft }, factor: number) => {
-	 *      draft.state.count *= factor
+	 *   ({ historyDraft }, factor: number) => {
+	 *      historyDraft.state.count *= factor
 	 *   }
 	 * );
 	 *
@@ -281,11 +253,11 @@ type SetHistoryWrap<
 	 * updateWithFactor(0.5); // Halves count
 	 * ```
 	 *
-	 * @see {@link CallbackHistoryDraftProps} For draft parameter details
+	 * @see {@link CallbackHistoryDraftProps} For historyDraft parameter details
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
-	 * - Maintains full type safety for both draft and additional arguments
+	 * - Maintains full type safety for both historyDraft and additional arguments
 	 */
 	setHistoryWrap<
 		A extends unknown[],
@@ -310,7 +282,7 @@ type SetHistoryWrap<
 	 * @property {SP} statePath - Array path to target element (supports numeric indexes)
 	 * @property {(props: ArrayPathProps<S, NS, SP>, ...args: A) => void} nextState -
 	 *   Callback function that:
-	 *   - Receives array element draft props
+	 *   - Receives array element historyDraft props
 	 *   - Accepts additional parameters of type A
 	 *   - Mutates the specified array element
 	 *
@@ -323,8 +295,8 @@ type SetHistoryWrap<
 	 * // Create parameterized array updater
 	 * const updateItemPrice = controls.setHistoryWrap(
 	 *   ['state', 'items', 0],
-	 *   ({ draft }, discount: number) => {
-	 *      draft.price *= (1 - discount)
+	 *   ({ historyDraft }, discount: number) => {
+	 *      historyDraft.price *= (1 - discount)
 	 *   }
 	 * );
 	 *
@@ -338,20 +310,20 @@ type SetHistoryWrap<
 	 * // Nested array path with multiple parameters
 	 * const updateUserScore = controls.setHistoryWrap(
 	 *   ['state', 'users', 1, 'scores'],
-	 *   ({ draft }, subject: string, points: number) => {
-	 *      draft[subject] = points
+	 *   ({ historyDraft }, subject: string, points: number) => {
+	 *      historyDraft[subject] = points
 	 *   }
 	 * );
 	 *
 	 * updateUserScore('math', 95);
 	 * ```
 	 *
-	 * @see {@link ArrayPathProps} For array element draft details
+	 * @see {@link ArrayPathProps} For array element historyDraft details
 	 * @see {@link GetArrayPathValue} For array path value resolution
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
-	 * - Maintains full type safety for path, draft, and arguments
+	 * - Maintains full type safety for path, historyDraft, and arguments
 	 */
 	setHistoryWrap<
 		SP extends StringPathToArray<RK>,
@@ -380,7 +352,7 @@ type SetHistoryWrap<
 	 * @param statePath - Dot-notation string path to target property
 	 * @param nextState -
 	 *   Callback function that:
-	 *   - Receives path-specific draft props
+	 *   - Receives path-specific historyDraft props
 	 *   - Accepts additional parameters of type A
 	 *   - Mutates the specified property
 	 *
@@ -393,8 +365,8 @@ type SetHistoryWrap<
 	 * // Create percentage-based price updater
 	 * const updatePrice = controls.setHistoryWrap(
 	 *   'state.items.0.price',
-	 *   ({ draft }, percentage: number) => {
-	 *      draft *= (1 + percentage/100)
+	 *   ({ historyDraft }, percentage: number) => {
+	 *      historyDraft *= (1 + percentage/100)
 	 *   }
 	 * );
 	 *
@@ -407,9 +379,9 @@ type SetHistoryWrap<
 	 * // Multi-parameter string path update
 	 * const updateUserProfile = controls.setHistoryWrap(
 	 *   'state.users.active',
-	 *   ({ draft }, name: string, age: number) => {
-	 *      draft.name = name
-	 *      draft.age = age
+	 *   ({ historyDraft }, name: string, age: number) => {
+	 *      historyDraft.name = name
+	 *      historyDraft.age = age
 	 *   }
 	 * );
 	 *
@@ -418,7 +390,7 @@ type SetHistoryWrap<
 	 *
 	 * @remarks
 	 * - Handles escaped dots in path keys (e.g., 'user\\.profile.age')
-	 * - Maintains full type safety for path, draft, and arguments
+	 * - Maintains full type safety for path, historyDraft, and arguments
 	 */
 	setHistoryWrap<
 		SP extends RK,
@@ -446,7 +418,7 @@ type SetState<
 	 *
 	 * @property {S | ((props: CallbackDraftProps<S>) => void)} nextState - Either:
 	 *   - Complete new state object that extends current state type
-	 *   - Mutation callback receiving draft state props for direct modification
+	 *   - Mutation callback receiving historyDraft state props for direct modification
 	 *
 	 * @returns Updated {@link History<S> history} object
 	 *
@@ -458,15 +430,15 @@ type SetState<
 	 *
 	 * @example
 	 * ```ts
-	 * // Mutate draft state
-	 * set(({ draft }) => {
-	 *   draft.count++
-	 *   draft.items.push('new-item')
+	 * // Mutate historyDraft state
+	 * set(({ historyDraft }) => {
+	 *   historyDraft.count++
+	 *   historyDraft.items.push('new-item')
 	 * });
 	 * ```
 	 *
 	 * @see {@link History} For detailed history structure
-	 * @see {@link CallbackDraftProps} For draft callback parameters
+	 * @see {@link CallbackDraftProps} For historyDraft callback parameters
 	 *
 	 * @remarks
 	 * This overload handles state updates rather than path-specific modifications.
@@ -489,7 +461,7 @@ type SetState<
 	 * @property nextState -
 	 *   Either:
 	 *   - Direct value to set at the specified path
-	 *   - Callback function receiving string path to prop, allowing draft mutations
+	 *   - Callback function receiving string path to prop, allowing historyDraft mutations
 	 *
 	 * @returns Updated {@link History<S> history} object
 	 *
@@ -502,8 +474,8 @@ type SetState<
 	 * @example
 	 * ```ts
 	 * // Update via callback
-	 * set('cart.items', ({ draft }) => {
-	 *    draft.push({ id: 123, quantity: 2 });
+	 * set('cart.items', ({ historyDraft }) => {
+	 *    historyDraft.push({ id: 123, quantity: 2 });
 	 * });
 	 * ```
 	 *
@@ -512,7 +484,7 @@ type SetState<
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., 'items.0' not 'items.first')
 	 * - Keys with dot in name require you to escape dot, e.g. `user\\.profile.age`
-	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
+	 * - Path to non-array or non-object requires you to update through `props.historyDraft` because of how Proxy works
 	 */
 	set<
 		SP extends NestedRecordKeys<S>,
@@ -537,7 +509,7 @@ type SetState<
 	 * @property {SP} statePath - Array path to the state property to update, can have dot notation, e.g. `['items', 0]` or `['users', 2, 'address.name']`
 	 * @property {GetArrayPathValue<NS, SP> | ((props: ArrayPathProps<S, S, SP>) => void)} nextState - Either:
 	 *   - Direct value to set at specified array index
-	 *   - Callback function receiving array path to prop for draft mutations
+	 *   - Callback function receiving array path to prop for historyDraft mutations
 	 *
 	 * @returns {History<S>} Updated history object with array changes tracked
 	 *
@@ -551,7 +523,7 @@ type SetState<
 	 * ```ts
 	 * // Modify array element via callback
 	 * set(['state', 'users', 1, 'age'], (props) => {
-	 *    props.draft += 1;
+	 *    props.historyDraft += 1;
 	 * });
 	 * ```
 	 *
@@ -560,7 +532,7 @@ type SetState<
 	 *
 	 * @remarks
 	 * - Requires explicit numeric indexes in path (e.g., ['items', 0] not ['items', '0')
-	 * - Path to non-array or non-object requires you to update through `props.draft` because of how Proxy works
+	 * - Path to non-array or non-object requires you to update through `props.historyDraft` because of how Proxy works
 	 */
 	set<
 		SP extends StringPathToArray<NestedRecordKeys<S>>,
@@ -588,9 +560,9 @@ type SetWrap<
 	 *
 	 * @property {(props: CallbackDraftProps<S>, ...args: A) => void} nextState -
 	 *   Callback function that:
-	 *   - Receives draft state props as first parameter
+	 *   - Receives historyDraft state props as first parameter
 	 *   - Accepts additional parameters of type unknown
-	 *   - Performs state mutations on draft
+	 *   - Performs state mutations on historyDraft
 	 *
 	 * @returns Wrapped function that:
 	 *   - Accepts parameters of type A
@@ -600,8 +572,8 @@ type SetWrap<
 	 * ```ts
 	 * // Create parameterized updater
 	 * const updateWithFactor = controls.setWrap(
-	 *   ({ draft }, factor: number) => {
-	 *      draft.count *= factor
+	 *   ({ historyDraft }, factor: number) => {
+	 *      historyDraft.count *= factor
 	 *   }
 	 * );
 	 *
@@ -610,11 +582,11 @@ type SetWrap<
 	 * updateWithFactor(0.5); // Halves count
 	 *```
 
-	 * @see {@link CallbackDraftProps} For draft parameter details
+	 * @see {@link CallbackDraftProps} For historyDraft parameter details
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
-	 * - Maintains full type safety for both draft and additional arguments
+	 * - Maintains full type safety for both historyDraft and additional arguments
 	 */
 	setWrap<
 		A extends unknown[],
@@ -639,7 +611,7 @@ type SetWrap<
 	 * @property {SP} statePath - Array path to target element (supports numeric indexes)
 	 * @property {(props: ArrayPathProps<S, S, SP>, ...args: A) => void} nextState -
 	 *   Callback function that:
-	 *   - Receives array element draft props
+	 *   - Receives array element historyDraft props
 	 *   - Accepts additional parameters of type A
 	 *   - Mutates the specified array element
 	 *
@@ -652,8 +624,8 @@ type SetWrap<
 	 * // Create parameterized array updater
 	 * const updateItemPrice = controls.setWrap(
 	 *   ['state', 'items', 0],
-	 *   ({ draft }, discount: number) => {
-	 *      draft.price *= (1 - discount)
+	 *   ({ historyDraft }, discount: number) => {
+	 *      historyDraft.price *= (1 - discount)
 	 *   }
 	 * );
 	 *
@@ -667,20 +639,20 @@ type SetWrap<
 	 * // Nested array path with multiple parameters
 	 * const updateUserScore = controls.setWrap(
 	 *   ['state', 'users', 1, 'scores'],
-	 *   ({ draft }, subject: string, points: number) => {
-	 *      draft[subject] = points
+	 *   ({ historyDraft }, subject: string, points: number) => {
+	 *      historyDraft[subject] = points
 	 *   }
 	 * );
 	 *
 	 * updateUserScore('math', 95);
 	 *```
 
-	 * @see {@link ArrayPathProps} For array element draft details
+	 * @see {@link ArrayPathProps} For array element historyDraft details
 	 * @see {@link GetArrayPathValue} For array path value resolution
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
-	 * - Maintains full type safety for path, draft, and arguments
+	 * - Maintains full type safety for path, historyDraft, and arguments
 	 */
 	setWrap<
 		SP extends StringPathToArray<RK>,
@@ -709,7 +681,7 @@ type SetWrap<
 	 * @property statePath - Dot-notation string path to target element (supports numeric indexes)
 	 * @property nextState -
 	 *   Callback function that:
-	 *   - Receives array element draft props
+	 *   - Receives array element historyDraft props
 	 *   - Accepts additional parameters of type A
 	 *   - Mutates the specified array element
 	 *
@@ -722,8 +694,8 @@ type SetWrap<
 	 * // Create parameterized array updater
 	 * const updateItemPrice = controls.setWrap(
 	 *   'items.0',
-	 *   ({ draft }, discount: number) => {
-	 *      draft.price *= (1 - discount)
+	 *   ({ historyDraft }, discount: number) => {
+	 *      historyDraft.price *= (1 - discount)
 	 *   }
 	 * );
 	 *
@@ -737,8 +709,8 @@ type SetWrap<
 	 * // Nested string path with multiple parameters
 	 * const updateUserScore = controls.setWrap(
 	 *   'users.1.scores',
-	 *   ({ draft }, subject: string, points: number) => {
-	 *      draft[subject] = points
+	 *   ({ historyDraft }, subject: string, points: number) => {
+	 *      historyDraft[subject] = points
 	 *   }
 	 * );
 	 *
@@ -747,7 +719,7 @@ type SetWrap<
 	 *
 	 * @remarks
 	 * - Useful for creating reusable state modifiers with configurable parameters
-	 * - Maintains full type safety for path, draft, and arguments
+	 * - Maintains full type safety for path, historyDraft, and arguments
 	 */
 	setWrap<
 		SP extends NestedRecordKeys<S>,

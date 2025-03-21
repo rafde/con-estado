@@ -82,7 +82,7 @@ export default function createCon<
 		acts = fo,
 		afterChange = noop,
 		dispatcher = noop,
-		transform = noop,
+		beforeChange = noop,
 		mutOptions,
 	} = options;
 
@@ -102,7 +102,7 @@ export default function createCon<
 		return getHistoryDraft(
 			history,
 			_dispatch,
-			transform,
+			beforeChange,
 			statePath,
 			_mutOptions,
 		);
@@ -147,7 +147,7 @@ export default function createCon<
 			return mergeHistory( ..._returnStateArgs( args, ), );
 		},
 		reset() {
-			return _dispatch( reset( history, transform, ), );
+			return _dispatch( reset( history, beforeChange, ), );
 		},
 		set( ...args: unknown[] ) {
 			return setHistory( ..._returnStateArgs( args, ), );

@@ -61,6 +61,10 @@ export type CreateConStoreOptions<
  * @param {ConOptions.acts} [options.acts] - A {@link ConOptions.acts function} that creates reusable actions for state management.
  * Takes control props (set, get, reset, etc.) and returns an object of action functions that can be asynchronous.
  *
+ * @param {ConOptions.beforeChange} [options.beforeChange] - A {@link ConOptions.beforeChange function} to update `historyDraft` before it's finalized.
+ * Receives a mutable `historyDraft` of both state and initial values, allowing you to modify them before changes are applied.
+ * Called during set and reset operations with the corresponding action type.
+ *
  * @param {ConOptions.afterChange} [options.afterChange] - A {@link ConOptions.afterChange function} that runs after state changes are dispatched.
  * Receives the immutable history object containing the current state, changes, and previous states.
  * Can be async and return a Promise or void.
@@ -68,10 +72,6 @@ export type CreateConStoreOptions<
  * @param {ConMutOptions} [options.mutOptions] - Configuration {@link ConMutOptions options} for the Mutative library's state updates.
  * Controls how drafts are created and modified. Supports all Mutative options except `enablePatches`.
  * See {@link https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options Mutative Options}
- *
- * @param {ConOptions.transform} [options.transform] - A {@link ConOptions.transform function} to transform state before it's updated.
- * Receives a mutable draft of both state and initial values, allowing you to modify them before changes are applied.
- * Called during set and reset operations with the corresponding action type.
  *
  * @param {Selector} [selector=DefaultSelector] - A {@link Selector function} to customize the shape of the returned state.
  * By {@link DefaultSelector default}, returns `[state, controls]`. Create your own selector to return a different structure.
