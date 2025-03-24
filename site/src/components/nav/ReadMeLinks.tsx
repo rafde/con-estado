@@ -34,6 +34,12 @@ const components: MDXComponents = {
 			liClassName: 'z-10 pl-6',
 		}} />;
 	},
+	h5( props, ) {
+		return <NavLi {...{
+			...props,
+			liClassName: 'z-10 pl-9',
+		}} />;
+	},
 	// Catch all other elements and return null
 	a: childrenOp,
 	code: Code,

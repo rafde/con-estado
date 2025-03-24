@@ -77,24 +77,24 @@ const initialState = {
   },
 };
 
-const useSelector = createConStore( initialState, {
+const useGlobalSelector = createConStore( initialState, {
   acts: ({ set }) => ({
     onChangeInput: (
       event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
-      const name = event.target.name;
+      const name = event.target.name as unknown as Parameters<typeof set>[0];
       const value = event.target.value;
       console.log('onChangeInput', name, value);
       set(
-        event.target.name as unknown as Parameters<typeof set>[0],
-        event.target.value
+        name,
+        value,
       );
     },
   }),
 });
 
 function App() {
-  const [state, { setWrap, acts }] = useSelector();
+  const [state, { setWrap, acts }] = useGlobalSelector();
 
   return (
     <div>
@@ -131,6 +131,40 @@ function App() {
 Key advantages:
 - **Global state** accessible across components
 - **Optimized subscriptions** through selector-based consumption
+
+</section>
+<section className="relative space-y-2">
+
+### Using Selectors with Global Store
+
+When using `createConStore`, the `useGlobalSelector` hook is provided for optimized component updates:
+
+```tsx
+const useGlobalSelector = createConStore(initialState);
+
+function UserProfile() {
+  // Only re-renders when selected data changes
+  const userData = useGlobalSelector(state => ({
+    name: state.user.name,
+    avatar: state.user.avatar
+  }));
+
+  return <div>
+    <img src={userData.avatar} alt={userData.name} />
+    <h2>{userData.name}</h2>
+  </div>;
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Selector Best Practices
+
+1. Select minimal required data
+2. Memoize complex computations
+3. Return stable references
+4. Use TypeScript for type safety
 
 </section>
 <section className="relative space-y-2">
@@ -201,6 +235,40 @@ function App() {
   );
 }
 ```
+
+</section>
+<section className="relative space-y-2">
+
+## Path-based Operations
+
+`con-estado` supports flexible path notation for state updates:
+
+```tsx
+// Dot notation
+set('user.preferences.theme', 'dark');
+
+// Array notation
+set(['user', 'preferences', 'theme'], 'dark');
+
+// Array indices
+set('todos[0].done', true);
+set('todos[-1].text', 'Last item'); // Negative indices supported
+
+// Array operations
+merge('todos', [{done: true}]); // Merge first element in array
+set('todos', []);            // Clear array
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Path Update Methods
+
+- [`set`](#set): Replace value at path
+- [`setWrap`](#setwrap): Modify value using a callback
+- [`merge`](#merge): Merge `object`s/`array`s at path
+- [`setHistory`](#sethistory): Set both `state` and `initial`
+- [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`
 
 </section>
 <section className="relative space-y-2">
@@ -404,20 +472,25 @@ Enables validation, normalization, or transformation of state updates.
 
 **Return type**: `void`
 
-```ts
-useCon(
-  initial,
-  {
-    beforeChange: ( {
-      historyDraft: { state, initial }, // Draft<HistoryState<S>>
-      history: { changes, initial, prev, prevInitial, state }, // History<S>
-      patches: { state, initial }, // DeepPartial<HistoryState<S>>
-      type, // 'set' | 'reset' | 'merge'
-    } ) => {
-      // your code
+```tsx
+useCon(initialState, {
+  beforeChange: ({
+    historyDraft, // Mutable draft of state and initial
+    history,      // Current immutable state history
+    type,         // Operation type: 'set' | 'reset' | 'merge'
+    patches,      // Latest changes made to state/initial
+  }) => {
+    // Validate changes
+    if (historyDraft.state.count < 0) {
+      historyDraft.state.count = 0;
+    }
+
+    // Add additional changes
+    if (patches.user?.name) {
+      historyDraft.state.lastUpdated = Date.now();
     }
   }
-);
+});
 ```
 </section>
 
@@ -449,6 +522,17 @@ useCon(
 #### 2.4. `options.mutOptions`
 
 Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options).
+
+```tsx
+useCon(initialState, {
+  mutOptions: {
+    // Mutative options (except enablePatches)
+    strict: true,
+    deep: true,
+    // ... other Mutative options
+  }
+});
+```
 
 `{enablePatches: true}` not supported.
 
@@ -690,7 +774,7 @@ have access to the following controls:
 
 ### `get`
 
-Gives you immutable access to [State History](#state-history).
+The `get()` function returns a complete immutable [State History](#state-history) object:
 
 ```ts
 const [
@@ -703,17 +787,15 @@ const {
 } = useConSelector( ( { get, } ) => ( { get, } ), ) ;
 
 const history = get();
-history.state;
-history.initial;
-history.changes;
-history.prev;
-history.prevInitial;
-```
+// Available properties:
+history.state;        // Current state
+history.prev;         // Previous state
+history.initial;      // Initial state
+history.prevInitial;  // Previous initial state
+history.changes;      // Tracked changes between state and initial
 
-You can also use dot-notation to access properties.
-
-```ts
-const changesToSomeValue = get('changes.to.some.value');
+// Access nested properties directly
+const specificChange = get('changes.user.name');
 ```
 
 </section>
@@ -740,7 +822,7 @@ const {
 
 ### `set`
 
-Updates state with either a new state object or mutation callback.
+`set` provides multiple ways to update state values with a new state value or mutation callback.
 
 ```ts
 const [
@@ -753,196 +835,113 @@ const {
 } = useConSelector( ( { set, } ) => ( { set, }, ));
 ```
 
-All `set` calls returns a new [State History](#state-history) object that contains the following properties:
+All `set` calls `return`s a new [State History](#state-history) `object`.
 
 </section>
 <section className="relative space-y-2">
 
-### `set( state )`
+#### Full Set State
 
-Updates state with a new state object.
+Replace the entire `state` with a new value:
 
-```ts
-set( { my: 'whole', data: ['items'], }, );
-```
-
-</section>
-<section className="relative space-y-2">
-
-### `set( callback )`
-
-Updates state with a mutation callback.
-Callback expects `void` return type.
-
-```ts
-set( ( {
-  draft,
-  historyDraft,
-  state,
-  prev,
-  initial,
-  prevInitial,
-  changes,
-}, ) => {
-  draft.value = 5;
-  historyDraft.initial.value = 9
-}, );
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### `set` callback parameters
-
-Contains [State History](#state-history) properties plus:
-- **draft**: The mutable part of the `state` object that can be modified in the callback.
-- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
-
-</section>
-<section className="relative space-y-2">
-
-### `set('path.0.to\\.val', value)`
-
-Specialized overload for updating state at a specified dot-notated string path with a direct value.
-
-```ts
-set( 'my.data', [ 'new', 'value', ], );
-```
-
-Array index number as string, example `paths.0.name` = `paths[0].name`.
-
-Paths with `.` (dot) in their name must be escaped, example
-
-```ts
-const initial = {
-  path: {
-    'user.name': 'Name',
-  },
-}; // 'path.user\\.name'
-```
-
-</section>
-<section className="relative space-y-2">
-
-### `set(['path', 0, 'to.val'], value)`
-
-Specialized overload for updating state at a specified array of strings or numbers (for arrays) path with a direct value.
-
-Array path to the state property to update, can have dot notation, e.g. `['items', 0]` or `['users', 2, 'address.name']`
-
-Callback works the same as [set( 'path.to.value', callback )](#setpath--path-callback)
-
-```ts
-set( ['string', 'path', 0, 'to.val'], [ 'new', 'value' ] );
-```
-
-</section>
-<section className="relative space-y-2">
-
-### `set('path' | ['path'], callback)`
-
-Specialized overload for updating state at a specified
-array of strings or numbers (for arrays) or dot-notated string
-path with a callback function.
-
-```ts
-set( 'my.data', ( {
-  // same as set( callback )
-  draft, historyDraft, state, prev, initial, prevInitial, changes,
-  stateProp,
-  prevProp,
-  initialProp,
-  prevInitialProp,
-  changesProp,
-}, ) => {
-  draft.value = 5;
-  historyDraft.initial.value = 9
-}, );
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### `set` with path callback parameters
-
-Shares the same parameters as [set( callback )](#set-callback-parameters), in addition to:
-
-- **draft**: The mutable part of the `state` value relative to path.
-  - **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
-    - i.e. `set( 'path.to.primitive', (props) => props.draft = 5 )`
-- **stateProp**: The current immutable `state` value relative to path.
-- **initialProp**: The `initial` immutable value relative to path.
-- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
-- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
-- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
-
-</section>
-<section className="relative space-y-2">
-
-### `merge`
-
-`merge` a partial state object into the current state.
-
-```ts
-// state.user = {
-//   profile: { firstName: 'John', },
-//   preferences: { theme: 'light', },
+```tsx
+// state = {
+//   user: { name: 'John' },
+//   count: 0
 // };
 
-merge( {
-  user: {
-    profile: { lastName: 'Doe', },
-    preferences: { theme: 'dark', },
-  }
-} );
+set({
+  user: { name: 'Jane' },
+  count: 1
+});
 
-// state.user = {
-//   profile: { firstName: 'John', lastName: 'Doe', },
-//   preferences: { theme: 'dark', },
+// state = {
+//   user: { name: 'Jane' },
+//   count: 1
 // };
 ```
 
 </section>
 <section className="relative space-y-2">
 
-### `merge( 'path.value' | [ 'path', 'value' ], value )`
+#### Path-based Set
 
-`merge` updates `state` at a specific `string` path, e.g. 'user.profile', in the history state using a dot-bracket-notation for path
-or `array` of `string`s or `number`s (for `array`s).
+Update `state` at a specific path using dot-bracket notation:
 
-</section>
-<section className="relative space-y-2">
+```tsx
+// state = {
+//   user: {
+//     profile: { name: 'John' },
+//     settings: { theme: 'light' }
+//   },
+//   posts: ['post1', 'post2']
+// };
 
-#### `merge` non-exising path
+// String path
+set('user.profile.name', 'Jane');
+// state.user.profile.name === 'Jane'
 
-If part of path does not exist, it will be created an `object` if the path is a `string` or an `array` if the path is a `number`.
+// Array path
+set(['user', 'settings', 'theme'], 'dark');
+// state.user.settings.theme === 'dark'
+
+// Array indices
+// state.posts[0] = 'updated post'
+set('posts[0]', 'updated post');
+// set(['posts', 0], 'updated post');
+
+// Clear array
+// state.posts = []
+set('posts', []);
+// set([ 'posts' ], []);
+```
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
 
 ```ts
-// state = {};
-
-merge( 'posts[1]', { title: 'Second post', content: 'Second post content', }, );
-// merge( [ 'posts', 1, ], { title: 'Second post', content: 'Second post content', }, );
-
 // state = { posts: [ 
-//  undefined,
-//  { title: 'Second post', content: 'Second post content', },
-// ] }; 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+set( 'posts[-1]', { title: 'Updated Second Title', });
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+set( [ 'posts', -2 ], { title: 'Updated First Content' }, );
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+set( 'posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
-If the path exists, but is not a plain `object` or `array`, it will throw an `Error`.
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
 
 ```ts
-// state.posts = 1
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
 
-merge( 'posts[1]', { title: 'First post', }, ); // throws error
+// Invalid paths
+set('count.path.invalid', 42); // Error: `count` is not an object.
 
-// merge( [ 'posts', 1, ], { title: 'First post', }, ) // throws error
+// Out of bounds
+set('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `merge` with special character paths
+##### Set Special Character Paths
 
 Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
 
@@ -955,28 +954,192 @@ Does not apply to array path keys.
 //   },
 // };
 
-merge( 'path.user\\.name\\[s]', 'New Name', );
-// merge( [ 'path', 'user.name[s]' ], 'New Name', );
+set( 'path.user\\.name\\[s]', 'New Name', );
+// set( [ 'path', 'user.name[s]' ], 'New Name', );
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `merge` non-plain `objects` or `arrays`
+#### Set Non-existing Paths
 
-Non-plain `object` or `array` will replace the target values instead of merging.
+When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
+
+```tsx
+// state = {
+//   count: 1,
+//};
+
+set('deeply.nested.value', 42);
+// state = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   }
+// };
+
+// Arrays are created when using numeric paths
+set('items[0].name', 'First');
+// state = {
+//   items: [{ name: 'First' }]
+// };
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
 
 ```ts
-merge( 'user.firstName', 'New Name', );
-// merge( [ 'user', 'firstName' ], 'New Name', );
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
 
-// state = { user: { firstName: 'New Name', }, };
+// Invalid paths
+set('count.path.invalid', 42); // Error: `count` is not an object.
+
+// Out of bounds
+set('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `merge` with negative indices
+#### Set Callback
+
+Update `state` using a callback function that receives the current value:
+
+```tsx
+// state = { count: 1 };
+
+set( 'count', (props) => props.draft += 1);
+// state.count === 2
+
+// With full state access
+set( ({ draft }) => {
+  draft.count += 1;
+  draft.lastUpdated = Date.now();
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### Set Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+- **draft**: The mutable part of the `state` object that can be modified in the callback.
+- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
+- 
+```ts
+set( ( {
+  draft, // Mutable state
+  historyDraft, // Mutable state and initial
+  state, // Immutable state
+  prev, // Immutable previous state
+  initial, // Immutable initial state
+  prevInitial, // Immutable previous initial state
+  changes, // Immutable changes
+}, ) => {
+  draft.value = 5;
+  historyDraft.initial.value = 9
+}, );
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### Set Path-based Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+
+- **draft**: The mutable part of the `state` value relative to path.
+	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
+		- i.e. `set( 'path.to.primitive', (props) => props.draft = 5 )`
+- **stateProp**: The current immutable `state` value relative to path.
+- **initialProp**: The `initial` immutable value relative to path.
+- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
+- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+
+```ts
+set( 'my.data', ( {
+  // same as set( callback )
+  historyDraft, state, prev, initial, prevInitial, changes,
+  draft, // Mutable state value relative to path
+  stateProp, // Immutable state value relative to path
+  prevProp, // Immutable previous state value relative to path
+  initialProp, // Immutable initial value relative to path
+  prevInitialProp, // Immutable previous initial value relative to path
+  changesProp, // Immutable changed value made to state value relative to path
+}, ) => {
+  // your code
+}, );
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `merge`
+
+`merge` provides deep partial `object`/`array` merging capabilities with multiple ways to specify merge targets:
+
+</section>
+<section className="relative space-y-2">
+
+#### Merge Partial State
+
+Deeply merge partial state into current state:
+
+```tsx
+// state = {
+  user: {
+    profile: { firstName: 'John' },
+    preferences: { theme: 'light' }
+  }
+};
+
+merge({
+  user: {
+    profile: { lastName: 'Doe' },
+    preferences: { theme: 'dark' }
+  }
+});
+
+// state = {
+//   user: {
+//     profile: { firstName: 'John', lastName: 'Doe' },
+//     preferences: { theme: 'dark' }
+//   }
+// };
+```
+</section>
+<section className="relative space-y-2">
+
+#### Path-based Merging
+
+`merge` updates `state` at a specific `string` path, e.g. 'user.profile', in the history state using a dot-bracket-notation for path
+or `array` of `string`s or `number`s (for `array`s).
+
+```tsx
+// state = {
+//   user: {
+//     profile: { name: 'John' },
+//     settings: { notifications: { email: true } }
+//   }
+// };
+
+// String path
+merge( 'user.profile', { age: 30 } );
+// state.user.profile === { name: 'John', age: 30 }
+
+// Array path
+merge( [ 'user', 'settings' ], { theme: 'dark' } );
+// state.user.settings === { notifications: { email: true }, theme: 'dark' }
+```
 
 Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
 
@@ -1001,55 +1164,131 @@ merge( [ 'posts', -2 ], { title: 'Updated First Content' }, );
 merge( 'posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
-</section>
-<section className="relative space-y-2">
+**Error Cases**
 
-#### `merge` Arrays
-
-Merging parts of an `array` requires using sparse `array` to indicate which elements to update.
+Throws errors in these situations:
+- Invalid paths
+- Type mismatches
+- Out of bounds
 
 ```ts
-// state = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
 
-merge( 'posts', [ undefined, { title: 'New', }, ], ); // updates the second element
-// merge( [ 'posts' ], [ undefined, { title: 'New', }, ], ); // updates the second element
+// Invalid paths
+merge('count.path.invalid', 42); // Error: `count` is not an object.
 
-// state = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'New', content: 'Second post content', },
-// ], }; 
+// Invalid paths
+merge( 'posts', { post: 'new post' } ); // Error: cannot merge object into array
 
-
-merge( 'posts', [ { title: 'New', }, ] ); // updates the first element
-// merge( [ 'posts' ], [ { title: 'New', }, ] ); // updates the first element
-
-// state = { posts: [
-//  { title: 'New', },
-//  { title: 'New', content: 'Second post content', },
-// ], }; 
+// Out of bounds
+merge('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `merge` an empty array
+##### Merge Special Characters in Paths
 
-Merging an empty `array` does nothing to the target `array`.
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
 
 ```ts
-// state = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
+// state = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
 
-merge( 'posts', [] ); // does nothing
-// merge( [ 'posts' ], [] ); // does nothing
+merge( 'path.user\\.name\\[s]', 'New Name', );
+// merge( [ 'path', 'user.name[s]' ], 'New Name', );
 ```
 
-If you want to clear an `array`, use [set](#set) instead.
+</section>
+<section className="relative space-y-2">
+
+#### Merging Non-existing Paths
+
+Automatically creates intermediate `object`s/`array`s:
+
+```tsx
+// state = {};
+
+merge('nested.data', { value: 42 });
+// state = {
+//   nested: {
+//     data: { value: 42 }
+//   }
+// };
+
+merge('items[1]', { name: 'Second' });
+// state = {
+//   items: [
+//     undefined,
+//     { name: 'Second' }
+//   ]
+// };
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Merging Arrays
+
+Special handling for array updates:
+
+```tsx
+// state = {
+//   posts: [
+//     { id: 1, title: 'First Post' },
+//     { id: 2, title: 'Second Post', content: 'Original' }
+//   ]
+// };
+
+// Update specific array elements using sparse arrays
+merge('posts', [
+  undefined,  // Skip first element
+  { content: 'Updated' }  // Update second element
+]);
+
+// state.posts === [
+//   { id: 1, title: 'First Post' },
+//   { id: 2, title: 'Second Post', content: 'Updated' }
+// ];
+
+// Using negative indices
+merge('posts[-1]', { status: 'published' });
+// Updates last element
+
+// Empty array merge does nothing
+merge('posts', []); // No change. Use set( 'posts', [] ) to clear an array
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Merging Special Cases
+
+1. Non-plain Objects:
+
+```tsx
+// Non-plain objects replace instead of merge
+merge('date', new Date());  // Replaces entire value
+merge('regex', /pattern/);  // Replaces entire value
+```
+
+2. Array Operations:
+
+```tsx
+// state = { items: [1, 2, 3] };
+
+// To clear an array, use set instead
+set('items', []);  // Correct way to clear
+merge('items', []); // Does nothing
+```
 
 </section>
 <section className="relative space-y-2">
@@ -1074,38 +1313,322 @@ const {
 
 ### `setWrap`
 
-A convenient `function` that lets you wrap `set` around another `function` that accepts any number of arguments
-and can return any value.
+`setWrap` creates reusable state updater functions that can accept additional parameters. 
+It supports three different usage patterns:
+
+</section>
+<section className="relative space-y-2">
+
+#### Path-based `setWrap`
+
+Update `state` at a specific path using dot-bracket notation:
 
 ```tsx
-const [
-  state,
-  { setWrap, }
-] = useCon( { count: 0, }, );
+// state = {
+//   user: {
+//     profile: { name: 'John' },
+//     settings: { theme: 'light' }
+//   },
+//   posts: ['post1', 'post2']
+// };
 
-const {
-  setWrap,
-} = useConSelector( ( { setWrap, } ) => ( { setWrap, } ), );
+// String path
+const setName = setWrap( 'user.profile.name', (props, name) => {
+  props.draft = name;
+});
 
-// Example usage
-const inc = setWrap( 
-  ( { draft, }, incBy: number, ) => draft.count += incBy
-);
+setName( 'Jane' );
+// state.user.profile.name === 'Jane'
 
-const newInc = inc( 5, ); // returns 5
+// Array path
+const setTheme = setWrap( ['user', 'settings', 'theme'], (props, theme) => {
+  props.draft = theme;
+});
 
-// Example usage
-const incCount = setWrap( 
-  'count',
-  ( props, incBy: number, ) => props.draft += incBy
-);
+setTheme( 'dark' );
+// state.user.settings.theme === 'dark'
 
-const newCount = inc( 5, ); // returns 5
+// Array indices
+const updatePost = setWrap( 'posts[0]', (props, post) => {
+  props.draft = post;
+});
+// setWrap( ['posts', 0], (props, post) => { props.draft = post; });
+
+updatePost( 'updated post' );
+// state.posts[0] = 'updated post'
+
+// Clear array
+const clearPosts = setWrap( 'posts', (props) => {
+  props.draft = [];
+});
+// const clearPosts = setWrap( [ 'posts' ], (props) => { props.draft = []; });
+
+clearPosts();
+// state.posts = []
 ```
 
-The first parameter can be
-- a callback
-- dot-bracket notated string, or array of string or numbers for state prop path, followed by a callback.
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
+
+```ts
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+const setLastPost = setWrap( 'posts[-1]', (props, post) => {
+  props.draft = post;
+});
+
+setLastPost( { title: 'Updated Second Title', });
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+const setPenultimatePost = setWrap( [ 'posts', -2 ], (props, post) => {
+  props.draft = post;
+} );
+
+setPenultimatePost( { title: 'Updated First Content' }, );
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+const setPenPenultimatePost = setWrap( 'posts[-3]', (props, post) => {
+  props.draft = post;
+}, );
+
+setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
+
+```ts
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+const yourUpdater = setWrap('count.path.invalid', (props, value) => {
+  props.draft = value;
+}); 
+yourUpdater( 42 ); // Error: `count` is not an object.
+
+// Out of bounds
+const outOfBoundsUpdater = setWrap('posts[-999]', (props, value) => {
+  props.draft = value;
+});
+outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### setWrap Special Character Paths
+
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
+
+```ts
+// state = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
+
+const yourUpdater = setWrap( 'path.user\\.name\\[s]', (props, value) => {
+  props.draft = value;
+}, );
+// setWrap( [ 'path', 'user.name[s]' ], '(props, value) => {
+//  props.draft = value;
+//}, ); );
+yourUpdater( 'New Name' );
+// state.path.user.name[s] === 'New Name'
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setWrap` Non-existing Paths
+
+When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
+
+```tsx
+// state = {
+//   count: 1,
+//};
+
+const yourUpdater = setWrap( 'deeply.nested.value', (props, value) => {
+  props.draft = value;
+});
+yourUpdater( 42 );
+// state = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   }
+// };
+
+// Arrays are created when using numeric paths
+const yourItemUpdater = setWrap('items[0].name', (props, name) => {
+  props.draft = name;
+});
+yourItemUpdater( 'First' );
+// state = {
+//   items: [{ name: 'First' }]
+// };
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
+
+```ts
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+const yourUpdater = setWrap('count.path.invalid', (props, value) => {
+  props.draft = value;
+}); 
+yourUpdater( 42 ); // Error: `count` is not an object.
+
+// Out of bounds
+const outOfBoundsUpdater = setWrap('posts[-999]', (props, value) => {
+  props.draft = value;
+});
+outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setWrap` Callback
+
+Create reusable state updater functions that can accept additional parameters.
+
+```tsx
+// state = { count: 1 };
+
+const yourPathBasedUpdater = setWrap(
+  'count',
+  (props) => {
+    props.draft += 1;
+    
+    return props.draft;
+  }
+);
+// state.count === 2
+
+// With full state access
+const yourFullStateUpdater = setWrap( ({ draft }) => {
+  draft.count += 1;
+  draft.lastUpdated = Date.now();
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `setWrap` Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+- **draft**: The mutable part of the `state` object that can be modified in the callback.
+- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
+-
+```ts
+const yourUpdater = setWrap( 
+  (
+    {
+      historyDraft, // Mutable state and initial
+      draft, // Mutable state
+      state, // Immutable state
+      prev, // Immutable previous state
+      initial, // Immutable initial state
+      prevInitial, // Immutable previous initial state
+      changes, // Immutable changes
+    },
+    ...args
+  ) => {
+    // your code
+  }, 
+);
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `setWrap` Path-based Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+
+- **draft**: The mutable part of the `state` value relative to path.
+	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
+		- i.e. `setWrap( 'path.to.primitive', (props) => props.draft = 5 )`
+- **stateProp**: The current immutable `state` value relative to path.
+- **initialProp**: The `initial` immutable value relative to path.
+- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
+- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+
+```ts
+const yourUpdater = setWrap( 
+  'my.data', 
+  (
+    {
+      historyDraft, state, prev, initial, prevInitial, changes,
+      draft, // Mutable state value relative to path
+      stateProp, // Immutable state value relative to path
+      prevProp, // Immutable previous state value relative to path
+      initialProp, // Immutable initial value relative to path
+      prevInitialProp, // Immutable previous initial value relative to path
+      changesProp, // Immutable changed value made to state value relative to path
+    },
+    ...args
+  ) => {
+    // your code
+}, );
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setWrap` Return Values
+
+Wrapped functions can return values:
+
+```tsx
+// state = { items: ['a', 'b', 'c'] }
+
+const removeItem = setWrap(
+  ({ draft }, index: number) => {
+    const removed = draft.items[index];
+    draft.items.splice(index, 1);
+    return removed;
+  }
+);
+
+// Usage
+const removed = removeItem(1);  // returns 'b'
+// state.items === ['a', 'c']
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Returning Mutable Objects
 
 </section>
 <section className="relative space-y-2">
@@ -1121,12 +1644,12 @@ at a specific path in the history `state` using an `array` of `string`s or `numb
 //   preferences: { theme: 'light', },
 // };
 
-mergeHistory({
+mergeHistory( {
   user: {
     profile: { lastName: 'Doe', },
     preferences: { theme: 'dark', },
   }
-});
+} );
 
 // initial.user = {
 //   profile: { firstName: 'John', lastName: 'Doe', },
@@ -1137,43 +1660,78 @@ mergeHistory({
 </section>
 <section className="relative space-y-2">
 
-### `mergeHistory( 'path.value' | [ 'path', 'value' ], value )`
+#### Path-based Merging History
 
-`mergeHistory` updates `state` at a specific string path, e.g. 'state.user.profile', in the history state using a dot-bracket-notation for path
-or `array` of `string`s or `number`s (for `array`s).
+`mergeHistory` updates `state` at a specific `string` path, e.g. 'user.profile', 
+in the history state using a dot-bracket-notation for path or `array` of `string`s or `number`s (for `array`s).
 
-</section>
-<section className="relative space-y-2">
+```tsx
+// initial = {
+//   user: {
+//     profile: { name: 'John' },
+//     settings: { notifications: { email: true } }
+//   }
+// };
 
-#### `mergeHistory` for non-exising path
+// String path
+mergeHistory( 'initial.user.profile', { age: 30 } );
+// state.user.profile === { name: 'John', age: 30 }
 
-If part of path does not exist, it will be created an `object` if the path is a `string` or an `array` if the path is a `number`.
+// Array path
+mergeHistory( [ 'initial', 'user', 'settings' ], { theme: 'dark' } );
+// initial.user.settings === { notifications: { email: true }, theme: 'dark' }
+```
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
 
 ```ts
-// initial = {};
-
-mergeHistory( 'initial.posts[1]', { title: 'Second post', content: 'Second post content', }, );
-// mergeHistory( [ 'initial', 'posts', 1, ], { title: 'Second post', content: 'Second post content', }, );
-
 // initial = { posts: [ 
-//  undefined,
-//  { title: 'Second post', content: 'Second post content', },
-// ] }; 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+mergeHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
+// initial = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+mergeHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+mergeHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
-If the path exists, but is not a plain `object` or `array`, it will throw an `Error`.
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Type mismatches
+- Out of bounds
 
 ```ts
-// initial.posts = 1
+// initial = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
 
-mergeHistory( 'initial.posts[1]', { title: 'First post', }, ); // throws error
-// mergeHistory( [ 'initial', 'posts', 1, ], { title: 'First post', }, ) // throws error
+// Invalid paths
+mergeHistory( 'initial.count.path.invalid', 42 ); // Error: `count` is not an object.
+
+// Invalid paths
+mergeHistory( 'initial.posts', { post: 'new post' } ); // Error: cannot merge object into array
+
+// Out of bounds
+mergeHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `mergeHistory` with special character paths
+##### Merge History for Special Characters in Paths
 
 Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
 
@@ -1193,23 +1751,147 @@ mergeHistory( 'initial.path.user\\.name\\[s]', 'New Name', );
 </section>
 <section className="relative space-y-2">
 
-#### `mergeHistory` for non-plain `objects` or `arrays`
+#### Merge History for Non-existing Path 
 
-Non-plain `object` or `array` will replace the target values instead of merging.
+Automatically creates intermediate `object`s/`array`s:
 
-```ts
-mergeHistory( 'initial.user.firstName', 'New Name', );
-// mergeHistory( [ 'initial', 'user', 'firstName' ], 'New Name', );
+```tsx
+// initial = {};
 
-// initial = { user: { firstName: 'New Name', }, };
+mergeHistory( 'initial.nested.data', { value: 42 });
+// initial = {
+//   nested: {
+//     data: { value: 42 }
+//   }
+// };
+
+mergeHistory( 'initial.items[1]', { name: 'Second' });
+// initial = {
+//   items: [
+//     undefined,
+//     { name: 'Second' }
+//   ]
+// };
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `mergeHistory` with negative indices
+#### Merge History for Arrays
 
-Negative indices are allowed, but they can't be out of bounds. E.g., `[ 'initial', 'posts', -1]` or `initial.posts[-1]`
+Special handling for array updates:
+
+```tsx
+// initial = {
+//   posts: [
+//     { id: 1, title: 'First Post' },
+//     { id: 2, title: 'Second Post', content: 'Original' }
+//   ]
+// };
+
+// Update specific array elements using sparse arrays
+mergeHistory( 'initial.posts', [
+  undefined,  // Skip first element
+  { content: 'Updated' }  // Update second element
+]);
+
+// initial.posts === [
+//   { id: 1, title: 'First Post' },
+//   { id: 2, title: 'Second Post', content: 'Updated' }
+// ];
+
+// Using negative indices
+mergeHistory( 'initial.posts[-1]', { status: 'published' });
+// Updates last element
+
+// Empty array merge does nothing
+mergeHistory( 'initial.posts', []); // No change. Use set( 'posts', [] ) to clear an array
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Merge History Special Cases
+
+1. Non-plain Objects:
+
+```tsx
+// Non-plain objects replace instead of merge
+mergeHistory( 'initial.date', new Date());  // Replaces entire value
+mergeHistory( 'initial.regex', /pattern/);  // Replaces entire value
+```
+
+2. Array Operations:
+
+```tsx
+// initial = { items: [1, 2, 3] };
+
+// To clear an array, use set instead
+mergeHistory( 'initial.items', []); // Does nothing
+setHistory( 'initial.items', []);  // Correct way to clear
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `setHistory`
+
+`setHistory` provides ways to update both `state` and `initial` values simultaneously:
+
+</section>
+<section className="relative space-y-2">
+
+#### Full Set History
+
+Replace both state and initial values:
+
+```tsx
+// state = { count: 1, items: ['old'] }
+// initial = { count: 0, items: [] }
+
+setHistory({
+  state: { count: 5, items: ['new'] },
+  initial: { count: 5, items: ['new'] }
+});
+
+// state = { count: 5, items: ['new'] }
+// initial = { count: 5, items: ['new'] }
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Path-based Set History
+
+Update specific paths in state or initial:
+
+```tsx
+// state = { user: { name: 'John', age: 25 }, items: ['one', 'two'] }
+// initial = { user: { name: 'John', age: 20 } }
+
+// String path
+setHistory( 'state.user.age', 30);
+// state.user.age === 30
+// initial unchanged
+
+setHistory( 'initial.user.age', 21);
+// initial.user.age === 21
+// state unchanged
+
+// Set array
+setHistory( 'state.items', ['three', 'four']);
+// state.items === ['three', 'four']
+
+// Set specific index
+setHistory( 'state.items[0]', 'updated');
+// state.items === ['updated', 'four']
+
+// Array path
+setHistory( ['state', 'user', 'name'], 'Jane');
+// state.user.name === 'Jane'
+```
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `['initial', 'posts', -1]` or `initial.posts[-1]`
 is valid if 'posts' has at least one element.
 
 ```ts
@@ -1218,92 +1900,505 @@ is valid if 'posts' has at least one element.
 //  { title: 'Second post', content: 'Second post content', }, 
 // ], }
 
-mergeHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
-// mergeHistory( [ 'initial', 'posts', -1 ], { title: 'Updated Second Title', });
-
+setHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
 // initial = { posts: [ 
 //  undefined, 
 //  { title: 'Updated Second Title', content: 'Second post content', }, 
 // ], }; 
 
-mergeHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
-// mergeHistory( 'initial.posts[-2]', { title: 'Updated First Content' }, );
-
+setHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
 // initial = { posts: [
 //  { title: 'Updated First Content', },
 //  { title: 'Updated Second Title', content: 'Second post content', },
 // ], }; 
 
-mergeHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
-// mergeHistory( [ 'initial', 'posts' -3 ], { title: 'Third Title', }, ); // throws error
+setHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
-</section>
-<section className="relative space-y-2">
+**Error Cases**
 
-#### `mergeHistory` for Arrays
-
-Merging parts of an `array` requires using sparse `array` to indicate which elements to update.
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
 
 ```ts
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
+// initial = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
 
-mergeHistory( 'initial.posts', [ undefined, { title: 'New', }, ], ); // updates the second element
-// mergeHistory( [ 'initial', 'posts' ], [ undefined, { title: 'New', }, ], );
+// Invalid paths
+setHistory( 'initial.count.path.invalid', 42); // Error: `count` is not an object.
 
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'New', content: 'Second post content', },
-// ], }; 
-
-
-mergeHistory( 'initial.posts', [ { title: 'New', }, ] ); // updates the first element
-// mergeHistory( [ 'initial', 'posts' ], [ { title: 'New', }, ] );
-
-// initial = { posts: [
-//  { title: 'New', },
-//  { title: 'New', content: 'Second post content', },
-// ], }; 
+// Out of bounds
+setHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### `mergeHistory` for an empty array
+##### Set History for Special Characters in Paths
 
-Merging an empty `array` does nothing to the target `array`.
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
 
 ```ts
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
+// initial = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
 
-mergeHistory( 'initial.posts', [] ); // does nothing
-// mergeHistory( [ 'initial', 'posts' ], [] ); // does nothing
+setHistory( 'initial.path.user\\.name\\[s]', 'New Name', );
+// setHistory( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
 ```
-
-If you want to clear an `array`, use [setHistory](#sethistory) instead.
 
 </section>
 <section className="relative space-y-2">
 
-### `setHistory`
+#### Set History for Non-existing Path
 
-Works like [set](#set), but can be used to update both `state` and `initial`.
+Automatically creates intermediate `object`s/`array`s:
+
+```tsx
+// state = {}
+// initial = {}
+
+setHistory('state.deeply.nested.value', 42);
+// state = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   }
+// }
+
+// Arrays are created for numeric paths
+setHistory( 'initial.items.0.name', 'First');
+// initial = {
+//   items: [{ name: 'First' }]
+// }
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
+
+```ts
+// initial = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+setHistory( 'initial.count.path.invalid', 42); // Error: `count` is not an object.
+
+// Out of bounds
+setHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Set History Callback
+
+Update using callbacks with access to both state and initial:
+
+```tsx
+// state = { count: 1 }
+// initial = { count: 0 }
+
+// Full state callback
+setHistory( ({ historyDraft }) => {
+  historyDraft.state.count += 1;
+  historyDraft.initial.count = 1;
+});
+
+// Path-specific callback
+setHistory( 'state.count', (props) => {
+  props.draft += 1;
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### Set History Callback Parameters
+
+The callback receives comprehensive history state access:
+
+```tsx
+setHistory(({
+  historyDraft,  // Mutable state and initial
+  state,         // Current immutable state
+  initial,       // Current immutable initial
+  prev,          // Previous immutable state
+  prevInitial,   // Previous immutable initial
+  changes,       // Immutable changes
+}) => {
+  historyDraft.state.count += 1;
+  historyDraft.initial.lastReset = Date.now();
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### Path-based Set History Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+
+- **draft**: The mutable part of the `state` value relative to path.
+	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
+		- i.e. `setHistory( 'initial.path.to.primitive', (props) => props.draft = 5 )`
+- **stateProp**: The current immutable `state` value relative to path.
+- **initialProp**: The `initial` immutable value relative to path.
+- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
+- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+
+```ts
+setHistory( 'initial.my.data', ( {
+  // same as set( callback )
+  historyDraft, state, prev, initial, prevInitial, changes,
+  draft, // Mutable state value relative to path
+  stateProp, // Immutable state value relative to path
+  prevProp, // Immutable previous state value relative to path
+  initialProp, // Immutable initial value relative to path
+  prevInitialProp, // Immutable previous initial value relative to path
+  changesProp, // Immutable changed value made to state value relative to path
+}, ) => {
+  // your code
+}, );
+```
 
 </section>
 <section className="relative space-y-2">
 
 ### `setHistoryWrap`
 
-Works like [setWrap](#setwrap), but can be used to update both `state` and `initial`.
+`setHistoryWrap` creates reusable state updater functions for `state` and `initial` that can accept additional parameters.
+It supports three different usage patterns:
 
 </section>
+<section className="relative space-y-2">
 
+#### Path-based `setHistoryWrap`
+
+Update `state` and `initial` at a specific path using dot-bracket notation:
+
+```tsx
+// initial = {
+//   user: {
+//     profile: { name: 'John' },
+//     settings: { theme: 'light' }
+//   },
+//   posts: ['post1', 'post2']
+// };
+
+// String path
+const setName = setHistoryWrap( 'initial.user.profile.name', (props, name) => {
+  props.draft = name;
+});
+
+setName( 'Jane' );
+// initial.user.profile.name === 'Jane'
+
+// Array path
+const setTheme = setHistoryWrap( [ 'initial', 'user', 'settings', 'theme'], (props, theme) => {
+  props.draft = theme;
+});
+
+setTheme( 'dark' );
+// initial.user.settings.theme === 'dark'
+
+// Array indices
+const updatePost = setHistoryWrap( 'initial.posts[0]', (props, post) => {
+  props.draft = post;
+});
+// setHistoryWrap( [ 'initial', 'posts', 0], (props, post) => { props.draft = post; });
+
+updatePost( 'updated post' );
+// initial.posts[0] = 'updated post'
+
+// Clear array
+const clearPosts = setHistoryWrap( 'initial.posts', (props) => {
+  props.draft = [];
+});
+// const clearPosts = setHistoryWrap( [ 'initial', 'posts' ], (props) => { props.draft = []; });
+
+clearPosts();
+// initial.posts = []
+```
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `[ 'initial', ''posts', -1 ]`
+or `initial.posts[-1]` is valid if 'posts' has at least one element.
+
+```ts
+// initial = { posts: [ 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+const setLastPost = setHistoryWrap( 'initial.posts[-1]', (props, post) => {
+  props.draft = post;
+});
+
+setLastPost( { title: 'Updated Second Title', });
+// initial = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+const setPenultimatePost = setHistoryWrap( [ 'initial', 'posts', -2 ], ( props, post ) => {
+  props.draft = post;
+} );
+
+setPenultimatePost( { title: 'Updated First Content' }, );
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+const setPenPenultimatePost = setHistoryWrap( 'initial.posts[-3]', ( props, post ) => {
+  props.draft = post;
+}, );
+
+setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
+
+```ts
+// initial = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+const yourUpdater = setHistoryWrap('initial.count.path.invalid', ( props, value ) => {
+  props.draft = value;
+}); 
+yourUpdater( 42 ); // Error: `count` is not an object.
+
+// Out of bounds
+const outOfBoundsUpdater = setHistoryWrap('initial.posts[-999]', ( props, value ) => {
+  props.draft = value;
+});
+outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `setHistoryWrap` Special Character Paths
+
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
+
+```ts
+// initial = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
+
+const yourUpdater = setHistoryWrap( 'initial.path.user\\.name\\[s]', ( props, value ) => {
+  props.draft = value;
+}, );
+// setWrap( [ 'path', 'user.name[s]' ], '( props, value ) => {
+//  props.draft = value;
+//}, ); );
+yourUpdater( 'New Name' );
+// initial.path.user.name[s] === 'New Name'
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setHistoryWrap` Non-existing Paths
+
+When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
+
+```tsx
+// initial = {
+//   count: 1,
+//};
+
+const yourUpdater = setHistoryWrap( 'initial.deeply.nested.value', ( props, value ) => {
+  props.draft = value;
+});
+yourUpdater( 42 );
+// initial = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   }
+// };
+
+// Arrays are created when using numeric paths
+const yourItemUpdater = setHistoryWrap('initial.items[0].name', ( props, name ) => {
+  props.draft = name;
+});
+yourItemUpdater( 'First' );
+// initial = {
+//   items: [{ name: 'First' }]
+// };
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Invalid paths
+- Out of bounds
+
+```ts
+// initial = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+const yourUpdater = setHistoryWrap('initial.count.path.invalid', ( props, value ) => {
+  props.draft = value;
+}); 
+yourUpdater( 42 ); // Error: `count` is not an object.
+
+// Out of bounds
+const outOfBoundsUpdater = setHistoryWrap( 'initial.posts[-999]', ( props, value ) => {
+  props.draft = value;
+});
+outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setHistoryWrap` Callback
+
+Create reusable state updater functions that can accept additional parameters.
+
+```tsx
+// initial = { count: 1 };
+
+const yourPathBasedUpdater = setHistoryWrap(
+  'initial.count',
+  (props) => {
+    props.draft += 1;
+    
+    return props.draft;
+  }
+);
+// initial.count === 2
+
+// With full state access
+const yourFullStateUpdater = setHistoryWrap( ({ draft }) => {
+  draft.initial.count += 1;
+  draft.initial.lastUpdated = Date.now();
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `setHistoryWrap` Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+- **draft**: The mutable part of the `state` object that can be modified in the callback.
+- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
+-
+```ts
+const yourUpdater = setHistoryWrap( 
+  (
+    {
+      historyDraft, // Mutable state and initial
+      draft, // Mutable state
+      state, // Immutable state
+      prev, // Immutable previous state
+      initial, // Immutable initial state
+      prevInitial, // Immutable previous initial state
+      changes, // Immutable changes
+    },
+    ...args
+  ) => {
+    // your code
+  }, 
+);
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `setHistoryWrap` Path-based Callback Parameters
+
+Contains [State History](#state-history) properties plus:
+
+- **draft**: The mutable part of the `state` value relative to path.
+	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
+		- i.e. `setHistoryWrap( 'initial.path.to.primitive', (props) => props.draft = 5 )`
+- **stateProp**: The current immutable `state` value relative to path.
+- **initialProp**: The `initial` immutable value relative to path.
+- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
+- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+
+```ts
+const yourUpdater = setHistoryWrap( 
+  'initial.my.data', 
+  (
+    {
+      historyDraft, state, prev, initial, prevInitial, changes,
+      draft, // Mutable state value relative to path
+      stateProp, // Immutable state value relative to path
+      prevProp, // Immutable previous state value relative to path
+      initialProp, // Immutable initial value relative to path
+      prevInitialProp, // Immutable previous initial value relative to path
+      changesProp, // Immutable changed value made to state value relative to path
+    },
+    ...args
+  ) => {
+    // your code
+}, );
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `setHistoryWrap` Return Values
+
+Wrapped functions can return values:
+
+```tsx
+// initial = { items: ['a', 'b', 'c'] }
+
+const removeItem = setHistoryWrap(
+  ({ draft }, index: number) => {
+    const removed = draft.initial.items[index];
+    draft.initial.items.splice(index, 1);
+    return removed;
+  }
+);
+
+// Usage
+const removed = removeItem(1);  // returns 'b'
+// initial.items === ['a', 'c']
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Returning Mutable Objects
+
+</section>
 <section className="relative space-y-2">
 
 ### `reset`
