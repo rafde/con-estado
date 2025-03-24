@@ -10,7 +10,7 @@
 	"description": "Deeply nested state manager for ReactJS",
 	"devDependencies": {
 		"@eslint/compat": "1.2.7",
-		"@eslint/eslintrc": "3.3.0",
+		"@eslint/eslintrc": "3.3.1",
 		"@eslint/js": "9.22.0",
 		"@parcel/bundler-library": "2.14.1",
 		"@parcel/packager-ts": "2.14.1",
