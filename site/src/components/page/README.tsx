@@ -28,7 +28,7 @@ function removeDocRef( children: ReactNode, ) {
 		return children;
 	}
 
-	if ( first.includes( 'For full documentation', ) ) {
+	if ( first.includes( 'For documentation', ) ) {
 		hasRemoveDocRef = true;
 		return null;
 	}
