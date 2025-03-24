@@ -10,9 +10,28 @@
 </section>
 <section className="relative space-y-2">
 
-## Docs
+## Why `con-estado`?
 
-For full documentation, with details and examples, see [con-estado docs](https://rafde.github.io/con-estado).
+Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `con-estado` provides:
+
+- **Type-safe**: Full TypeScript support to provides full type inference for:
+  - State structure
+  - Selector return types
+  - Action parameters
+  - Path-based updates
+  - State history
+- **Immutable Updates**: Simple mutable-style syntax with immutable results
+- **Direct path updates**: Modify nested properties using dot-bracket notation or `Array<string | number>` instead of spreading multiple levels
+- **Referential stability**: Only modified portions of state create new references, preventing unnecessary re-renders
+- **Flexible API**: Support for both local or global state
+- **Custom selectors**: Prevent component re-renders by selecting only relevant state fragments
+- **High Performance**: Built on [Mutative](https://mutative.js.org/)'s efficient immutable updates, `con-estado` is particularly useful for applications with:
+  - Complex nested state structures
+  - Performance-sensitive state operations
+  - Frequent partial state updates
+  - Teams wanting to reduce state management boilerplate
+
+For documentation with working examples, see [con-estado docs](https://rafde.github.io/con-estado).
 
 </section>
 <section className="relative space-y-2">
@@ -30,109 +49,6 @@ yarn add con-estado
 ```shell
 deno add jsr:@rafde/con-estado
 ```
-
-</section>
-<section className="relative space-y-2">
-
-## Introduction
-
-`con-estado` is a state management library built on top of [Mutative](https://mutative.js.org/),
-like [Immer](https://immerjs.github.io/immer/) but faster,
-with the goal of helping with deeply nested state management.
-
-With TypeScript support, strongly infers as much as it can for state 
-and callback functions so you can use type-safe selectors and actions.
-
-</section>
-<section className="relative space-y-2">
-
-## Why Use `con-estado`?
-
-Managing deeply nested state in React often becomes cumbersome with traditional state management solutions. `con-estado` provides:
-
-- **Direct path updates**: Modify nested properties using dot-notation or `Array<string | number>` instead of spreading multiple levels
-- **Referential stability**: Only modified portions of state create new references, preventing unnecessary re-renders
-- **Custom selectors**: Prevent component re-renders by selecting only relevant state fragments
-- **Type-safe mutations**: Full TypeScript support for state paths and updates
-
-Built on [Mutative](https://mutative.js.org/)'s efficient immutable updates, `con-estado` is particularly useful for applications with:
-- Complex nested state structures
-- Performance-sensitive state operations
-- Frequent partial state updates
-- Teams wanting to reduce state management boilerplate
-
-</section>
-<section className="relative space-y-2">
-
-## Local State
-
-[Local State Basic Usage](https://stackblitz.com/edit/con-estado-basic-usage-suqy7jc6?ctl=1&embed=1&file=src%2FApp.tsx&theme=dark)
-
-```tsx
-// Demo
-import { ChangeEvent } from 'react';
-import { useCon } from 'con-estado';
-// Define your initial state
-const initialState = {
-  user: {
-    name: 'John',
-    preferences: {
-      theme: 'light' as 'light' | 'dark'
-      notifications: {
-        email: true,
-      },
-    },
-  },
-};
-
-function App() {
-  const [ state, { setWrap, acts } ] = useCon( initialState, {
-    acts: ({ set }) => ({
-      onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        console.log('onChangeInput', name, value);
-        set(
-          event.target.name as unknown as Parameters<typeof set>[0],
-          event.target.value
-        );
-      },
-    }),
-  });
-
-  return (
-    <div>
-      <h1>Welcome {state.user.name}</h1>
-      <input
-        type="text"
-        name="user.name"
-        value={state.user.name}
-        onChange={acts.onChangeInput}
-      />
-      <button
-        onClick={setWrap('user.preferences.notifications.email', (props) => {
-          console.log('toggle email was ', props.draft);
-          props.draft = !props.draft;
-          console.log('toggle email is ', props.draft);
-        })}
-      >
-        Toggle Email Notifications:{' '}
-        {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
-      </button>
-      <select
-        value={state.user.preferences.theme}
-        name="user.preferences.theme"
-        onChange={acts.onChangeInput}
-      >
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </div>
-  );
-}
-```
-Key advantages:
-- **Optimized subscriptions** through selector-based consumption
 
 </section>
 <section className="relative space-y-2">
@@ -219,11 +135,79 @@ Key advantages:
 </section>
 <section className="relative space-y-2">
 
+## Local State
+
+When you need to manage state within a component with the power of `createConStore`, `useCon` has you covered:
+
+[Local State Basic Usage](https://stackblitz.com/edit/con-estado-basic-usage-suqy7jc6?ctl=1&embed=1&file=src%2FApp.tsx&theme=dark)
+
+```tsx
+// Demo
+import { ChangeEvent } from 'react';
+import { useCon } from 'con-estado';
+// Define your initial state
+const initialState = {
+  user: {
+    name: 'John',
+    preferences: {
+      theme: 'light' as 'light' | 'dark'
+      notifications: {
+        email: true,
+      },
+    },
+  },
+};
+
+function App() {
+  const [ state, { setWrap, acts } ] = useCon( initialState, {
+    acts: ({ set }) => ({
+      onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
+        const name = event.target.name as unknown as Parameters<typeof set>[0];
+        const value = event.target.value;
+        console.log('onChangeInput', name, value);
+        set( name, value );
+      },
+    }),
+  });
+
+  return (
+    <div>
+      <h1>Welcome {state.user.name}</h1>
+      <input
+        type="text"
+        name="user.name"
+        value={state.user.name}
+        onChange={acts.onChangeInput}
+      />
+      <button
+        onClick={setWrap('user.preferences.notifications.email', (props) => {
+          console.log('toggle email was ', props.draft);
+          props.draft = !props.draft;
+          console.log('toggle email is ', props.draft);
+        })}
+      >
+        Toggle Email Notifications:{' '}
+        {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
+      </button>
+      <select
+        value={state.user.preferences.theme}
+        name="user.preferences.theme"
+        onChange={acts.onChangeInput}
+      >
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  );
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
 ## Custom Selectors
 
-Selector is a `function` that returns the props you need. Only re-renders on non-`function` changes.
-
-Optimize renders by selecting only needed state:
+Custom Selector is a `function` that optimize renders by selecting only needed state:
 
 ```tsx
 function UserPreferences() {
@@ -307,10 +291,10 @@ function PostList() {
 Track and access previous state values:
 
 - **state**: Current immutable state object.
-- **prev**: The previous `state` immutable object before `state` was updated.
-- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
+- **prev**: The previous immutable `state` object before `state` was updated.
+- **initial**: Immutable immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
 such as merging with server data into `initial` while `state` keeps client side data.
-- **prevInitial**: The previous `initial` immutable object before `initial` was updated.
+- **prevInitial**: The previous immutable `initial` object before `initial` was updated.
 - **changes**: Immutable object that keeps track of deeply nested difference between the `state` and `initial` object.
 
 ```tsx
@@ -330,14 +314,16 @@ function StateHistory() {
 </section>
 <section className="relative space-y-2">
 
-## To Don't example
+## To Do example
 
-[To Don't Example](https://stackblitz.com/edit/con-estado-todont-app-fikb7k8w?ctl=1&embed=1&file=src%2Fstore%2Findex.ts)
+An complex to-do app example of how `con-estado` can be used.
+
+[To Do Example](https://stackblitz.com/edit/con-estado-todont-app-fikb7k8w?ctl=1&embed=1&file=src%2Fstore%2Findex.ts)
 
 </section>
 <section className="relative space-y-2">
 
-## API References
+## Parameters API
 
 `createConStore` and `useCon` take the same parameters.
 
@@ -354,7 +340,7 @@ useCon( [] );
 useCon( () => ([]) );
 ```
 
-Used to initialize the [`state`](#state) value. non-null `Object` with data, `Array`,
+Used to initialize the [`state`](#state) value. non-`null` `Object` with data, `Array`,
 or a function that returns an `Object` or `Array`
 
 </section>
@@ -383,14 +369,15 @@ useCon(
   initial,
   {
     acts: ( {
-      set,
-      setWrap,
       get,
+      merge,
+      mergeHistory,
       reset,
-      getDraft,
+      set,
       setHistory,
       setHistoryWrap,
-    }: ActControls ) => ( {
+      setWrap,
+    } ) => ( {
       // your actions with async support
       yourAction( props, ) {
         // your code
@@ -401,9 +388,42 @@ useCon(
 ```
 
 </section>
+
 <section className="relative space-y-2">
 
-#### 2.2. `options.afterChange`
+#### 2.2. `options.beforeChange`
+
+Function to modify state before it's committed to history.
+Enables validation, normalization, or transformation of state updates.
+
+- **historyDraft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
+- **history**: Immutable [State History](#state-history). Does not have latest changes.
+- **type**: The operation type (`'set' | 'reset' | 'merge'`) that triggered changes.
+- **patches**: A partial state object that contains the latest deeply nested changes made to `state` and/or `initial`.
+  Useful for when you want to include additional changes based on what `patches` contains.
+
+**Return type**: `void`
+
+```ts
+useCon(
+  initial,
+  {
+    beforeChange: ( {
+      historyDraft: { state, initial }, // Draft<HistoryState<S>>
+      history: { changes, initial, prev, prevInitial, state }, // History<S>
+      patches: { state, initial }, // DeepPartial<HistoryState<S>>
+      type, // 'set' | 'reset' | 'merge'
+    } ) => {
+      // your code
+    }
+  }
+);
+```
+</section>
+
+<section className="relative space-y-2">
+
+#### 2.3. `options.afterChange`
 
 Post-change async callback function executed after state changes are applied.
 Provides access to the updated [State History](#state-history)
@@ -415,47 +435,15 @@ useCon(
   initial,
   {
     afterChange(
-      { state, initial, prev, prevInitial, changes, }: History
+      { state, initial, prev, prevInitial, changes, }
     ) {
       // your code with async support
     }
   }
 );
 ```
-
 </section>
-<section className="relative space-y-2">
 
-#### 2.3. `options.beforeChange`
-
-Function to modify state before it's committed to history.
-Enables validation, normalization, or transformation of state updates.
-
-- **historyDraft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
-- **history**: Immutable [State History](#state-history). Does not have latest changes.
-- **type**: The operation type ('set' | 'reset') that triggered changes.
-- **patches**: A partial state object that contains the latest deeply nested changes made to `state` and/or `initial`.
-  Useful for when you want to include additional changes based on what `patches` contains.
-
-**Return type**: `void`
-
-```ts
-useCon(
-  initial,
-  {
-    beforeChange: ({
-      historyDraft: { state, initial }, // Draft<HistoryState<S>>
-      history: { changes, initial, prev, prevInitial, state }, // History<S>
-      patches: { state, initial }, // DeepPartial<HistoryState<S>>
-      type, // 'set' | 'reset'
-    }) => {
-      // your code
-    }
-  }
-);
-```
-
-</section>
 <section className="relative space-y-2">
 
 #### 2.4. `options.mutOptions`
@@ -465,11 +453,12 @@ Configuration for [`mutative` options](https://mutative.js.org/docs/api-referenc
 `{enablePatches: true}` not supported.
 
 </section>
+
 <section className="relative space-y-2">
 
 ### 3. `selector`
 
-Custom `selector` callback that lets you shape what is returned from `useCon` and `createConStore`.
+Custom `selector` callback that lets you shape what is returned from `useCon` and/or `createConStore`.
 
 `useCon` Example:
 
@@ -478,18 +467,19 @@ useCon(
   initialState,
   options,
   ( {
-    state,
     acts,
-    set,
-    setWrap,
     get,
+    merge,
+    mergeHistory,
     reset,
-    getDraft,
+    set,
     setHistory,
     setHistoryWrap,
-    useSelector, // only available in `useCon`
+    setWrap,
+    state,
     subscribe,
-  }: UseConControls, ) => unknown // unknown represents the return type of your choice
+    useSelector, // only available in `useCon`
+  }, ) => unknown // `unknown` represents the return type of your choice
 );
 
 // Example without options
@@ -501,17 +491,18 @@ createConStore(
   initialState,
   options,
   ( {
-    state,
     acts,
-    set,
-    setWrap,
     get,
+    merge,
+    mergeHistory,
     reset,
-    getDraft,
+    set,
     setHistory,
     setHistoryWrap,
+    setWrap,
+    state,
     subscribe,
-  }: CreateConStoreControls, ) => unknown // unknown represents the return type of your choice
+  }, ) => unknown // unknown represents the return type of your choice
 );
 
 // Example without options
@@ -649,14 +640,16 @@ const [ state, controls, ] = useConSelector();
 // static props
 const {
   acts,
-  set,
-  setWrap,
   get,
+  merge,
+  mergeHistory,
   reset,
+  set,
   setHistory,
   setHistoryWrap,
+  setWrap,
   subscribe,
-}: UseConSelectorControls = useConSelector
+} = useConSelector
 ```
 
 If a `selector` is provided from `createConStore` or `useConSelector`, it returns the result of the `selector`.
@@ -664,14 +657,16 @@ If a `selector` is provided from `createConStore` or `useConSelector`, it return
 ```ts
 const yourSelection = useConSelector(
   ( {
-    state,
     acts,
-    set,
-    setWrap,
     get,
+    merge,
+    mergeHistory,
     reset,
+    set,
     setHistory,
     setHistoryWrap,
+    setWrap,
+    state,
     subscribe,
   }, ) => unknown
 );
@@ -680,7 +675,7 @@ const yourSelection = useConSelector(
 </section>
 <section className="relative space-y-2">
 
-## Shared Controls
+## Shared Controls API
 
 The following `function`s
 - [options.acts](#21-optionsacts)
@@ -726,7 +721,7 @@ const changesToSomeValue = get('changes.to.some.value');
 
 ### `state`
 
-The current `state` value. Initialized from [options.initialState](#1-initial).
+The current immutable `state` value. Initialized from [options.initialState](#1-initial).
 
 Same value as `get( 'state' )`. Provided for convenience and to trigger re-render on default selector update.
 
@@ -884,6 +879,181 @@ Shares the same parameters as [set( callback )](#set-callback-parameters), in ad
 </section>
 <section className="relative space-y-2">
 
+### `merge`
+
+`merge` a partial state object into the current state.
+
+```ts
+// state.user = {
+//   profile: { firstName: 'John', },
+//   preferences: { theme: 'light', },
+// };
+
+merge( {
+  user: {
+    profile: { lastName: 'Doe', },
+    preferences: { theme: 'dark', },
+  }
+} );
+
+// state.user = {
+//   profile: { firstName: 'John', lastName: 'Doe', },
+//   preferences: { theme: 'dark', },
+// };
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `merge( 'path.value' | [ 'path', 'value' ], value )`
+
+`merge` updates `state` at a specific `string` path, e.g. 'user.profile', in the history state using a dot-bracket-notation for path
+or `array` of `string`s or `number`s (for `array`s).
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` non-exising path
+
+If part of path does not exist, it will be created an `object` if the path is a `string` or an `array` if the path is a `number`.
+
+```ts
+// state = {};
+
+merge( 'posts[1]', { title: 'Second post', content: 'Second post content', }, );
+// merge( [ 'posts', 1, ], { title: 'Second post', content: 'Second post content', }, );
+
+// state = { posts: [ 
+//  undefined,
+//  { title: 'Second post', content: 'Second post content', },
+// ] }; 
+```
+
+If the path exists, but is not a plain `object` or `array`, it will throw an `Error`.
+
+```ts
+// state.posts = 1
+
+merge( 'posts[1]', { title: 'First post', }, ); // throws error
+
+// merge( [ 'posts', 1, ], { title: 'First post', }, ) // throws error
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` with special character paths
+
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
+
+```ts
+// state = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
+
+merge( 'path.user\\.name\\[s]', 'New Name', );
+// merge( [ 'path', 'user.name[s]' ], 'New Name', );
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` non-plain `objects` or `arrays`
+
+Non-plain `object` or `array` will replace the target values instead of merging.
+
+```ts
+merge( 'user.firstName', 'New Name', );
+// merge( [ 'user', 'firstName' ], 'New Name', );
+
+// state = { user: { firstName: 'New Name', }, };
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` with negative indices
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
+
+```ts
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+merge( 'posts[-1]', { title: 'Updated Second Title', });
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+merge( [ 'posts', -2 ], { title: 'Updated First Content' }, );
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+merge( 'posts[-3]', { title: 'Third Title', }, ); // throws error
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` Arrays
+
+Merging parts of an `array` requires using sparse `array` to indicate which elements to update.
+
+```ts
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+merge( 'posts', [ undefined, { title: 'New', }, ], ); // updates the second element
+// merge( [ 'posts' ], [ undefined, { title: 'New', }, ], ); // updates the second element
+
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'New', content: 'Second post content', },
+// ], }; 
+
+
+merge( 'posts', [ { title: 'New', }, ] ); // updates the first element
+// merge( [ 'posts' ], [ { title: 'New', }, ] ); // updates the first element
+
+// state = { posts: [
+//  { title: 'New', },
+//  { title: 'New', content: 'Second post content', },
+// ], }; 
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `merge` an empty array
+
+Merging an empty `array` does nothing to the target `array`.
+
+```ts
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+merge( 'posts', [] ); // does nothing
+// merge( [ 'posts' ], [] ); // does nothing
+```
+
+If you want to clear an `array`, use [set](#set) instead.
+
+</section>
+<section className="relative space-y-2">
+
 ### `acts`
 
 The `acts` object contains all the available actions created from [options.acts](#21-optionsacts).
@@ -905,7 +1075,7 @@ const {
 ### `setWrap`
 
 A convenient `function` that lets you wrap `set` around another `function` that accepts any number of arguments
-and can return any value from it.
+and can return any value.
 
 ```tsx
 const [
@@ -935,10 +1105,190 @@ const newCount = inc( 5, ); // returns 5
 
 The first parameter can be
 - a callback
-- dot-notated string, or array of string or numbers for state prop path, followed by a callback.
+- dot-bracket notated string, or array of string or numbers for state prop path, followed by a callback.
 
 </section>
+<section className="relative space-y-2">
 
+### `mergeHistory`
+
+Works like [merge](#merge), `mergeHistory` updates `state` or `initial`
+at a specific path in the history `state` using an `array` of `string`s or `number`s (for `array`s).
+
+```ts
+// initial.user = {
+//   profile: { firstName: 'John', },
+//   preferences: { theme: 'light', },
+// };
+
+mergeHistory({
+  user: {
+    profile: { lastName: 'Doe', },
+    preferences: { theme: 'dark', },
+  }
+});
+
+// initial.user = {
+//   profile: { firstName: 'John', lastName: 'Doe', },
+//   preferences: { theme: 'dark', },
+// };
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `mergeHistory( 'path.value' | [ 'path', 'value' ], value )`
+
+`mergeHistory` updates `state` at a specific string path, e.g. 'state.user.profile', in the history state using a dot-bracket-notation for path
+or `array` of `string`s or `number`s (for `array`s).
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` for non-exising path
+
+If part of path does not exist, it will be created an `object` if the path is a `string` or an `array` if the path is a `number`.
+
+```ts
+// initial = {};
+
+mergeHistory( 'initial.posts[1]', { title: 'Second post', content: 'Second post content', }, );
+// mergeHistory( [ 'initial', 'posts', 1, ], { title: 'Second post', content: 'Second post content', }, );
+
+// initial = { posts: [ 
+//  undefined,
+//  { title: 'Second post', content: 'Second post content', },
+// ] }; 
+```
+
+If the path exists, but is not a plain `object` or `array`, it will throw an `Error`.
+
+```ts
+// initial.posts = 1
+
+mergeHistory( 'initial.posts[1]', { title: 'First post', }, ); // throws error
+// mergeHistory( [ 'initial', 'posts', 1, ], { title: 'First post', }, ) // throws error
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` with special character paths
+
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
+
+```ts
+// initial = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
+
+mergeHistory( 'initial.path.user\\.name\\[s]', 'New Name', );
+// mergeHistory( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` for non-plain `objects` or `arrays`
+
+Non-plain `object` or `array` will replace the target values instead of merging.
+
+```ts
+mergeHistory( 'initial.user.firstName', 'New Name', );
+// mergeHistory( [ 'initial', 'user', 'firstName' ], 'New Name', );
+
+// initial = { user: { firstName: 'New Name', }, };
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` with negative indices
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `[ 'initial', 'posts', -1]` or `initial.posts[-1]`
+is valid if 'posts' has at least one element.
+
+```ts
+// initial = { posts: [ 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+mergeHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
+// mergeHistory( [ 'initial', 'posts', -1 ], { title: 'Updated Second Title', });
+
+// initial = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+mergeHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
+// mergeHistory( 'initial.posts[-2]', { title: 'Updated First Content' }, );
+
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+mergeHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
+// mergeHistory( [ 'initial', 'posts' -3 ], { title: 'Third Title', }, ); // throws error
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` for Arrays
+
+Merging parts of an `array` requires using sparse `array` to indicate which elements to update.
+
+```ts
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+mergeHistory( 'initial.posts', [ undefined, { title: 'New', }, ], ); // updates the second element
+// mergeHistory( [ 'initial', 'posts' ], [ undefined, { title: 'New', }, ], );
+
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'New', content: 'Second post content', },
+// ], }; 
+
+
+mergeHistory( 'initial.posts', [ { title: 'New', }, ] ); // updates the first element
+// mergeHistory( [ 'initial', 'posts' ], [ { title: 'New', }, ] );
+
+// initial = { posts: [
+//  { title: 'New', },
+//  { title: 'New', content: 'Second post content', },
+// ], }; 
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### `mergeHistory` for an empty array
+
+Merging an empty `array` does nothing to the target `array`.
+
+```ts
+// initial = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+mergeHistory( 'initial.posts', [] ); // does nothing
+// mergeHistory( [ 'initial', 'posts' ], [] ); // does nothing
+```
+
+If you want to clear an `array`, use [setHistory](#sethistory) instead.
+
+</section>
 <section className="relative space-y-2">
 
 ### `setHistory`
