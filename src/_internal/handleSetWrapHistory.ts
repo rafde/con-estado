@@ -1,3 +1,4 @@
+import { isDraft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
@@ -57,8 +58,15 @@ export default function handleSetHistoryWrap<
 			);
 		}
 
+		if ( isDraft( result, ) ) {
+			throw new Error( 'Cannot return mutable objects', );
+		}
+
 		if ( _isPromiseLike( result, ) ) {
 			return result.then( ( res, ) => {
+				if ( isDraft( res, ) ) {
+					throw new Error( 'Cannot return mutable objects', );
+				}
 				finalize();
 				return res;
 			}, );
