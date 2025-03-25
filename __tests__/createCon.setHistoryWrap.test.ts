@@ -1,3 +1,4 @@
+import { waitFor, } from '@testing-library/react';
 import { afterEach, describe, expect, it, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 
@@ -89,6 +90,14 @@ describe( 'createCon - setHistoryWrap', () => {
 		expect( state.nested.value, ).toBe( 20, );
 	}, );
 
+	it( 'takes function that returns a promise', async() => {
+		const wrapped = con.setHistoryWrap( ( props, increment: number, ) => Promise.resolve( props.historyDraft.state.count += increment, ), );
+		return waitFor( async() => {
+			await wrapped( 5, );
+			expect( con.get().state.count, ).toBe( 5, );
+		}, );
+	}, );
+
 	it( 'should should throw an error if no functions are sent', () => {
 		expect(
 			// @ts-expect-error -- testing throw
@@ -101,5 +110,10 @@ describe( 'createCon - setHistoryWrap', () => {
 			// @ts-expect-error -- testing throw
 			() => con.setWrap( 'count', ),
 		).toThrowError( /callback function to wrap/, );
+	}, );
+
+	it( 'should throw an error if the function returns a mutable object', () => {
+		const wrapped = con.setHistoryWrap( props => props.historyDraft, );
+		expect( () => wrapped(), ).toThrowError( /Cannot return mutable objects/, );
 	}, );
 }, );
