@@ -265,10 +265,11 @@ set('todos', []);            // Clear array
 ### Path Update Methods
 
 - [`set`](#set): Replace value at path
-- [`setWrap`](#setwrap): Modify value using a callback
 - [`merge`](#merge): Merge `object`s/`array`s at path
+- [`setWrap`](#setwrap): Modify value using a callback that can return a value
 - [`setHistory`](#sethistory): Set both `state` and `initial`
 - [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`
+- [`setHistoryWrap`](#sethistorywrap): Modify both `state` and `initial` using a callback that can return a value
 
 </section>
 <section className="relative space-y-2">
