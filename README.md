@@ -922,8 +922,8 @@ set( 'posts[-3]', { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // state = {
@@ -989,8 +989,8 @@ set('items[0].name', 'First');
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // state = {
@@ -1167,9 +1167,9 @@ merge( 'posts[-3]', { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
 - Type mismatches
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // state = {
@@ -1405,8 +1405,8 @@ setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // state = {
@@ -1490,8 +1490,8 @@ yourItemUpdater( 'First' );
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // state = {
@@ -1708,9 +1708,9 @@ mergeHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
 - Type mismatches
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // initial = {
@@ -1918,8 +1918,8 @@ setHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // initial = {
@@ -1984,8 +1984,8 @@ setHistory( 'initial.items.0.name', 'First');
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // initial = {
@@ -2173,8 +2173,8 @@ setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // initial = {
@@ -2258,8 +2258,8 @@ yourItemUpdater( 'First' );
 **Error Cases**
 
 Throws errors in these situations:
-- Invalid paths
-- Out of bounds
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
 
 ```ts
 // initial = {
