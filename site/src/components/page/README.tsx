@@ -92,7 +92,16 @@ const components: MDXComponents = {
 	},
 	h4( props, ) {
 		return <HeaderLink
-			Header="h3"
+			Header="h4"
+			title={childrenToString( props.children, )}
+			href={mdHToHref( props.children, )}
+		>
+			{props.children}
+		</HeaderLink>;
+	},
+	h5( props, ) {
+		return <HeaderLink
+			Header="h5"
 			title={childrenToString( props.children, )}
 			href={mdHToHref( props.children, )}
 		>
