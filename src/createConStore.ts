@@ -146,9 +146,9 @@ export function createConStore<
  * const useStoreWithSelector = createConStore(
  *   { count: 0 },
  *   // Custom selector
- *   ({ state, setWrap }) => ({
+ *   ({ state, wrap }) => ({
  *     count: state.count,
- *     increment: setWrap(draft => { draft.count++ })
+ *     increment: wrap(draft => { draft.count++ })
  *   })
  * );
  *
@@ -159,9 +159,9 @@ export function createConStore<
  *
  * // Overwrite selector
  * function Component() {
- *   const {count, increment} = useStoreWithSelector(({ state, setWrap }) => ({
+ *   const {count, increment} = useStoreWithSelector(({ state, wrap }) => ({
  *     count: state.count,
- *     increment: setWrap(draft => { draft.count++ })
+ *     increment: wrap(draft => { draft.count++ })
  *   }));
  * }
  * ```

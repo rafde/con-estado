@@ -28,7 +28,7 @@ export type UseSelectorProp<
 	 * // Won't re-render
 	 * const setCount = useCon(
 	 *   initialState,
-	 *   controls => controls.state.count < 10 ? controls.setWrap('count') : () => {}
+	 *   controls => controls.state.count < 10 ? controls.wrap('count') : () => {}
 	 * );
 	 *
 	 * // Won't re-render, but it will do something.
@@ -41,7 +41,7 @@ export type UseSelectorProp<
 	 * // This will re-render when `controls.state.count` value is updated
 	 * const setCount = useCon( initialState, controls => ({
 	 *   count: controls.state.count,
-	 *   setCount: controls.state.count < 10 ? controls.setWrap('count') : () => {}
+	 *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
 	 * }));
 	 * ```
 	 */
@@ -64,7 +64,7 @@ export type UseSelectorProp<
 	 * // Won't re-render
 	 * const setCount = useCon(
 	 *   initialState,
-	 *   controls => controls.state.count < 10 ? controls.setWrap('count') : () => {}
+	 *   controls => controls.state.count < 10 ? controls.wrap('count') : () => {}
 	 * );
 	 *
 	 * // Won't re-render, but it will do something.
@@ -77,7 +77,7 @@ export type UseSelectorProp<
 	 * // This will re-render when `controls.state.count` value is updated
 	 * const setCount = useCon( initialState, controls => ({
 	 *   count: controls.state.count,
-	 *   setCount: controls.state.count < 10 ? controls.setWrap('count') : () => {}
+	 *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
 	 * }));
 	 * ```
 	 */

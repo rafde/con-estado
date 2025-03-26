@@ -1,8 +1,8 @@
-import { isDraft, } from 'mutative';
+import { current, isDraft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
-import createArrayPathProxy from './createArrayPathProxy';
+import callbackPropsProxy from './callbackPropsProxy';
 import isFunc from './isFunc';
 import isObj from './isObj';
 import isStr from './isStr';
@@ -12,7 +12,7 @@ import parseSegments from './parseSegments';
 const _isPromiseLike = <T,>( value: unknown, ): value is PromiseLike<T> => isObj( value, )
 	&& 'then' in value && isFunc( value?.then, );
 
-export default function handleSetHistoryWrap<
+export default function handleWrap<
 	S extends DS,
 >(
 	getDraft: GetDraftRecord<S>['getDraft'],
@@ -32,24 +32,27 @@ export default function handleSetHistoryWrap<
 		throw new Error( 'Wrapper method second parameter needs a callback function to wrap', );
 	}
 
+	const statePathArray = isStr( statePath, )
+		? parseSegments( statePath, )
+		: Array.isArray( statePath, )
+			? statePath as Array<string | number>
+			: null;
+
 	return function wrap( ...wrapArgs: unknown[] ) {
 		const [historyDraft, finalize,] = getDraft();
 		let result: unknown;
 		if ( isStatePathFunction ) {
 			result = statePath(
-				{
-					...history,
+				callbackPropsProxy( {
 					historyDraft,
-				},
+					history,
+				}, ),
 				...wrapArgs,
 			);
 		}
-		else if ( _isValidStatePath && isNextStateType ) {
-			const statePathArray = isStr( statePath, )
-				? parseSegments( statePath, )
-				: statePath as Array<string | number>;
+		else if ( _isValidStatePath && isNextStateType && statePathArray ) {
 			result = nextState(
-				createArrayPathProxy( {
+				callbackPropsProxy( {
 					historyDraft,
 					history,
 					statePathArray,
@@ -58,20 +61,16 @@ export default function handleSetHistoryWrap<
 			);
 		}
 
-		if ( isDraft( result, ) ) {
-			throw new Error( 'Cannot return mutable objects', );
-		}
-
 		if ( _isPromiseLike( result, ) ) {
 			return result.then( ( res, ) => {
-				if ( isDraft( res, ) ) {
-					throw new Error( 'Cannot return mutable objects', );
-				}
+				const final = isDraft( res, ) ? current( res as object, ) : res;
 				finalize();
-				return res;
+				return final;
 			}, );
 		}
+
+		const final = isDraft( result, ) ? current( result as object, ) : result;
 		finalize();
-		return result;
+		return final;
 	};
 }

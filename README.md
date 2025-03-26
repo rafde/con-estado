@@ -94,7 +94,7 @@ const useGlobalSelector = createConStore( initialState, {
 });
 
 function App() {
-  const [state, { setWrap, acts }] = useGlobalSelector();
+  const [state, { wrap, acts }] = useGlobalSelector();
 
   return (
     <div>
@@ -106,10 +106,10 @@ function App() {
         onChange={acts.onChangeInput}
       />
       <button
-        onClick={setWrap('user.preferences.notifications.email', (props) => {
-          console.log('toggle email was ', props.draft);
-          props.draft = !props.draft;
-          console.log('toggle email is ', props.draft);
+        onClick={wrap('user.preferences.notifications.email', (props) => {
+          console.log('toggle email was ', props.stateProp);
+          props.stateProp = !props.draft;
+          console.log('toggle email is ', props.stateProp);
         })}
       >
         Toggle Email Notifications:{' '}
@@ -193,7 +193,7 @@ const initialState = {
 };
 
 function App() {
-  const [ state, { setWrap, acts } ] = useCon( initialState, {
+  const [ state, { wrap, acts } ] = useCon( initialState, {
     acts: ({ set }) => ({
       onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
         const name = event.target.name as unknown as Parameters<typeof set>[0];
@@ -214,10 +214,10 @@ function App() {
         onChange={acts.onChangeInput}
       />
       <button
-        onClick={setWrap('user.preferences.notifications.email', (props) => {
-          console.log('toggle email was ', props.draft);
-          props.draft = !props.draft;
-          console.log('toggle email is ', props.draft);
+        onClick={wrap('user.preferences.notifications.email', (props) => {
+          console.log('toggle email was ', props.stateProp);
+          props.stateProp = !props.stateProp;
+          console.log('toggle email is ', props.stateProp);
         })}
       >
         Toggle Email Notifications:{' '}
@@ -266,10 +266,9 @@ set('todos', []);            // Clear array
 
 - [`set`](#set): Replace value at path
 - [`merge`](#merge): Merge `object`s/`array`s at path
-- [`setWrap`](#setwrap): Modify value using a callback that can return a value
+- [`wrap`](#wrap): Modify value using a callback that can return a value
 - [`setHistory`](#sethistory): Set both `state` and `initial`
 - [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`
-- [`setHistoryWrap`](#sethistorywrap): Modify both `state` and `initial` using a callback that can return a value
 
 </section>
 <section className="relative space-y-2">
@@ -444,8 +443,7 @@ useCon(
       reset,
       set,
       setHistory,
-      setHistoryWrap,
-      setWrap,
+      wrap,
     } ) => ( {
       // your actions with async support
       yourAction( props, ) {
@@ -559,8 +557,7 @@ useCon(
     reset,
     set,
     setHistory,
-    setHistoryWrap,
-    setWrap,
+    wrap,
     state,
     subscribe,
     useSelector, // only available in `useCon`
@@ -583,8 +580,7 @@ createConStore(
     reset,
     set,
     setHistory,
-    setHistoryWrap,
-    setWrap,
+    wrap,
     state,
     subscribe,
   }, ) => unknown // unknown represents the return type of your choice
@@ -604,7 +600,7 @@ Examples:
 const setCount = useCon( 
   initialState,
    controls => controls.state.count < 10
-    ? controls.setWrap('count')
+    ? controls.wrap('count')
     : () => {}
 );
 
@@ -621,7 +617,7 @@ const setCount = useCon( initialState, controls => (value) => {
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
   setCount: controls.state.count < 10
-   ? controls.setWrap('count')
+   ? controls.wrap('count')
    : () => {}
 }));
 ```
@@ -678,7 +674,7 @@ example
 const setCount = useCon( 
   initialState,
   controls => controls.state.count < 10
-   ? controls.setWrap('count')
+   ? controls.wrap('count')
    : () => {}
 );
 
@@ -692,7 +688,7 @@ const setCount = useCon( initialState, controls => (value) => {
 // This will re-render when `controls.state.count` value is updated
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
-  setCount: controls.state.count < 10 ? controls.setWrap('count') : () => {}
+  setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
 }));
 ```
 
@@ -731,8 +727,7 @@ const {
   reset,
   set,
   setHistory,
-  setHistoryWrap,
-  setWrap,
+  wrap,
   subscribe,
 } = useConSelector
 ```
@@ -749,8 +744,7 @@ const yourSelection = useConSelector(
     reset,
     set,
     setHistory,
-    setHistoryWrap,
-    setWrap,
+    wrap,
     state,
     subscribe,
   }, ) => unknown
@@ -1312,63 +1306,129 @@ const {
 </section>
 <section className="relative space-y-2">
 
-### `setWrap`
+### `wrap`
 
-`setWrap` creates reusable state updater functions that can accept additional parameters. 
+`wrap` creates reusable state updater functions that can accept additional parameters. 
 It supports three different usage patterns:
 
 </section>
 <section className="relative space-y-2">
 
-#### Path-based `setWrap`
+#### `wrap` Callback
 
-Update `state` at a specific path using dot-bracket notation:
+Create reusable state updater functions that can accept additional parameters.
 
 ```tsx
-// state = {
-//   user: {
-//     profile: { name: 'John' },
-//     settings: { theme: 'light' }
+// { state: { count: 1 }, initial: { count: 0 } };
+
+const yourFullStateUpdater = wrap( async ( { state, initial }, count: number ) => {
+  state.count += count;
+  initial.lastUpdated = 'yesterday';
+  state.lastUpdated = 'today';
+  // supports async
+  return await Promise.resolve( state );
+});
+const state = await yourFullStateUpdater( 1 );
+// { state: { count: 2, lastUpdated: 'today' }, initial: { count: 0, lastUpdated: 'yesterday' } };
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `wrap` Callback Parameters
+
+Contains the following parameters:
+1. **props**: [State History](#state-history) properties.
+    - **state**: Mutable `state` object that can be modified in the callback.
+    - **initial**: Mutable `initial` object that can be modified in the callback.
+    - **prev**: Immutable `prev` object.
+    - **prevInitial**: Immutable previous `initial` object.
+    - **changes**: Immutable changes object.
+2. **...args**: Additional arguments passed to the wrap
+
+```ts
+const yourUpdater = wrap( 
+  (
+    {
+      state, // Mutable state
+      initial, // Mutable initial state
+      prev, // Immutable previous state
+      prevInitial, // Immutable previous initial state
+      changes, // Immutable changes
+    },
+    ...args
+  ) => {
+    // your code
+  }, 
+);
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Path-based `wrap`
+
+Update `state` and/or `initial` at a specific path using dot-bracket notation:
+
+```tsx
+// {
+//   state: {
+//     user: {
+//       profile: { name: 'John' },
+//       settings: { theme: 'light' }
+//     },
+//     posts: ['post1', 'post2']
 //   },
-//   posts: ['post1', 'post2']
+//   initial: {
+//     user: {
+//       profile: { name: '' },
+//       settings: { theme: 'light' }
+//     },
+//     posts: ['post1', ]
+//   }
 // };
 
 // String path
-const setName = setWrap( 'user.profile.name', (props, name) => {
-  props.draft = name;
+const setName = wrap( 'user.profile.name', ( props, name ) => {
+  props.initialProp = props.stateProp;
+  props.stateProp = name;
 });
 
 setName( 'Jane' );
+// initial.user.profile.name === 'John'
 // state.user.profile.name === 'Jane'
 
 // Array path
-const setTheme = setWrap( ['user', 'settings', 'theme'], (props, theme) => {
-  props.draft = theme;
+const setTheme = wrap( [ 'user', 'settings', 'theme' ], ( props, theme ) => {
+  props.initialProp = props.stateProp;
+  props.stateProp = theme;
 });
 
 setTheme( 'dark' );
+// initial.user.settings.theme === 'light'
 // state.user.settings.theme === 'dark'
 
 // Array indices
-const updatePost = setWrap( 'posts[0]', (props, post) => {
-  props.draft = post;
+const updatePost = wrap( 'posts[0]', ( props, post ) => {
+  props.stateProp = post;
 });
-// setWrap( ['posts', 0], (props, post) => { props.draft = post; });
+// wrap( [ 'posts', 0 ], ( props, post ) => { props.stateProp = post; });
 
 updatePost( 'updated post' );
 // state.posts[0] = 'updated post'
 
 // Clear array
-const clearPosts = setWrap( 'posts', (props) => {
-  props.draft = [];
+const clearPosts = wrap( 'posts', ( props ) => {
+  props.stateProp = [];
 });
-// const clearPosts = setWrap( [ 'posts' ], (props) => { props.draft = []; });
+// const clearPosts = wrap( [ 'posts' ], ( props ) => { props.stateProp = []; });
 
 clearPosts();
 // state.posts = []
 ```
 
-Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]`
+is valid if 'posts' has at least one element.
 
 ```ts
 // state = { posts: [ 
@@ -1376,8 +1436,8 @@ Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', 
 //  { title: 'Second post', content: 'Second post content', }, 
 // ], }
 
-const setLastPost = setWrap( 'posts[-1]', (props, post) => {
-  props.draft = post;
+const setLastPost = wrap( 'posts[-1]', (props, post) => {
+  props.stateProp = post;
 });
 
 setLastPost( { title: 'Updated Second Title', });
@@ -1386,8 +1446,8 @@ setLastPost( { title: 'Updated Second Title', });
 //  { title: 'Updated Second Title', content: 'Second post content', }, 
 // ], }; 
 
-const setPenultimatePost = setWrap( [ 'posts', -2 ], (props, post) => {
-  props.draft = post;
+const setPenultimatePost = wrap( [ 'posts', -2 ], ( props, post ) => {
+  props.stateProp = post;
 } );
 
 setPenultimatePost( { title: 'Updated First Content' }, );
@@ -1396,8 +1456,8 @@ setPenultimatePost( { title: 'Updated First Content' }, );
 //  { title: 'Updated Second Title', content: 'Second post content', },
 // ], }; 
 
-const setPenPenultimatePost = setWrap( 'posts[-3]', (props, post) => {
-  props.draft = post;
+const setPenPenultimatePost = wrap( 'posts[-3]', ( props, post ) => {
+  props.stateProp = post;
 }, );
 
 setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
@@ -1416,22 +1476,22 @@ Throws errors in these situations:
 // };
 
 // Invalid paths
-const yourUpdater = setWrap('count.path.invalid', (props, value) => {
-  props.draft = value;
+const yourUpdater = wrap( 'count.path.invalid', ( props, value ) => {
+  props.stateProp = value;
 }); 
 yourUpdater( 42 ); // Error: `count` is not an object.
 
 // Out of bounds
-const outOfBoundsUpdater = setWrap('posts[-999]', (props, value) => {
-  props.draft = value;
+const outOfBoundsUpdater = wrap( 'posts[-999]', ( props, value ) => {
+  props.stateProp = value;
 });
-outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-##### setWrap Special Character Paths
+##### `wrap` Special Character Paths
 
 Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
 
@@ -1444,11 +1504,11 @@ Does not apply to array path keys.
 //   },
 // };
 
-const yourUpdater = setWrap( 'path.user\\.name\\[s]', (props, value) => {
-  props.draft = value;
+const yourUpdater = wrap( 'path.user\\.name\\[s]', ( props, value ) => {
+  props.stateProp = value;
 }, );
-// setWrap( [ 'path', 'user.name[s]' ], '(props, value) => {
-//  props.draft = value;
+// wrap( [ 'path', 'user.name[s]' ], ( props, value ) => {
+//  props.stateProp = value;
 //}, ); );
 yourUpdater( 'New Name' );
 // state.path.user.name[s] === 'New Name'
@@ -1457,7 +1517,7 @@ yourUpdater( 'New Name' );
 </section>
 <section className="relative space-y-2">
 
-#### `setWrap` Non-existing Paths
+##### `wrap` Non-existing Paths
 
 When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
 
@@ -1466,8 +1526,8 @@ When setting a value at a non-existing path, intermediate `object`s or `array`s 
 //   count: 1,
 //};
 
-const yourUpdater = setWrap( 'deeply.nested.value', (props, value) => {
-  props.draft = value;
+const yourUpdater = wrap( 'deeply.nested.value', ( props, value ) => {
+  props.stateProp = value;
 });
 yourUpdater( 42 );
 // state = {
@@ -1479,12 +1539,12 @@ yourUpdater( 42 );
 // };
 
 // Arrays are created when using numeric paths
-const yourItemUpdater = setWrap('items[0].name', (props, name) => {
-  props.draft = name;
+const yourItemUpdater = wrap( 'items[0].name', ( props, name ) => {
+  props.stateProp = name;
 });
 yourItemUpdater( 'First' );
 // state = {
-//   items: [{ name: 'First' }]
+//   items: [ { name: 'First' } ]
 // };
 ```
 
@@ -1497,105 +1557,48 @@ Throws errors in these situations:
 ```ts
 // state = {
 //   count: 1,
-//   posts: ['post1', 'post2']
+//   posts: [ 'post1', 'post2' ]
 // };
 
 // Invalid paths
-const yourUpdater = setWrap('count.path.invalid', (props, value) => {
-  props.draft = value;
+const yourUpdater = wrap('count.path.invalid', ( props, value ) => {
+  props.stateProp = value;
 }); 
 yourUpdater( 42 ); // Error: `count` is not an object.
 
 // Out of bounds
-const outOfBoundsUpdater = setWrap('posts[-999]', (props, value) => {
-  props.draft = value;
+const outOfBoundsUpdater = wrap('posts[-999]', ( props, value ) => {
+  props.stateProp = value;
 });
-outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
+outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
+
 <section className="relative space-y-2">
 
-#### `setWrap` Callback
+##### Path-based `wrap` Callback Parameters
 
-Create reusable state updater functions that can accept additional parameters.
-
-```tsx
-// state = { count: 1 };
-
-const yourPathBasedUpdater = setWrap(
-  'count',
-  (props) => {
-    props.draft += 1;
-    
-    return props.draft;
-  }
-);
-// state.count === 2
-
-// With full state access
-const yourFullStateUpdater = setWrap( ({ draft }) => {
-  draft.count += 1;
-  draft.lastUpdated = Date.now();
-});
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### `setWrap` Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-- **draft**: The mutable part of the `state` object that can be modified in the callback.
-- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
--
-```ts
-const yourUpdater = setWrap( 
-  (
-    {
-      historyDraft, // Mutable state and initial
-      draft, // Mutable state
-      state, // Immutable state
-      prev, // Immutable previous state
-      initial, // Immutable initial state
-      prevInitial, // Immutable previous initial state
-      changes, // Immutable changes
-    },
-    ...args
-  ) => {
-    // your code
-  }, 
-);
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### `setWrap` Path-based Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-
-- **draft**: The mutable part of the `state` value relative to path.
-	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
-		- i.e. `setWrap( 'path.to.primitive', (props) => props.draft = 5 )`
-- **stateProp**: The current immutable `state` value relative to path.
-- **initialProp**: The `initial` immutable value relative to path.
-- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
-- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
-- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
+Same as [wrap Callback Parameters](#wrap-callback-parameters) plus:
+- **stateProp**: Mutable `state` value relative to path.
+- **initialProp**: Mutable `initial` value relative to path.
+- **prevProp**: Immutable `prev` value relative to path. Can be `undefined`.
+- **prevInitialProp**: Immutable `prevInitial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable `changes` value relative to path. Can be `undefined`.
 
 ```ts
-const yourUpdater = setWrap( 
+const yourUpdater = wrap( 
   'my.data', 
   (
     {
-      historyDraft, state, prev, initial, prevInitial, changes,
-      draft, // Mutable state value relative to path
-      stateProp, // Immutable state value relative to path
-      prevProp, // Immutable previous state value relative to path
-      initialProp, // Immutable initial value relative to path
-      prevInitialProp, // Immutable previous initial value relative to path
-      changesProp, // Immutable changed value made to state value relative to path
+      // same as wrap( callback )
+      state, prev, initial, prevInitial, changes,
+      // Path-based properties
+      stateProp, // Mutable `state` value relative to path
+      initialProp, // Mutable `initial` value relative to path
+      prevProp, // Immutable `prev` state value relative to path
+      prevInitialProp, // Immutable `prevInitial` value relative to path
+      changesProp, // Immutable `changes` value made to state value relative to path
     },
     ...args
   ) => {
@@ -1606,30 +1609,25 @@ const yourUpdater = setWrap(
 </section>
 <section className="relative space-y-2">
 
-#### `setWrap` Return Values
+#### `wrap` Return Values
 
-Wrapped functions can return values:
+Wrapped functions can return Promise-like or non-Promise values:
 
 ```tsx
-// state = { items: ['a', 'b', 'c'] }
+// state = { items: [ 'a', 'b', 'c' ] }
 
-const removeItem = setWrap(
-  ({ draft }, index: number) => {
-    const removed = draft.items[index];
-    draft.items.splice(index, 1);
+const removeItem = wrap(
+  ( { state }, index: number) => {
+    const removed = state.items[index];
+    state.items.splice(index, 1);
     return removed;
   }
 );
 
 // Usage
 const removed = removeItem(1);  // returns 'b'
-// state.items === ['a', 'c']
+// state.items === [ 'a', 'c' ]
 ```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Returning Mutable Objects
 
 </section>
 <section className="relative space-y-2">
@@ -2075,329 +2073,6 @@ setHistory( 'initial.my.data', ( {
   // your code
 }, );
 ```
-
-</section>
-<section className="relative space-y-2">
-
-### `setHistoryWrap`
-
-`setHistoryWrap` creates reusable state updater functions for `state` and `initial` that can accept additional parameters.
-It supports three different usage patterns:
-
-</section>
-<section className="relative space-y-2">
-
-#### Path-based `setHistoryWrap`
-
-Update `state` and `initial` at a specific path using dot-bracket notation:
-
-```tsx
-// initial = {
-//   user: {
-//     profile: { name: 'John' },
-//     settings: { theme: 'light' }
-//   },
-//   posts: ['post1', 'post2']
-// };
-
-// String path
-const setName = setHistoryWrap( 'initial.user.profile.name', (props, name) => {
-  props.draft = name;
-});
-
-setName( 'Jane' );
-// initial.user.profile.name === 'Jane'
-
-// Array path
-const setTheme = setHistoryWrap( [ 'initial', 'user', 'settings', 'theme'], (props, theme) => {
-  props.draft = theme;
-});
-
-setTheme( 'dark' );
-// initial.user.settings.theme === 'dark'
-
-// Array indices
-const updatePost = setHistoryWrap( 'initial.posts[0]', (props, post) => {
-  props.draft = post;
-});
-// setHistoryWrap( [ 'initial', 'posts', 0], (props, post) => { props.draft = post; });
-
-updatePost( 'updated post' );
-// initial.posts[0] = 'updated post'
-
-// Clear array
-const clearPosts = setHistoryWrap( 'initial.posts', (props) => {
-  props.draft = [];
-});
-// const clearPosts = setHistoryWrap( [ 'initial', 'posts' ], (props) => { props.draft = []; });
-
-clearPosts();
-// initial.posts = []
-```
-
-Negative indices are allowed, but they can't be out of bounds. E.g., `[ 'initial', ''posts', -1 ]`
-or `initial.posts[-1]` is valid if 'posts' has at least one element.
-
-```ts
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Second post', content: 'Second post content', }, 
-// ], }
-
-const setLastPost = setHistoryWrap( 'initial.posts[-1]', (props, post) => {
-  props.draft = post;
-});
-
-setLastPost( { title: 'Updated Second Title', });
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Updated Second Title', content: 'Second post content', }, 
-// ], }; 
-
-const setPenultimatePost = setHistoryWrap( [ 'initial', 'posts', -2 ], ( props, post ) => {
-  props.draft = post;
-} );
-
-setPenultimatePost( { title: 'Updated First Content' }, );
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
-
-const setPenPenultimatePost = setHistoryWrap( 'initial.posts[-3]', ( props, post ) => {
-  props.draft = post;
-}, );
-
-setPenPenultimatePost( { title: 'Third Title', }, ); // throws error
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Trying to access non-object/array properties with dot-bracket notation
-- Out of bounds negative indices
-
-```ts
-// initial = {
-//   count: 1,
-//   posts: ['post1', 'post2']
-// };
-
-// Invalid paths
-const yourUpdater = setHistoryWrap('initial.count.path.invalid', ( props, value ) => {
-  props.draft = value;
-}); 
-yourUpdater( 42 ); // Error: `count` is not an object.
-
-// Out of bounds
-const outOfBoundsUpdater = setHistoryWrap('initial.posts[-999]', ( props, value ) => {
-  props.draft = value;
-});
-outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### `setHistoryWrap` Special Character Paths
-
-Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
-
-Does not apply to array path keys.
-
-```ts
-// initial = {
-//   path: {
-//     'user.name[s]': 'Name',
-//   },
-// };
-
-const yourUpdater = setHistoryWrap( 'initial.path.user\\.name\\[s]', ( props, value ) => {
-  props.draft = value;
-}, );
-// setWrap( [ 'path', 'user.name[s]' ], '( props, value ) => {
-//  props.draft = value;
-//}, ); );
-yourUpdater( 'New Name' );
-// initial.path.user.name[s] === 'New Name'
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### `setHistoryWrap` Non-existing Paths
-
-When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
-
-```tsx
-// initial = {
-//   count: 1,
-//};
-
-const yourUpdater = setHistoryWrap( 'initial.deeply.nested.value', ( props, value ) => {
-  props.draft = value;
-});
-yourUpdater( 42 );
-// initial = {
-//   deeply: {
-//     nested: {
-//       value: 42
-//     }
-//   }
-// };
-
-// Arrays are created when using numeric paths
-const yourItemUpdater = setHistoryWrap('initial.items[0].name', ( props, name ) => {
-  props.draft = name;
-});
-yourItemUpdater( 'First' );
-// initial = {
-//   items: [{ name: 'First' }]
-// };
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Trying to access non-object/array properties with dot-bracket notation
-- Out of bounds negative indices
-
-```ts
-// initial = {
-//   count: 1,
-//   posts: ['post1', 'post2']
-// };
-
-// Invalid paths
-const yourUpdater = setHistoryWrap('initial.count.path.invalid', ( props, value ) => {
-  props.draft = value;
-}); 
-yourUpdater( 42 ); // Error: `count` is not an object.
-
-// Out of bounds
-const outOfBoundsUpdater = setHistoryWrap( 'initial.posts[-999]', ( props, value ) => {
-  props.draft = value;
-});
-outOfBoundsUpdater('value');  // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### `setHistoryWrap` Callback
-
-Create reusable state updater functions that can accept additional parameters.
-
-```tsx
-// initial = { count: 1 };
-
-const yourPathBasedUpdater = setHistoryWrap(
-  'initial.count',
-  (props) => {
-    props.draft += 1;
-    
-    return props.draft;
-  }
-);
-// initial.count === 2
-
-// With full state access
-const yourFullStateUpdater = setHistoryWrap( ({ draft }) => {
-  draft.initial.count += 1;
-  draft.initial.lastUpdated = Date.now();
-});
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### `setHistoryWrap` Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-- **draft**: The mutable part of the `state` object that can be modified in the callback.
-- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
--
-```ts
-const yourUpdater = setHistoryWrap( 
-  (
-    {
-      historyDraft, // Mutable state and initial
-      draft, // Mutable state
-      state, // Immutable state
-      prev, // Immutable previous state
-      initial, // Immutable initial state
-      prevInitial, // Immutable previous initial state
-      changes, // Immutable changes
-    },
-    ...args
-  ) => {
-    // your code
-  }, 
-);
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### `setHistoryWrap` Path-based Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-
-- **draft**: The mutable part of the `state` value relative to path.
-	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
-		- i.e. `setHistoryWrap( 'initial.path.to.primitive', (props) => props.draft = 5 )`
-- **stateProp**: The current immutable `state` value relative to path.
-- **initialProp**: The `initial` immutable value relative to path.
-- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
-- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
-- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
-
-```ts
-const yourUpdater = setHistoryWrap( 
-  'initial.my.data', 
-  (
-    {
-      historyDraft, state, prev, initial, prevInitial, changes,
-      draft, // Mutable state value relative to path
-      stateProp, // Immutable state value relative to path
-      prevProp, // Immutable previous state value relative to path
-      initialProp, // Immutable initial value relative to path
-      prevInitialProp, // Immutable previous initial value relative to path
-      changesProp, // Immutable changed value made to state value relative to path
-    },
-    ...args
-  ) => {
-    // your code
-}, );
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### `setHistoryWrap` Return Values
-
-Wrapped functions can return values:
-
-```tsx
-// initial = { items: ['a', 'b', 'c'] }
-
-const removeItem = setHistoryWrap(
-  ({ draft }, index: number) => {
-    const removed = draft.initial.items[index];
-    draft.initial.items.splice(index, 1);
-    return removed;
-  }
-);
-
-// Usage
-const removed = removeItem(1);  // returns 'b'
-// initial.items === ['a', 'c']
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Returning Mutable Objects
 
 </section>
 <section className="relative space-y-2">
