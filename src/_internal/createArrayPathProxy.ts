@@ -83,6 +83,10 @@ export default function createArrayPathProxy<
 				return getDeepValueParentByArray( historyDraft, statePathArray, )[ 0 ];
 			}
 
+			if ( prop in history ) {
+				return Reflect.get( history, prop, );
+			}
+
 			return Reflect.get( target, prop, );
 		},
 
