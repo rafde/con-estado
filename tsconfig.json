@@ -34,8 +34,7 @@
 			"vitest/globals"
 		],
 		"useDefineForClassFields": true,
-		"useUnknownInCatchVariables": true,
-		"verbatimModuleSyntax": true
+		"useUnknownInCatchVariables": true
 	},
 	"exclude": [
 		"./node_modules",
