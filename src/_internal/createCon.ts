@@ -4,7 +4,6 @@ import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConReturnType, } from '../types/CreateConReturnType';
 import type { DS, } from '../types/DS';
 import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
-import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
@@ -12,8 +11,8 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
-import handleSetHistoryWrap from './handleSetWrapHistory';
 import handleStateUpdate from './handleStateUpdate';
+import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
@@ -121,10 +120,6 @@ export default function createCon<
 		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 
-	function setHistoryWrap( ...args: unknown[] ) {
-		return handleSetHistoryWrap( getDraft as GetDraftRecord<S>['getDraft'], history, ...args, );
-	}
-
 	function setHistory( ...args: unknown[] ) {
 		if ( args.length === 0 ) {
 			return history;
@@ -153,9 +148,8 @@ export default function createCon<
 			return setHistory( ..._returnStateArgs( args, ), );
 		},
 		setHistory,
-		setHistoryWrap,
-		setWrap( ...args: unknown[] ) {
-			return setHistoryWrap( ..._returnStateArgs( args, ), );
+		wrap( ...args: unknown[] ) {
+			return handleWrap( getDraft, history, ...args, );
 		},
 	};
 

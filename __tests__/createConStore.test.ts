@@ -105,10 +105,10 @@ describe( 'createConStore', () => {
 	describe( 'selector', () => {
 		it( 'should return the correct state based on the useConSelector selector', () => {
 			const { result, } = renderHook( () => useConSelector( props => ( {
-				setText: props.setHistoryWrap(
-					'state.test',
+				setText: props.wrap(
+					'test',
 					( props, text: string, ) => {
-						props.draft = text;
+						props.stateProp = text;
 					},
 				),
 				test: props.state.test,
@@ -123,10 +123,10 @@ describe( 'createConStore', () => {
 
 		it( 'should not trigger other hooks', () => {
 			const { result, } = renderHook( () => useConSelector( props => ( {
-				setText: props.setHistoryWrap(
-					'state.test',
+				setText: props.wrap(
+					'test',
 					( props, text: string, ) => {
-						props.draft = text;
+						props.stateProp = text;
 					},
 				),
 				test: props.state.test,
@@ -147,10 +147,10 @@ describe( 'createConStore', () => {
 			const useConSelector = createConStore(
 				initialState,
 				props => ( {
-					setText: props.setHistoryWrap(
-						'state.test',
+					setText: props.wrap(
+						'test',
 						( props, text: string, ) => {
-							props.draft = text;
+							props.stateProp = text;
 						},
 					),
 					test: props.state.test,
@@ -173,10 +173,10 @@ describe( 'createConStore', () => {
 				} ),
 			);
 			const { result, } = renderHook( () => useConSelector( props => ( {
-				setText: props.setHistoryWrap(
-					'state.test',
+				setText: props.wrap(
+					'test',
 					( props, text: string, ) => {
-						props.draft = text;
+						props.stateProp = text;
 					},
 				),
 				test: props.state.test,

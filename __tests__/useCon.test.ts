@@ -32,8 +32,7 @@ describe( 'useCon', () => {
 				reset: props.reset,
 				set: props.set,
 				setHistory: props.setHistory,
-				setHistoryWrap: props.setHistoryWrap,
-				setWrap: props.setWrap,
+				wrap: props.wrap,
 				state: props.state,
 				subscribe: props.subscribe,
 				useSelector: props.useSelector,
@@ -167,10 +166,10 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setText: props.setHistoryWrap(
-						'state.text',
+					setText: props.wrap(
+						'text',
 						( props, text: string, ) => {
-							props.draft = text;
+							props.stateProp = text;
 						},
 					),
 				} ),

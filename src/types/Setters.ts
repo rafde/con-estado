@@ -41,6 +41,24 @@ type ArrayPathProps<
 	historyDraft: Draft<HistoryState<S>>
 };
 
+type CallbackPathProps<
+	S extends DS,
+	SP extends StringPathToArray<NestedRecordKeys<S>>,
+> = CallbackProps<S>
+	& {
+		stateProp: GetArrayPathValue<Draft<S>, SP>
+		initialProp: GetArrayPathValue<Draft<S>, SP>
+	}
+	& {
+		changesProp: GetArrayPathValue<S, SP> | undefined
+		prevInitialProp: GetArrayPathValue<S, SP> | undefined
+		prevProp: GetArrayPathValue<S, SP> | undefined
+	};
+
+type CallbackProps<
+	S extends DS,
+> = Immutable<Omit<History<S>, 'state' | 'initial'>> & Draft<HistoryState<S>>;
+
 /**
  * Properties passed to callback functions when updating state history through historyDraft mutations.
  * Combines the current history state with a mutable historyDraft for making changes.
@@ -190,127 +208,6 @@ type SetHistory<
 	): History<S>
 };
 
-type SetHistoryWrap<
-	S extends DS,
-	NS extends HistoryState<S> = HistoryState<S>,
-	RK extends NestedRecordKeys<NS> = NestedRecordKeys<NS>,
-> = {
-	/**
-	 * Creates a wrapped version of setHistory that accepts additional arguments.
-	 * Enables creating reusable state update functions with parameterized behavior.
-	 *
-	 * @template S - Base state type
-	 * @template NS - Next state type (must extend HistoryState<S>)
-	 * @template RK - Nested record keys type
-	 * @template A - Array of argument types for the wrapped function
-	 * @template R - Return type of the wrapped function
-	 *
-	 * @overload Function-based wrapper
-	 * @param nextState - Callback receiving history draft and additional arguments
-	 * @returns Wrapped function accepting the specified arguments
-	 *
-	 * @overload Array path-based wrapper
-	 * @param statePath - Array path to target state property
-	 * @param nextState - Callback receiving targeted draft and additional arguments
-	 * @returns Wrapped function accepting the specified arguments
-	 *
-	 * @overload String path-based wrapper
-	 * @param statePath - Dot notation path to target state property
-	 * @param nextState - Callback receiving targeted draft and additional arguments
-	 * @returns Wrapped function accepting the specified arguments
-	 *
-	 * @example Function-based wrapper
-	 * ```ts
-	 * const updateCount = controls.setHistoryWrap(
-	 *   ({ historyDraft }, multiplier: number) => {
-	 *     historyDraft.state.count *= multiplier;
-	 *   }
-	 * );
-	 *
-	 * updateCount(2); // Doubles count
-	 * updateCount(0.5); // Halves count
-	 * ```
-	 *
-	 * @example Array path wrapper
-	 * ```ts
-	 * const updateItem = controls.setHistoryWrap(
-	 *   ['initial', 'items', 0],
-	 *   ({ draft }, name: string, price: number) => {
-	 *     draft.name = name;
-	 *     draft.price = price;
-	 *   }
-	 * );
-	 *
-	 * updateItem('Book', 29.99);
-	 * ```
-	 *
-	 * @example String path wrapper
-	 * ```ts
-	 * const updateUser = controls.setHistoryWrap(
-	 *   'initial.users.active',
-	 *   ({ draft }, name: string, age: number) => {
-	 *     draft.name = name;
-	 *     draft.age = age;
-	 *   }
-	 * );
-	 *
-	 * updateUser('Alice', 30);
-	 * ```
-	 *
-	 * @remarks
-	 * - Supports async operations with Promise return values
-	 * - Maintains type safety for arguments and return values
-	 * - Cannot return mutable draft objects
-	 * - Path-based wrappers support both array and dot notation
-	 * - Useful for creating reusable parameterized state updates
-	 *
-	 * @throws {Error} When returning mutable draft objects
-	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
-	 * @throws {Error} When path has out-of-bounds negative indices
-	 *
-	 * @see {@link History} For history object structure
-	 * @see {@link CallbackHistoryDraftProps} For function wrapper parameters
-	 * @see {@link ArrayPathProps} For path-based wrapper parameters
-	 */
-	setHistoryWrap<
-		A extends unknown[],
-		R = unknown,
-	>(
-		nextState: (
-			props: CallbackHistoryDraftProps<S>,
-			...args: A
-		) => R
-	): ( ...args: A ) => R
-
-	setHistoryWrap<
-		SP extends StringPathToArray<RK>,
-		A extends unknown[],
-		R = unknown,
-	>(
-		statePath: SP,
-		nextState: (
-			(
-				props: ArrayPathProps<S, NS, SP>,
-				...args: A
-			) => R
-		),
-	): ( ...args: A ) => R
-
-	setHistoryWrap<
-		SP extends RK,
-		A extends unknown[],
-		R = unknown,
-	>(
-		statePath: SP,
-		nextState: (
-			(
-				props: ArrayPathProps<S, NS, StringPathToArray<SP>>,
-				...args: A
-			) => R
-		),
-	): ( ...args: A ) => R
-};
-
 type SetState<
 	S extends DS,
 > = {
@@ -436,14 +333,12 @@ type SetState<
 	): History<S>
 };
 
-type SetWrap<
+type Wrap<
 	S extends DS,
 	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
 > = {
 	/**
-	 * Creates a wrapped version of set that accepts additional arguments.
 	 * Enables creating reusable state update functions with parameterized behavior.
-	 * Unlike setHistoryWrap, only updates current state (not initial).
 	 *
 	 * @template S - Base state type
 	 * @template RK - Nested record keys type
@@ -451,23 +346,23 @@ type SetWrap<
 	 * @template R - Return type of the wrapped function
 	 *
 	 * @overload Function-based wrapper
-	 * @param nextState - Callback receiving draft and additional arguments
+	 * @param nextState - Callback receiving mutable `state` and/or `initial`, and additional arguments
 	 * @returns Wrapped function accepting the specified arguments
 	 *
 	 * @overload Array path-based wrapper
-	 * @param statePath - Array path to target state property
-	 * @param nextState - Callback receiving targeted draft and additional arguments
+	 * @param statePath - Array path to target `state` and/or `initial` property
+	 * @param nextState - Callback receiving targeted mutable `state` and/or `initial`, and additional arguments
 	 * @returns Wrapped function accepting the specified arguments
 	 *
 	 * @overload String path-based wrapper
-	 * @param statePath - Dot notation path to target state property
-	 * @param nextState - Callback receiving targeted draft and additional arguments
+	 * @param statePath - Dot-bracket notation path to target `state` and/or `initial` property
+	 * @param nextState - Callback receiving targeted mutable `state` and/or `initial`, and additional arguments
 	 * @returns Wrapped function accepting the specified arguments
 	 *
 	 * @example Function-based wrapper
 	 * ```ts
-	 * const updateCount = controls.setWrap(
-	 *   ({ draft }, multiplier: number) => {
+	 * const updateCount = controls.wrap(
+	 *   ({ state }, multiplier: number) => {
 	 *     draft.count *= multiplier;
 	 *   }
 	 * );
@@ -478,11 +373,11 @@ type SetWrap<
 	 *
 	 * @example Array path wrapper
 	 * ```ts
-	 * const updateItem = controls.setWrap(
+	 * const updateItem = controls.wrap(
 	 *   ['items', 0],
-	 *   ({ draft }, name: string, price: number) => {
-	 *     draft.name = name;
-	 *     draft.price = price;
+	 *   ({ stateProp }, name: string, price: number) => {
+	 *     stateProp.name = name;
+	 *     stateProp.price = price;
 	 *   }
 	 * );
 	 *
@@ -491,11 +386,11 @@ type SetWrap<
 	 *
 	 * @example String path wrapper
 	 * ```ts
-	 * const updateUser = controls.setWrap(
+	 * const updateUser = controls.wrap(
 	 *   'users.active',
-	 *   ({ draft }, name: string, age: number) => {
-	 *     draft.name = name;
-	 *     draft.age = age;
+	 *   ({ stateProp }, name: string, age: number) => {
+	 *     stateProp.name = name;
+	 *     stateProp.age = age;
 	 *   }
 	 * );
 	 *
@@ -504,10 +399,10 @@ type SetWrap<
 	 *
 	 * @example Async operations
 	 * ```ts
-	 * const fetchAndUpdateUser = controls.setWrap(
-	 *   async ({ draft }, userId: string) => {
+	 * const fetchAndUpdateUser = controls.wrap(
+	 *   async ({ state }, userId: string) => {
 	 *     const user = await fetchUser(userId);
-	 *     draft.users[userId] = user;
+	 *     state.users[userId] = user;
 	 *     return user;
 	 *   }
 	 * );
@@ -518,30 +413,27 @@ type SetWrap<
 	 * @remarks
 	 * - Supports async operations with Promise return values
 	 * - Maintains type safety for arguments and return values
-	 * - Cannot return mutable draft objects
-	 * - Path-based wrappers support both array and dot notation
+	 * - Path-based wrappers support both array and dot-bracket notation
 	 * - Useful for creating reusable parameterized state updates
-	 * - Only updates current state, not initial state
 	 *
-	 * @throws {Error} When returning mutable draft objects
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link CallbackDraftProps} For function wrapper parameters
-	 * @see {@link ArrayPathProps} For path-based wrapper parameters
+	 * @see {@link CallbackProps} For function wrapper parameters
+	 * @see {@link CallbackPathProps} For path-based wrapper parameters
 	 */
-	setWrap<
+	wrap<
 		A extends unknown[],
 		R = unknown,
 	>(
 		nextState: (
-			props: CallbackDraftProps<S>,
+			props: CallbackProps<S>,
 			...args: A
 		) => R
 	): ( ...args: A ) => R
 
-	setWrap<
+	wrap<
 		SP extends StringPathToArray<RK>,
 		A extends unknown[],
 		R = unknown,
@@ -549,13 +441,13 @@ type SetWrap<
 		statePath: SP,
 		nextState: (
 			(
-				props: ArrayPathProps<S, S, SP>,
+				props: CallbackPathProps<S, SP>,
 				...args: A
 			) => R
 		),
 	): ( ...args: A ) => R
 
-	setWrap<
+	wrap<
 		SP extends NestedRecordKeys<S>,
 		A extends unknown[],
 		R = unknown,
@@ -563,7 +455,7 @@ type SetWrap<
 		statePath: SP,
 		nextState: (
 			(
-				props: ArrayPathProps<S, S, StringPathToArray<SP>>,
+				props: CallbackPathProps<S, StringPathToArray<SP>>,
 				...args: A
 			) => R
 		),
@@ -597,6 +489,5 @@ export type Setters<
 & MergeHistory<S>
 & Merge<S>
 & SetHistory<S>
-& SetHistoryWrap<S>
 & SetState<S>
-& SetWrap<S>;
+& Wrap<S>;
