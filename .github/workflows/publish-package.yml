@@ -28,6 +28,8 @@ jobs:
     permissions:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
+    env:
+      PARCEL_WORKER_BACKEND: process
 
     steps:
       - name: Checkout repository
