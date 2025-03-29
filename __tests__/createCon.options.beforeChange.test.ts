@@ -21,9 +21,9 @@ describe( 'createCon - options.beforeChange', () => {
 		}, );
 
 		// Modify state first
-		estado.set( ( { draft, }, ) => {
-			draft.counter = 10;
-			draft.list.push( 'item2', );
+		estado.commit( ( { state, }, ) => {
+			state.counter = 10;
+			state.list.push( 'item2', );
 		}, );
 
 		// Reset should apply beforeChange
@@ -61,8 +61,8 @@ describe( 'createCon - options.beforeChange', () => {
 		}, );
 
 		// Modify state first
-		estado.set( ( { draft, }, ) => {
-			draft.nested.test.example = 'test';
+		estado.commit( ( { state, }, ) => {
+			state.nested.test.example = 'test';
 		}, );
 		const newHistory = estado.get();
 
@@ -90,8 +90,8 @@ describe( 'createCon - options.beforeChange', () => {
 		);
 
 		// Modify state first
-		estado.set( ( { draft, }, ) => {
-			draft.counter = 10;
+		estado.commit( ( { state, }, ) => {
+			state.counter = 10;
 		}, );
 
 		expect( estado.get( 'state.type', ), ).toBe( '', );

@@ -9,38 +9,6 @@ import type { MergeHistory, } from './MergeHistory';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
-/**
- * Properties passed to callback functions when updating state through string path-based mutations.
- * Combines immutable history state with mutable drafts for property modifications.
- *
- * @template S The current state type
- * @template NS The next state type, extending history state or base state
- * @template SP Array path type for accessing nested properties
- * @template History<S> - The current history state (immutable)
- *
- * @typeParam {GetArrayPathValue<NS, SP> | undefined} changesProp - Changes made to the property
- * @typeParam {GetArrayPathValue<NS, SP>} initialProp - Initial value of the property
- * @typeParam {GetArrayPathValue<NS, SP> | undefined} - prevInitialProp - Previous initial value
- * @typeParam {GetArrayPathValue<NS, SP> | undefined} - prevProp Previous value
- * @typeParam {GetArrayPathValue<NS, SP>} stateProp - Current value
- * @typeParam {GetArrayPathValue<NS, SP>} historyDraft - Mutable historyDraft for modifications
- * @typeParam {Draft<HistoryState<S>>} historyDraft - Mutable historyDraft for history state
- */
-type ArrayPathProps<
-	S extends DS,
-	NS extends HistoryState<S> | S,
-	SP extends StringPathToArray<NestedRecordKeys<NS>>,
-> = Immutable<History<S> & {
-	changesProp: GetArrayPathValue<NS, SP> | undefined
-	initialProp: GetArrayPathValue<NS, SP>
-	prevInitialProp: GetArrayPathValue<NS, SP> | undefined
-	prevProp: GetArrayPathValue<NS, SP> | undefined
-	stateProp: GetArrayPathValue<NS, SP>
-}> & {
-	draft: GetArrayPathValue<Draft<NS>, SP>
-	historyDraft: Draft<HistoryState<S>>
-};
-
 type CallbackPathProps<
 	S extends DS,
 	SP extends StringPathToArray<NestedRecordKeys<S>>,
@@ -59,277 +27,113 @@ type CallbackProps<
 	S extends DS,
 > = Immutable<Omit<History<S>, 'state' | 'initial'>> & Draft<HistoryState<S>>;
 
-/**
- * Properties passed to callback functions when updating state history through historyDraft mutations.
- * Combines the current history state with a mutable historyDraft for making changes.
- *
- * @template S - The current state type
- * @template History<S> - The current history state (immutable)
- *
- * @typeParam Draft<HistoryState<S>> historyDraft - The current history state (immutable)
- */
-type CallbackHistoryDraftProps<
-	S extends DS,
-> = History<S> & Readonly<{
-	historyDraft: Draft<HistoryState<S>>
-}>;
-
-type CallbackDraftProps<
-	S extends DS,
-> = CallbackHistoryDraftProps<S> & Readonly<{
-	draft: Draft<S>
-}>;
-
-type SetHistory<
+type Set<
 	S extends DS,
 	NS extends HistoryState<S> = HistoryState<S>,
 > = {
 	/**
-	 * Updates state history with immutable tracking of changes. Supports multiple update patterns:
-	 * - Complete state object replacement
-	 * - Direct mutations via callback
-	 * - Path-based updates (dot notation or array paths)
+	 * Updates state and/or initial values directly with new values.
+	 * Supports both complete state updates and targeted path updates.
 	 *
 	 * @template S - Base state type
-	 * @template NS - Next state type (must extend HistoryState<S>)
+	 * @template NS - History state type (includes both state and initial)
 	 *
-	 * @overload Updates entire history state
-	 * @param nextState - Complete state object extending current state
+	 * @overload Completely replace `state` and/or `initial`
+	 * @param nextState - Object containing new `state` and/or `initial` values
 	 * @returns Updated history object
 	 *
-	 * @overload Updates via mutation callback
-	 * @param nextState - Callback receiving draft for mutations
+	 * @overload String path update
+	 * @param statePath - Dot-bracket notation path to target state property (e.g. 'stateuser.profile.name')
+	 * @param nextState - New value for the targeted property
 	 * @returns Updated history object
 	 *
-	 * @overload Updates via dot notation path
-	 * @param statePath - Dot notation path (e.g. 'state.user.name')
-	 * @param nextState - New value or mutation callback
-	 * @returns Updated history object
-	 *
-	 * @overload Updates via array path
-	 * @param statePath - Array path (e.g. ['state', 'items', 0])
-	 * @param nextState - New value or mutation callback
+	 * @overload Array path update
+	 * @param statePath - Array path to target state property (e.g. ['state', 'user', 'profile', 'name'])
+	 * @param nextState - New value for the targeted property
 	 * @returns Updated history object
 	 *
 	 * @example Complete state update
 	 * ```ts
-	 * setHistory({
+	 * // Set both state and initial
+	 * set({
 	 *   state: { count: 5 },
+	 *   initial: { count: 0 }
+	 * });
+	 *
+	 * // Set only state
+	 * set({
+	 *   state: { count: 5 }
+	 * });
+	 *
+	 * // Set only initial
+	 * set({
 	 *   initial: { count: 0 }
 	 * });
 	 * ```
 	 *
-	 * @example Mutation callback
+	 * @example String path update
 	 * ```ts
-	 * setHistory(({ historyDraft }) => {
-	 *   historyDraft.state.count++;
-	 *   historyDraft.initial = { count: 0 };
-	 * });
+	 * // Update nested property
+	 * set( 'state.user.profile.name', 'Alice');
+	 * set( 'initial.user.profile.name', 'Alice');
+	 *
+	 * // Update array item
+	 * set( 'state.items[0].price', 29.99);
+	 * set( 'initial.items[0].price', 29.99);
 	 * ```
 	 *
-	 * @example Dot notation path
+	 * @example Array path update
 	 * ```ts
-	 * // Direct value
-	 * setHistory('initial.user.name', 'Alice');
+	 * // Update nested property
+	 * set( [ 'state', 'user', 'profile', 'name' ], 'Alice');
+	 * set( [ 'initial', 'user', 'profile', 'name' ], 'Alice');
 	 *
-	 * // Mutation callback
-	 * setHistory('initial.items', ({ draft }) => {
-	 *   draft.push({ id: 'new' });
-	 * });
-	 * ```
-	 *
-	 * @example Array path
-	 * ```ts
-	 * // Direct value
-	 * setHistory(['initial', 'items', 0], { id: 123 });
-	 *
-	 * // Mutation callback
-	 * setHistory(['initial', 'users', 1], ({ draft }) => {
-	 *   draft.active = true;
-	 * });
+	 * // Update array item
+	 * set( [ 'state', 'items', 0, 'price' ], 29.99);
+	 * set( [ 'initial', 'items', 0, 'price' ], 29.99);
 	 * ```
 	 *
 	 * @remarks
-	 * - All updates maintain immutable history tracking
-	 * - Array paths require numeric indices (not string numbers)
-	 * - Dot notation paths must escape dots in property names
-	 * - When updating primitives via callback, must use historyDraft
-	 * - Supports both state and initial value updates
-	 * - Maintains type safety across all update patterns
+	 * - Direct value updates (no mutation callbacks like in commit/wrap)
+	 * - Path updates affect both state and initial values
+	 * - Supports negative array indices (e.g. 'state.items[-1]' for last item)
+	 * - Maintains immutable history tracking
+	 * - Type-safe for all update patterns
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link HistoryState} For state structure
-	 * @see {@link CallbackHistoryDraftProps} For callback parameters
-	 * @see {@link ArrayPathProps} For path-based callback parameters
+	 * @see {@link commit} For mutation-based updates
+	 * @see {@link wrap} For reusable parameterized updates
 	 */
-	setHistory(
-		nextState: NS
+	set(
+		nextState: {
+			state: S
+			initial: S
+		}
+		| {
+			state: S
+			initial?: S
+		}
+		| {
+			state?: S
+			initial: S
+		}
 	): History<S>
 
-	setHistory(
-		nextState: (
-			props: CallbackHistoryDraftProps<S>,
-		) => void
-	): History<S>
-
-	setHistory<
+	set<
 		SP extends NestedRecordKeys<NS>,
 	>(
 		statePath: SP,
-		nextState: GetArrayPathValue<NS, StringPathToArray<SP>>
+		nextState: GetArrayPathValue<NS, StringPathToArray<SP>>,
 	): History<S>
 
-	setHistory<
-		SP extends NestedRecordKeys<NS>,
-	>(
-		statePath: SP,
-		nextState: (
-			props: ArrayPathProps<S, NS, StringPathToArray<SP>>
-		) => void
-	): History<S>
-
-	setHistory<
+	set<
 		SP extends StringPathToArray<NestedRecordKeys<NS>>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<NS, SP>,
-	): History<S>
-
-	setHistory<
-		SP extends StringPathToArray<NestedRecordKeys<NS>>,
-	>(
-		statePath: SP,
-		nextState: (
-			props: ArrayPathProps<S, NS, SP>
-		) => void
-	): History<S>
-};
-
-type SetState<
-	S extends DS,
-> = {
-	/**
-	 * Updates the current state while maintaining history tracking. Supports multiple update patterns:
-	 * - Complete state object replacement
-	 * - Direct mutations via callback
-	 * - Path-based updates (dot notation or array paths)
-	 *
-	 * @template S - Base state type
-	 *
-	 * @overload Updates entire state
-	 * @param nextState - Complete state object extending current state
-	 * @returns Updated history object
-	 *
-	 * @overload Updates via mutation callback
-	 * @param nextState - Callback receiving draft for mutations
-	 * @returns Updated history object
-	 *
-	 * @overload Updates via dot notation path
-	 * @param statePath - Dot notation path (e.g. 'users.profile.name')
-	 * @param nextState - New value or mutation callback
-	 * @returns Updated history object
-	 *
-	 * @overload Updates via array path
-	 * @param statePath - Array path (e.g. ['users', 0, 'active'])
-	 * @param nextState - New value or mutation callback
-	 * @returns Updated history object
-	 *
-	 * @example Complete state update
-	 * ```ts
-	 * set({
-	 *   count: 5,
-	 *   user: { name: 'Alice' }
-	 * });
-	 * ```
-	 *
-	 * @example Mutation callback
-	 * ```ts
-	 * set(({ draft }) => {
-	 *   draft.count++;
-	 *   draft.user.lastLogin = Date.now();
-	 * });
-	 * ```
-	 *
-	 * @example Dot notation path
-	 * ```ts
-	 * // Direct value
-	 * set('user.profile.name', 'Alice');
-	 *
-	 * // Mutation callback
-	 * set('items', ({ draft }) => {
-	 *   draft.push({ id: 'new' });
-	 * });
-	 * ```
-	 *
-	 * @example Array path
-	 * ```ts
-	 * // Direct value
-	 * set(['items', 0], { id: 123 });
-	 *
-	 * // Mutation callback
-	 * set(['users', 1], ({ draft }) => {
-	 *   draft.active = true;
-	 * });
-	 * ```
-	 *
-	 * @remarks
-	 * - All updates maintain immutable state tracking
-	 * - Array paths require numeric indices (not string numbers)
-	 * - Dot notation paths must escape dots in property names
-	 * - When updating primitives via callback, must use draft
-	 * - Maintains type safety across all update patterns
-	 * - Unlike setHistory, only updates current state (not initial)
-	 *
-	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
-	 * @throws {Error} When path has out-of-bounds negative indices
-	 *
-	 * @see {@link History} For history object structure
-	 * @see {@link CallbackDraftProps} For callback parameters
-	 * @see {@link ArrayPathProps} For path-based callback parameters
-	 */
-	set(
-		nextState: S
-	): History<S>
-
-	set(
-		nextState: (
-			props: CallbackDraftProps<S>,
-		) => void
-	): History<S>
-
-	set<
-		SP extends NestedRecordKeys<S>,
-	>(
-		statePath: SP,
-		nextState: GetArrayPathValue<S, StringPathToArray<SP>>,
-	): History<S>
-
-	set<
-		SP extends NestedRecordKeys<S>,
-	>(
-		statePath: SP,
-		nextState: (
-			props: ArrayPathProps<S, S, StringPathToArray<SP>>
-		) => void
-	): History<S>
-
-	set<
-		SP extends StringPathToArray<NestedRecordKeys<S>>,
-	>(
-		statePath: SP,
-		nextState: GetArrayPathValue<S, SP>,
-	): History<S>
-
-	set<
-		SP extends StringPathToArray<NestedRecordKeys<S>>,
-	>(
-		statePath: SP,
-		nextState: (
-			props: ArrayPathProps<S, S, SP>
-		) => void
 	): History<S>
 };
 
@@ -576,6 +380,5 @@ export type Setters<
 & Commit<S>
 & MergeHistory<S>
 & Merge<S>
-& SetHistory<S>
-& SetState<S>
+& Set<S>
 & Wrap<S>;
