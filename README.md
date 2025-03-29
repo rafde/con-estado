@@ -84,7 +84,7 @@ const useGlobalSelector = createConStore( initialState, {
     ) => {
       const name = event.target.name as unknown as Parameters<typeof set>[0];
       const value = event.target.value;
-      console.log('onChangeInput', name, value);
+      console.log( 'onChangeInput', name, value );
       set(
         name,
         value,
@@ -97,9 +97,9 @@ function App() {
   const state = useGlobalSelector( ( props ) => props.state );
   // Does not recreate handler
   const onClickButton = useGlobalSelector( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
-    console.log('toggle email was ', props.stateProp);
+    console.log( 'toggle email was ', props.stateProp);
     props.stateProp = !props.stateProp;
-    console.log('toggle email is ', props.stateProp);
+    console.log( 'toggle email is ', props.stateProp);
   } ) );
   const onChangeInput = useGlobalSelector.acts.onChangeInput;
 
@@ -108,7 +108,7 @@ function App() {
       <h1>Welcome {state.user.name}</h1>
       <input
         type="text"
-        name="user.name"
+        name="state.user.name"
         value={state.user.name}
         onChange={onChangeInput}
       />
@@ -120,7 +120,7 @@ function App() {
       </button>
       <select
         value={state.user.preferences.theme}
-        name="user.preferences.theme"
+        name="state.user.preferences.theme"
         onChange={onChangeInput}
       >
         <option value="light">Light</option>
@@ -147,7 +147,7 @@ const useGlobalSelector = createConStore(initialState);
 
 function UserProfile() {
   // Only re-renders when selected data changes
-  const userData = useGlobalSelector( {state} => ({
+  const userData = useGlobalSelector( { state } => ({
     name: state.user.name,
     avatar: state.user.avatar
   }));
@@ -201,16 +201,16 @@ function App() {
       onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
         const name = event.target.name as unknown as Parameters<typeof set>[0];
         const value = event.target.value;
-        console.log('onChangeInput', name, value);
+        console.log( 'onChangeInput', name, value );
         set( name, value );
       },
     }),
   });
   // Does not recreate handler
   const onClickButton = useSelector( ( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
-    console.log('toggle email was ', props.stateProp);
+    console.log( 'toggle email was ', props.stateProp );
     props.stateProp = !props.stateProp;
-    console.log('toggle email is ', props.stateProp);
+    console.log( 'toggle email is ', props.stateProp );
   })));
 
   return (
@@ -218,7 +218,7 @@ function App() {
       <h1>Welcome {state.user.name}</h1>
       <input
         type="text"
-        name="user.name"
+        name="state.user.name"
         value={state.user.name}
         onChange={acts.onChangeInput}
       />
@@ -230,7 +230,7 @@ function App() {
       </button>
       <select
         value={state.user.preferences.theme}
-        name="user.preferences.theme"
+        name="state.user.preferences.theme"
         onChange={acts.onChangeInput}
       >
         <option value="light">Light</option>
@@ -249,19 +249,19 @@ function App() {
 `con-estado` supports flexible path notation for state updates:
 
 ```tsx
-// Dot notation
-set('user.preferences.theme', 'dark');
+// Dot-bracket notation
+set( 'state.user.preferences.theme', 'dark' );
 
 // Array notation
-set(['user', 'preferences', 'theme'], 'dark');
+set( [ 'state', 'user', 'preferences', 'theme' ], 'dark');
 
 // Array indices
-set('todos[0].done', true);
-set('todos[-1].text', 'Last item'); // Negative indices supported
+set( 'state.todos[0].done', true );
+set( 'state.todos[-1].text', 'Last item' ); // Negative indices supported
 
 // Array operations
-merge('todos', [{done: true}]); // Merge first element in array
-set('todos', []);            // Clear array
+merge( 'state.todos', [ { done: true, } ] ) ; // Merge first element in array
+set( 'state.todos', [] );            // Clear array
 ```
 
 </section>
@@ -270,11 +270,9 @@ set('todos', []);            // Clear array
 ### Path Update Methods
 
 - [`set`](#set): Replace value at path.
-- [`merge`](#merge): Merge `object`s/`array`s at path.
+- [`merge`](#merge): Merge into both `state` and/or `initial`.
 - [`commit`](#commit): Modify value using a callback and/or path.
 - [`wrap`](#wrap): Modify value using a callback that can return a value.
-- [`setHistory`](#sethistory): Set both `state` and `initial`.
-- [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`.
 
 </section>
 <section className="relative space-y-2">
@@ -297,7 +295,7 @@ function UserPreferences() {
     );
     return <select
       value={preferences.theme}
-      name="user.preferences.theme"
+      name="state.user.preferences.theme"
       onChange={preferences.updateTheme}
     >
       <option value="light">Light</option>
@@ -318,24 +316,24 @@ function PostList() {
   const [ state, { acts, } ] = useCon(
     { posts: [ { id: 1, text: 'post', } ] },
     {
-      acts: ( { wrapSet, } ) => {
+      acts: ( { wrap, commit, set, } ) => {
 
         return {
           addPost( post: Post, ) {
-            setPost( ( { draft } ) => {
-              draft.push( post );
+            commit( 'posts', ( ( { stateProp }, ) ) => {
+              stateProp.push( post );
             });
           },
-          updatePost: wrapSet(
+          updatePost: wrap(
             'posts',
-            ( { draft }, id: number, updates: Partial<Post>, ) => {
-              const post = draft.find( p => p.id === id );
+            ( { stateProp }, id: number, updates: Partial<Post>, ) => {
+              const post = stateProp.find( p => p.id === id );
               if (post) Object.assign( post, updates );
             }
           ),
           async fetchPosts() {
             const posts = await api.getPosts();
-            set('posts', posts );
+            set( 'state.posts', posts );
           },
         },
       },
@@ -351,7 +349,7 @@ function PostList() {
       />
     ) )}
     <button onClick={acts.fetchPosts}>
-        Refresh Posts
+      Refresh Posts
     </button>
   </div>;
 }
@@ -426,6 +424,8 @@ Configuration options for `createConStore` and `useCon`.
 
 ```ts
 useCon( initial, options );
+
+createConStore( initialState, options );
 ```
 
 </section>
@@ -446,10 +446,8 @@ useCon(
       commit,
       get,
       merge,
-      mergeHistory,
       reset,
       set,
-      setHistory,
       wrap,
     } ) => ( {
       // your actions with async support
@@ -472,18 +470,18 @@ Enables validation, normalization, or transformation of state updates.
 
 - **historyDraft**: A Mutative draft of `state` and `initial` that can be modified for additional changes.
 - **history**: Immutable [State History](#state-history). Does not have latest changes.
-- **type**: The operation type (`'set' | 'reset' | 'merge'`) that triggered changes.
+- **type**: The operation type (`'set' | 'reset' | 'merge' | 'commit' | 'wrap'`) that triggered changes.
 - **patches**: A partial state object that contains the latest deeply nested changes made to `state` and/or `initial`.
   Useful for when you want to include additional changes based on what `patches` contains.
 
 **Return type**: `void`
 
 ```tsx
-useCon(initialState, {
+useCon( initialState, {
   beforeChange: ({
     historyDraft, // Mutable draft of state and initial
     history,      // Current immutable state history
-    type,         // Operation type: 'set' | 'reset' | 'merge'
+    type,         // Operation type: 'set' | 'reset' | 'merge' | 'commit' | 'wrap'
     patches,      // Latest changes made to state/initial
   }) => {
     // Validate changes
@@ -530,11 +528,10 @@ useCon(
 Configuration for [`mutative` options](https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options).
 
 ```tsx
-useCon(initialState, {
+useCon( initialState, {
   mutOptions: {
     // Mutative options (except enablePatches)
     strict: true,
-    deep: true,
     // ... other Mutative options
   }
 });
@@ -561,10 +558,8 @@ useCon(
     commit,
     get,
     merge,
-    mergeHistory,
     reset,
     set,
-    setHistory,
     wrap,
     state,
     subscribe,
@@ -585,10 +580,8 @@ createConStore(
     commit,
     get,
     merge,
-    mergeHistory,
     reset,
     set,
-    setHistory,
     wrap,
     state,
     subscribe,
@@ -733,12 +726,10 @@ const {
   commit,
   get,
   merge,
-  mergeHistory,
   reset,
   set,
-  setHistory,
-  wrap,
   subscribe,
+  wrap,
 } = useConSelector
 ```
 
@@ -751,13 +742,11 @@ const yourSelection = useConSelector(
     commit,
     get,
     merge,
-    mergeHistory,
     reset,
     set,
-    setHistory,
-    wrap,
     state,
     subscribe,
+    wrap,
   }, ) => unknown
 );
 ```
@@ -1482,7 +1471,7 @@ Contains the following parameters:
     - **prev**: Immutable previous `state` object.
     - **prevInitial**: Immutable previous `initial` object.
     - **changes**: Immutable changes object.
-2. **...args**: Additional arguments passed to the wrap
+2. **...args**: Optional additional arguments passed to the wrap
 
 ```ts
 const yourUpdater = wrap( 
@@ -1771,24 +1760,6 @@ Returning Mutative draft objects will be converted to immutable objects.
 </section>
 <section className="relative space-y-2">
 
-### `acts`
-
-The `acts` object contains all the available actions created from [options.acts](#21-optionsacts).
-
-```ts
-const [
-  state,
-  { acts, }
-] = useCon( { count: 0 } );
-
-const {
-  acts,
-} = useConSelector( ( { acts, } ) => ( { acts, } ), );
-```
-
-</section>
-<section className="relative space-y-2">
-
 ### `reset`
 
 Resets `state` to `initial`.
@@ -1806,6 +1777,24 @@ const {
 
 reset();
 ```
+</section>
+<section className="relative space-y-2">
+
+### `acts`
+
+The `acts` object contains all the available actions created from [options.acts](#21-optionsacts).
+
+```ts
+const [
+  state,
+  { acts, }
+] = useCon( { count: 0 } );
+
+const {
+  acts,
+} = useConSelector( ( { acts, } ) => ( { acts, } ), );
+```
+
 </section>
 <section className="relative space-y-2">
 
