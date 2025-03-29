@@ -39,7 +39,7 @@ export default function getHistoryDraft<
 		patches,
 	] = createDraftChangeTrackingProxy( historyDraft, );
 
-	function finalize( type: 'set' | 'reset' | 'merge' = 'set', ) {
+	function finalize( type: 'set' | 'reset' | 'merge' | 'commit' | 'wrap' = 'set', ) {
 		beforeChange( {
 			historyDraft,
 			history,

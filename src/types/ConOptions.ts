@@ -112,7 +112,7 @@ export type ConOptions<
 	 * @param {object} params - available parameters
 	 * @param {Draft<HistoryState>} params.historyDraft - Mutable historyDraft of the {@link HistoryState history state}
 	 * @param {History} params.history - Current immutable {@link History history}
-	 * @param {'set' | 'reset'} params.type - The operation type ('set' | 'reset') that triggered changes.
+	 * @param {'set' | 'reset' | 'merge' | 'commit' | 'wrap'} params.type - The operation type that triggered changes.
 	 * @param {Partial<HistoryState>} params.patches -  A partial state object that contains the latest deeply nested
 	 * changes made to `state` and/or `initial`. Useful for when you want to include additional changes based on what `patches` contains.
 	 *
@@ -146,6 +146,6 @@ export type ConOptions<
 		historyDraft: Draft<HistoryState<S>>
 		history: History<S>
 		patches: DeepPartial<HistoryState<S>>
-		type: 'set' | 'reset' | 'merge'
+		type: 'set' | 'reset' | 'merge' | 'commit' | 'wrap'
 	} ) => void
 };

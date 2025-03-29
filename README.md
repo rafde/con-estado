@@ -94,7 +94,14 @@ const useGlobalSelector = createConStore( initialState, {
 });
 
 function App() {
-  const [state, { wrap, acts }] = useGlobalSelector();
+  const state = useGlobalSelector( ( props ) => props.state );
+  // Does not recreate handler
+  const onClickButton = useGlobalSelector( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
+    console.log('toggle email was ', props.stateProp);
+    props.stateProp = !props.stateProp;
+    console.log('toggle email is ', props.stateProp);
+  } ) );
+  const onChangeInput = useGlobalSelector.acts.onChangeInput;
 
   return (
     <div>
@@ -103,14 +110,10 @@ function App() {
         type="text"
         name="user.name"
         value={state.user.name}
-        onChange={acts.onChangeInput}
+        onChange={onChangeInput}
       />
       <button
-        onClick={wrap('user.preferences.notifications.email', (props) => {
-          console.log('toggle email was ', props.stateProp);
-          props.stateProp = !props.draft;
-          console.log('toggle email is ', props.stateProp);
-        })}
+        onClick={onClickButton}
       >
         Toggle Email Notifications:{' '}
         {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
@@ -118,7 +121,7 @@ function App() {
       <select
         value={state.user.preferences.theme}
         name="user.preferences.theme"
-        onChange={acts.onChangeInput}
+        onChange={onChangeInput}
       >
         <option value="light">Light</option>
         <option value="dark">Dark</option>
@@ -144,7 +147,7 @@ const useGlobalSelector = createConStore(initialState);
 
 function UserProfile() {
   // Only re-renders when selected data changes
-  const userData = useGlobalSelector(state => ({
+  const userData = useGlobalSelector( {state} => ({
     name: state.user.name,
     avatar: state.user.avatar
   }));
@@ -193,7 +196,7 @@ const initialState = {
 };
 
 function App() {
-  const [ state, { wrap, acts } ] = useCon( initialState, {
+  const [ state, { useSelector, acts } ] = useCon( initialState, {
     acts: ({ set }) => ({
       onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
         const name = event.target.name as unknown as Parameters<typeof set>[0];
@@ -203,6 +206,12 @@ function App() {
       },
     }),
   });
+  // Does not recreate handler
+  const onClickButton = useSelector( ( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
+    console.log('toggle email was ', props.stateProp);
+    props.stateProp = !props.stateProp;
+    console.log('toggle email is ', props.stateProp);
+  })));
 
   return (
     <div>
@@ -214,11 +223,7 @@ function App() {
         onChange={acts.onChangeInput}
       />
       <button
-        onClick={wrap('user.preferences.notifications.email', (props) => {
-          console.log('toggle email was ', props.stateProp);
-          props.stateProp = !props.stateProp;
-          console.log('toggle email is ', props.stateProp);
-        })}
+        onClick={onClickButton}
       >
         Toggle Email Notifications:{' '}
         {state.user.preferences.notifications.email ? 'OFF' : 'ON'}
@@ -264,11 +269,12 @@ set('todos', []);            // Clear array
 
 ### Path Update Methods
 
-- [`set`](#set): Replace value at path
-- [`merge`](#merge): Merge `object`s/`array`s at path
-- [`wrap`](#wrap): Modify value using a callback that can return a value
-- [`setHistory`](#sethistory): Set both `state` and `initial`
-- [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`
+- [`set`](#set): Replace value at path.
+- [`merge`](#merge): Merge `object`s/`array`s at path.
+- [`commit`](#commit): Modify value using a callback and/or path.
+- [`wrap`](#wrap): Modify value using a callback that can return a value.
+- [`setHistory`](#sethistory): Set both `state` and `initial`.
+- [`mergeHistory`](#mergehistory): Merge into both `state` and `initial`.
 
 </section>
 <section className="relative space-y-2">
@@ -437,6 +443,7 @@ useCon(
   initial,
   {
     acts: ( {
+      commit,
       get,
       merge,
       mergeHistory,
@@ -551,6 +558,7 @@ useCon(
   options,
   ( {
     acts,
+    commit,
     get,
     merge,
     mergeHistory,
@@ -574,6 +582,7 @@ createConStore(
   options,
   ( {
     acts,
+    commit,
     get,
     merge,
     mergeHistory,
@@ -721,6 +730,7 @@ const [ state, controls, ] = useConSelector();
 // static props
 const {
   acts,
+  commit,
   get,
   merge,
   mergeHistory,
@@ -738,6 +748,7 @@ If a `selector` is provided from `createConStore` or `useConSelector`, it return
 const yourSelection = useConSelector(
   ( {
     acts,
+    commit,
     get,
     merge,
     mergeHistory,
@@ -873,22 +884,22 @@ Update `state` at a specific path using dot-bracket notation:
 // };
 
 // String path
-set('user.profile.name', 'Jane');
+set( 'user.profile.name', 'Jane');
 // state.user.profile.name === 'Jane'
 
 // Array path
-set(['user', 'settings', 'theme'], 'dark');
+set( ['user', 'settings', 'theme'], 'dark');
 // state.user.settings.theme === 'dark'
 
 // Array indices
 // state.posts[0] = 'updated post'
-set('posts[0]', 'updated post');
-// set(['posts', 0], 'updated post');
+set( 'posts[0]', 'updated post');
+// set( ['posts', 0], 'updated post');
 
 // Clear array
 // state.posts = []
 set('posts', []);
-// set([ 'posts' ], []);
+// set( [ 'posts' ], []);
 ```
 
 Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
@@ -977,7 +988,7 @@ set('deeply.nested.value', 42);
 // Arrays are created when using numeric paths
 set('items[0].name', 'First');
 // state = {
-//   items: [{ name: 'First' }]
+//   items: [ { name: 'First' } ]
 // };
 ```
 
@@ -994,10 +1005,10 @@ Throws errors in these situations:
 // };
 
 // Invalid paths
-set('count.path.invalid', 42); // Error: `count` is not an object.
+set( 'count.path.invalid', 42); // Error: `count` is not an object.
 
 // Out of bounds
-set('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
+set( 'posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
@@ -1072,6 +1083,270 @@ set( 'my.data', ( {
   changesProp, // Immutable changed value made to state value relative to path
 }, ) => {
   // your code
+}, );
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `commit`
+
+The `commit` method provides atomic updates to both `state` and `initial` values.
+It supports the following usage patterns:
+
+</section>
+<section className="relative space-y-2">
+
+#### `commit` Callback
+
+Update multiple values at the root level:
+
+```ts
+commit( ( { state, initial } ) => {
+  state.count = 5;
+  state.user.name = 'John';
+  initial.count = 0;
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `commit` Callback Parameters
+
+Contains the following parameters:
+1. **props**: [State History](#state-history) properties.
+	- **state**: Mutable `state` object that can be modified in the callback.
+	- **initial**: Mutable `initial` object that can be modified in the callback.
+	- **prev**: Immutable previous `state` object (`undefined` on first update).
+	- **prevInitial**: Immutable previous `initial` object (`undefined` on first update).
+	- **changes**: Immutable changes made to state (`undefined` on first update).
+
+```ts
+commit( ({
+  state,      // Mutable current state
+  initial,    // Mutable initial state
+  prev,       // Immutable previous state
+  prevInitial,// Immutable previous initial state
+  changes,    // Immutable changes made to state
+}) => {
+  // Your update logic
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+#### Path-based `commit` Callback
+
+Update `state` and/or `initial` at a specific path using dot-bracket notation:
+
+```tsx
+// {
+//   state: {
+//     user: {
+//       profile: { name: 'John' },
+//       settings: { theme: 'light' }
+//     },
+//     posts: ['post1', 'post2']
+//   },
+//   initial: {
+//     user: {
+//       profile: { name: '' },
+//       settings: { theme: 'light' }
+//     },
+//     posts: ['post1', ]
+//   }
+// };
+
+// String path
+commit( 'user.profile.name', (props) => {
+  props.stateProp = 'John';
+});
+// state.user.profile.name === 'Jane'
+
+// Array path
+commit( [ 'user', 'settings', 'theme' ], ( props ) => {
+  props.initialProp = 'light';
+});
+
+// Array indices
+commit( 'posts[0]', ( props ) => {
+  props.stateProp = 'updated post';
+});
+// commit( [ 'posts', 0 ], ( props ) => { props.stateProp = 'updated post'; });
+
+// Clear array
+commit( 'posts', ( props ) => {
+  props.stateProp = [];
+});
+commit( [ 'posts' ], ( props ) => { props.stateProp = []; });
+// state.posts = []
+```
+
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]`
+is valid if 'posts' has at least one element.
+
+```ts
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Second post', content: 'Second post content', }, 
+// ], }
+
+commit( 'posts[-1]', ( props ) => {
+  props.stateProp = 'Updated Second Title';
+});
+
+// state = { posts: [ 
+//  undefined, 
+//  { title: 'Updated Second Title', content: 'Second post content', }, 
+// ], }; 
+
+commit( [ 'posts', -2 ], ( props ) => {
+  props.stateProp = 'Updated First Content';
+} );
+
+// state = { posts: [
+//  { title: 'Updated First Content', },
+//  { title: 'Updated Second Title', content: 'Second post content', },
+// ], }; 
+
+commit( 'posts[-3]', ( props ) => {
+  props.stateProp = 'Third Title'; // throws error
+}, );
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
+
+```ts
+// state = {
+//   count: 1,
+//   posts: ['post1', 'post2']
+// };
+
+// Invalid paths
+commit( 'count.path.invalid', ( props ) => {
+  props.stateProp = 42;  // Error: `count` is not an object.
+}); 
+
+// Out of bounds
+commit( 'posts[-999]', ( props ) => {
+  props.stateProp = 'value'; // Error: Index out of bounds. Array size is 2.
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `commit` Special Character Paths
+
+Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
+
+Does not apply to array path keys.
+
+```ts
+// state = {
+//   path: {
+//     'user.name[s]': 'Name',
+//   },
+// };
+
+commit( 'path.user\\.name\\[s]', ( props ) => {
+  props.stateProp = 'New Name';
+}, );
+// commit( [ 'path', 'user.name[s]' ], ( props ) => {
+//  props.stateProp = 'New Name';
+//}, ); );
+// state.path.user.name[s] === 'New Name'
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### `commit` Non-existing Paths
+
+When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
+
+```tsx
+// state = {
+//   count: 1,
+//};
+
+commit( 'deeply.nested.value', ( props ) => {
+  props.stateProp = 42;
+});
+// state = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   }
+// };
+
+// Arrays are created when using numeric paths
+commit( 'items[0].name', ( props ) => {
+  props.stateProp = 'First';
+});
+// state = {
+//   items: [ { name: 'First' } ]
+// };
+```
+
+**Error Cases**
+
+Throws errors in these situations:
+- Trying to access non-object/array properties with dot-bracket notation
+- Out of bounds negative indices
+
+```ts
+// state = {
+//   count: 1,
+//   posts: [ 'post1', 'post2' ]
+// };
+
+// Invalid paths
+commit('count.path.invalid', ( props ) => {
+  props.stateProp = 42;  // Error: `count` is not an object.
+}); 
+
+// Out of bounds
+commit('posts[-999]', ( props ) => {
+  props.stateProp = 'value'; // Error: Index out of bounds. Array size is 2.
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+##### Path-based `commit` Callback Parameters
+
+Same as [commit Callback Parameters](#commit-callback-parameters) plus:
+- **stateProp**: Mutable `state` value relative to path.
+- **initialProp**: Mutable `initial` value relative to path.
+- **prevProp**: Immutable `prev` value relative to path. Can be `undefined`.
+- **prevInitialProp**: Immutable `prevInitial` value relative to path. Can be `undefined`.
+- **changesProp**: Immutable `changes` value relative to path. Can be `undefined`.
+
+```ts
+commit( 
+  'my.data', 
+  (
+    {
+      // same as commit( callback )
+      state, prev, initial, prevInitial, changes,
+      // Path-based properties
+      stateProp, // Mutable `state` value relative to path
+      initialProp, // Mutable `initial` value relative to path
+      prevProp, // Immutable `prev` state value relative to path, (`undefined` on first update).
+      prevInitialProp, // Immutable `prevInitial` value relative to path, (`undefined` on first update).
+      changesProp, // Immutable `changes` value made to state value relative to path, (`undefined` on first update).
+    },
+  ) => {
+    // your code
 }, );
 ```
 
@@ -1288,24 +1563,6 @@ merge('items', []); // Does nothing
 </section>
 <section className="relative space-y-2">
 
-### `acts`
-
-The `acts` object contains all the available actions created from [options.acts](#21-optionsacts).
-
-```ts
-const [
-  state,
-  { acts, }
-] = useCon( { count: 0 } );
-
-const {
-  acts,
-} = useConSelector( ( { acts, } ) => ( { acts, } ), );
-```
-
-</section>
-<section className="relative space-y-2">
-
 ### `wrap`
 
 `wrap` creates reusable state updater functions that can accept additional parameters. 
@@ -1341,7 +1598,7 @@ Contains the following parameters:
 1. **props**: [State History](#state-history) properties.
     - **state**: Mutable `state` object that can be modified in the callback.
     - **initial**: Mutable `initial` object that can be modified in the callback.
-    - **prev**: Immutable `prev` object.
+    - **prev**: Immutable previous `state` object.
     - **prevInitial**: Immutable previous `initial` object.
     - **changes**: Immutable changes object.
 2. **...args**: Additional arguments passed to the wrap
@@ -1574,7 +1831,6 @@ outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
-
 <section className="relative space-y-2">
 
 ##### Path-based `wrap` Callback Parameters
@@ -1627,6 +1883,24 @@ const removeItem = wrap(
 // Usage
 const removed = removeItem(1);  // returns 'b'
 // state.items === [ 'a', 'c' ]
+```
+
+</section>
+<section className="relative space-y-2">
+
+### `acts`
+
+The `acts` object contains all the available actions created from [options.acts](#21-optionsacts).
+
+```ts
+const [
+  state,
+  { acts, }
+] = useCon( { count: 0 } );
+
+const {
+  acts,
+} = useConSelector( ( { acts, } ) => ( { acts, } ), );
 ```
 
 </section>

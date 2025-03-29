@@ -49,6 +49,6 @@ export type GetDraftRecord<
 	 */
 	getDraft( options?: MO ): readonly [
 		Draft<HistoryState<S>>,
-		( type?: 'set' | 'reset' | 'merge' ) => History<S>,
+		( type?: 'set' | 'reset' | 'merge' | 'commit' | 'wrap', ) => History<S>,
 	]
 };
