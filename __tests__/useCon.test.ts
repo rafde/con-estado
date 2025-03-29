@@ -25,6 +25,7 @@ describe( 'useCon', () => {
 			initialState,
 			{
 				acts: props.acts,
+				commit: props.commit,
 				get: props.get,
 				// getDraft: props.getDraft,
 				merge: props.merge,

@@ -333,6 +333,93 @@ type SetState<
 	): History<S>
 };
 
+type Commit<
+	S extends DS,
+> = {
+	/**
+	 * Enables atomic setting to both `state` and `initial` state simultaneously.
+	 * Similar to wrap but executes immediately rather than returning a function.
+	 *
+	 * @template S - Base state type
+	 * @template RK - Nested record keys type
+	 *
+	 * @overload Function-based commit
+	 * @param nextState - Callback receiving mutable `state` and `initial`
+	 * @returns Updated history object
+	 *
+	 * @overload Array path-based commit
+	 * @param statePath - Array path to target state property
+	 * @param nextState - Callback receiving targeted mutable state values
+	 * @returns Updated history object
+	 *
+	 * @overload String path-based commit
+	 * @param statePath - Dot-bracket notation path to target state property
+	 * @param nextState - Callback receiving targeted mutable state values
+	 * @returns Updated history object
+	 *
+	 * @example Function-based commit
+	 * ```ts
+	 * commit(({ state, initial }) => {
+	 *   state.count = 5;
+	 *   initial.count = 0;
+	 * });
+	 * ```
+	 *
+	 * @example Array path commit
+	 * ```ts
+	 * commit(['items', 0], ({ stateProp, initialProp }) => {
+	 *   stateProp.price = 29.99;
+	 *   initialProp.price = 19.99;
+	 * });
+	 * ```
+	 *
+	 * @example String path commit
+	 * ```ts
+	 * commit('users.active', ({ stateProp, initialProp }) => {
+	 *   stateProp.lastLogin = Date.now();
+	 *   initialProp.lastLogin = null;
+	 * });
+	 * ```
+	 *
+	 * @remarks
+	 * - Provides atomic updates to both state and initial state
+	 * - Maintains type safety across all update patterns
+	 * - Path-based commits support both array and dot notation
+	 * - Unlike wrap, executes immediately instead of returning a function
+	 * - Useful for synchronous state initialization and resets
+	 *
+	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
+	 * @throws {Error} When path has out-of-bounds negative indices
+	 *
+	 * @see {@link History} For history object structure
+	 * @see {@link CallbackProps} For function commit parameters
+	 * @see {@link CallbackPathProps} For path-based commit parameters
+	 */
+	commit(
+		nextState: (
+			props: CallbackProps<S>,
+		) => void
+	): History<S>
+
+	commit<
+		SP extends NestedRecordKeys<S>,
+	>(
+		statePath: SP,
+		nextState: (
+			props: CallbackPathProps<S, StringPathToArray<SP>>,
+		) => void
+	): History<S>
+
+	commit<
+		SP extends StringPathToArray<NestedRecordKeys<S>>,
+	>(
+		statePath: SP,
+		nextState: (
+			props: CallbackPathProps<S, SP>,
+		) => void
+	): History<S>
+};
+
 type Wrap<
 	S extends DS,
 	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
@@ -355,7 +442,7 @@ type Wrap<
 	 * @returns Wrapped function accepting the specified arguments
 	 *
 	 * @overload String path-based wrapper
-	 * @param statePath - Dot-bracket notation path to target `state` and/or `initial` property
+	 * @param statePath - Dot-bracket notation path to target `state` and/or `initial` property.
 	 * @param nextState - Callback receiving targeted mutable `state` and/or `initial`, and additional arguments
 	 * @returns Wrapped function accepting the specified arguments
 	 *
@@ -486,6 +573,7 @@ export type Setters<
   	 */
 	reset(): History<S>
 }
+& Commit<S>
 & MergeHistory<S>
 & Merge<S>
 & SetHistory<S>

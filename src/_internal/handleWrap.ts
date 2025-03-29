@@ -64,13 +64,13 @@ export default function handleWrap<
 		if ( _isPromiseLike( result, ) ) {
 			return result.then( ( res, ) => {
 				const final = isDraft( res, ) ? current( res as object, ) : res;
-				finalize();
+				finalize( 'wrap', );
 				return final;
 			}, );
 		}
 
 		const final = isDraft( result, ) ? current( result as object, ) : result;
-		finalize();
+		finalize( 'wrap', );
 		return final;
 	};
 }
