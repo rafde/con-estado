@@ -5,7 +5,6 @@ import type { History, } from './History';
 import type { HistoryState, } from './HistoryState';
 import type { Immutable, } from './Immutable';
 import type { Merge, } from './Merge';
-import type { MergeHistory, } from './MergeHistory';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
@@ -104,8 +103,9 @@ type Set<
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link commit} For mutation-based updates
-	 * @see {@link wrap} For reusable parameterized updates
+	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link Merge.merge merge} For deep merging updates
+	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 */
 	set(
 		nextState: {
@@ -196,8 +196,9 @@ type Commit<
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link CallbackProps} For function commit parameters
-	 * @see {@link CallbackPathProps} For path-based commit parameters
+	 * @see {@link Merge.merge merge} For deep merging updates
+	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
+	 * @see {@link Set.set set} For direct value replacement
 	 */
 	commit(
 		nextState: (
@@ -311,8 +312,9 @@ type Wrap<
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link CallbackProps} For function wrapper parameters
-	 * @see {@link CallbackPathProps} For path-based wrapper parameters
+	 * @see {@link Set.set set} For direct value replacement
+	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link Merge.merge merge} For deep merging updates
 	 */
 	wrap<
 		A extends unknown[],
@@ -378,7 +380,6 @@ export type Setters<
 	reset(): History<S>
 }
 & Commit<S>
-& MergeHistory<S>
 & Merge<S>
 & Set<S>
 & Wrap<S>;
