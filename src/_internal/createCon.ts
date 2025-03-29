@@ -121,14 +121,12 @@ export default function createCon<
 		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 
-	function setHistory( ...args: unknown[] ) {
+	function set( ...args: unknown[] ) {
 		if ( args.length === 0 ) {
 			return history;
 		}
 
-		const [draftHistory, finalize,] = getDraft();
-
-		return handleStateUpdate( draftHistory, history, args, finalize, );
+		return handleStateUpdate( getDraft, args, );
 	}
 
 	function mergeHistory( ...args: unknown[] ) {
@@ -148,10 +146,7 @@ export default function createCon<
 		reset() {
 			return _dispatch( reset( history, beforeChange, ), );
 		},
-		set( ...args: unknown[] ) {
-			return setHistory( ..._returnStateArgs( args, ), );
-		},
-		setHistory,
+		set,
 		wrap( ...args: unknown[] ) {
 			return handleWrap( getDraft, history, ...args, );
 		},

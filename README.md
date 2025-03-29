@@ -828,101 +828,94 @@ const {
 
 ### `set`
 
-`set` provides multiple ways to update state values with a new state value or mutation callback.
-
-```ts
-const [
-  state,
-  { set, }
-] = useCon( { count: 0, }, );
-
-const {
-  set,
-} = useConSelector( ( { set, } ) => ( { set, }, ));
-```
-
-All `set` calls `return`s a new [State History](#state-history) `object`.
+`set` provides ways to set `state` and/or `initial` values simultaneously:
 
 </section>
 <section className="relative space-y-2">
 
-#### Full Set State
+#### `set` object
 
-Replace the entire `state` with a new value:
+Replace both `state` and `initial` values:
 
 ```tsx
-// state = {
-//   user: { name: 'John' },
-//   count: 0
-// };
+// state = { count: 1, items: ['old'] }
+// initial = { count: 0, items: [] }
 
-set({
-  user: { name: 'Jane' },
-  count: 1
-});
+set( {
+  state: { count: 5, items: ['new'] },
+  initial: { count: 5, items: ['new'] }
+} );
+// state = { count: 5, items: ['new'] }
+// initial = { count: 5, items: ['new'] }
 
-// state = {
-//   user: { name: 'Jane' },
-//   count: 1
-// };
+set( {
+  state: { count: 10, items: ['new new'] },
+} );
+// state = { count: 10, items: ['new new'] }
+// initial = { count: 5, items: ['new'] }
+
+set( {
+  initial: { count: 20, items: ['new new new'] },
+} );
+// state = { count: 10, items: ['new new'] }
+// initial = { count: 20, items: ['new new new'] }
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### Path-based Set
+#### Path-based `set`
 
-Update `state` at a specific path using dot-bracket notation:
+Set specific paths in `state` or `initial`:
 
 ```tsx
-// state = {
-//   user: {
-//     profile: { name: 'John' },
-//     settings: { theme: 'light' }
-//   },
-//   posts: ['post1', 'post2']
-// };
+// state = { user: { name: 'John', age: 25 }, items: ['one', 'two'] }
+// initial = { user: { name: 'John', age: 20 } }
 
 // String path
-set( 'user.profile.name', 'Jane');
-// state.user.profile.name === 'Jane'
+set( 'state.user.age', 30);
+// state.user.age === 30
+// initial unchanged
+
+set( 'initial.user.age', 21);
+// initial.user.age === 21
+// state unchanged
+
+// Set array
+set( 'state.items', ['three', 'four']);
+// state.items === ['three', 'four']
+
+// Set specific index
+set( 'state.items[0]', 'updated');
+// state.items === ['updated', 'four']
 
 // Array path
-set( ['user', 'settings', 'theme'], 'dark');
-// state.user.settings.theme === 'dark'
-
-// Array indices
-// state.posts[0] = 'updated post'
-set( 'posts[0]', 'updated post');
-// set( ['posts', 0], 'updated post');
-
-// Clear array
-// state.posts = []
-set('posts', []);
-// set( [ 'posts' ], []);
+set( ['state', 'user', 'name'], 'Jane');
+// state.user.name === 'Jane'
 ```
 
-Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
+Negative indices are allowed, but they can't be out of bounds. E.g., `['initial', 'posts', -1]` or `initial.posts[-1]`
+is valid if 'posts' has at least one element.
 
 ```ts
-// state = { posts: [ 
+// initial = { posts: [ 
 //  undefined, 
 //  { title: 'Second post', content: 'Second post content', }, 
 // ], }
 
-set( 'posts[-1]', { title: 'Updated Second Title', });
-// state = { posts: [ 
+set( 'initial.posts[-1]', { title: 'Updated Second Title', } );
+// initial = { posts: [ 
 //  undefined, 
 //  { title: 'Updated Second Title', content: 'Second post content', }, 
 // ], }; 
 
-set( [ 'posts', -2 ], { title: 'Updated First Content' }, );
-// state = { posts: [
+set( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
+// initial = { posts: [
 //  { title: 'Updated First Content', },
 //  { title: 'Updated Second Title', content: 'Second post content', },
 // ], }; 
 
-set( 'posts[-3]', { title: 'Third Title', }, ); // throws error
+set( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
 **Error Cases**
@@ -932,64 +925,63 @@ Throws errors in these situations:
 - Out of bounds negative indices
 
 ```ts
-// state = {
+// initial = {
 //   count: 1,
 //   posts: ['post1', 'post2']
 // };
 
 // Invalid paths
-set('count.path.invalid', 42); // Error: `count` is not an object.
+set( 'initial.count.path.invalid', 42 ); // Error: `count` is not an object.
 
 // Out of bounds
-set('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
+set( 'initial.posts[-999]', 'value' ); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-##### Set Special Character Paths
+##### `set` Paths with Special Characters
 
 Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
 
 Does not apply to array path keys.
 
 ```ts
-// state = {
+// initial = {
 //   path: {
 //     'user.name[s]': 'Name',
 //   },
 // };
 
-set( 'path.user\\.name\\[s]', 'New Name', );
-// set( [ 'path', 'user.name[s]' ], 'New Name', );
+set( 'initial.path.user\\.name\\[s]', 'New Name', );
+// set( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### Set Non-existing Paths
+##### `set` Non-existing Path
 
-When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
+Automatically creates intermediate `object`s/`array`s:
 
 ```tsx
-// state = {
-//   count: 1,
-//};
+// state = {}
+// initial = {}
 
-set('deeply.nested.value', 42);
+set( 'state.deeply.nested.value', 42 );
 // state = {
 //   deeply: {
 //     nested: {
 //       value: 42
 //     }
 //   }
-// };
+// }
 
-// Arrays are created when using numeric paths
-set('items[0].name', 'First');
-// state = {
+// Arrays are created for numeric paths
+set( 'initial.items[0].name', 'First', );
+// initial = {
 //   items: [ { name: 'First' } ]
-// };
+// }
 ```
 
 **Error Cases**
@@ -999,91 +991,16 @@ Throws errors in these situations:
 - Out of bounds negative indices
 
 ```ts
-// state = {
+// initial = {
 //   count: 1,
 //   posts: ['post1', 'post2']
 // };
 
 // Invalid paths
-set( 'count.path.invalid', 42); // Error: `count` is not an object.
+set( 'initial.count.path.invalid', 42, ); // Error: `count` is not an object.
 
 // Out of bounds
-set( 'posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Set Callback
-
-Update `state` using a callback function that receives the current value:
-
-```tsx
-// state = { count: 1 };
-
-set( 'count', (props) => props.draft += 1);
-// state.count === 2
-
-// With full state access
-set( ({ draft }) => {
-  draft.count += 1;
-  draft.lastUpdated = Date.now();
-});
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Set Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-- **draft**: The mutable part of the `state` object that can be modified in the callback.
-- **historyDraft**: Mutable `state` and `initial` object that can be modified in the callback.
-- 
-```ts
-set( ( {
-  draft, // Mutable state
-  historyDraft, // Mutable state and initial
-  state, // Immutable state
-  prev, // Immutable previous state
-  initial, // Immutable initial state
-  prevInitial, // Immutable previous initial state
-  changes, // Immutable changes
-}, ) => {
-  draft.value = 5;
-  historyDraft.initial.value = 9
-}, );
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Set Path-based Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-
-- **draft**: The mutable part of the `state` value relative to path.
-	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
-		- i.e. `set( 'path.to.primitive', (props) => props.draft = 5 )`
-- **stateProp**: The current immutable `state` value relative to path.
-- **initialProp**: The `initial` immutable value relative to path.
-- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
-- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
-- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
-
-```ts
-set( 'my.data', ( {
-  // same as set( callback )
-  historyDraft, state, prev, initial, prevInitial, changes,
-  draft, // Mutable state value relative to path
-  stateProp, // Immutable state value relative to path
-  prevProp, // Immutable previous state value relative to path
-  initialProp, // Immutable initial value relative to path
-  prevInitialProp, // Immutable previous initial value relative to path
-  changesProp, // Immutable changed value made to state value relative to path
-}, ) => {
-  // your code
-}, );
+set( 'initial.posts[-999]', 'value', ); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
@@ -2101,251 +2018,7 @@ mergeHistory( 'initial.regex', /pattern/);  // Replaces entire value
 
 // To clear an array, use set instead
 mergeHistory( 'initial.items', []); // Does nothing
-setHistory( 'initial.items', []);  // Correct way to clear
-```
-
-</section>
-<section className="relative space-y-2">
-
-### `setHistory`
-
-`setHistory` provides ways to update both `state` and `initial` values simultaneously:
-
-</section>
-<section className="relative space-y-2">
-
-#### Full Set History
-
-Replace both state and initial values:
-
-```tsx
-// state = { count: 1, items: ['old'] }
-// initial = { count: 0, items: [] }
-
-setHistory({
-  state: { count: 5, items: ['new'] },
-  initial: { count: 5, items: ['new'] }
-});
-
-// state = { count: 5, items: ['new'] }
-// initial = { count: 5, items: ['new'] }
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Path-based Set History
-
-Update specific paths in state or initial:
-
-```tsx
-// state = { user: { name: 'John', age: 25 }, items: ['one', 'two'] }
-// initial = { user: { name: 'John', age: 20 } }
-
-// String path
-setHistory( 'state.user.age', 30);
-// state.user.age === 30
-// initial unchanged
-
-setHistory( 'initial.user.age', 21);
-// initial.user.age === 21
-// state unchanged
-
-// Set array
-setHistory( 'state.items', ['three', 'four']);
-// state.items === ['three', 'four']
-
-// Set specific index
-setHistory( 'state.items[0]', 'updated');
-// state.items === ['updated', 'four']
-
-// Array path
-setHistory( ['state', 'user', 'name'], 'Jane');
-// state.user.name === 'Jane'
-```
-
-Negative indices are allowed, but they can't be out of bounds. E.g., `['initial', 'posts', -1]` or `initial.posts[-1]`
-is valid if 'posts' has at least one element.
-
-```ts
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Second post', content: 'Second post content', }, 
-// ], }
-
-setHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Updated Second Title', content: 'Second post content', }, 
-// ], }; 
-
-setHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
-
-setHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Trying to access non-object/array properties with dot-bracket notation
-- Out of bounds negative indices
-
-```ts
-// initial = {
-//   count: 1,
-//   posts: ['post1', 'post2']
-// };
-
-// Invalid paths
-setHistory( 'initial.count.path.invalid', 42); // Error: `count` is not an object.
-
-// Out of bounds
-setHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Set History for Special Characters in Paths
-
-Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
-
-Does not apply to array path keys.
-
-```ts
-// initial = {
-//   path: {
-//     'user.name[s]': 'Name',
-//   },
-// };
-
-setHistory( 'initial.path.user\\.name\\[s]', 'New Name', );
-// setHistory( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Set History for Non-existing Path
-
-Automatically creates intermediate `object`s/`array`s:
-
-```tsx
-// state = {}
-// initial = {}
-
-setHistory('state.deeply.nested.value', 42);
-// state = {
-//   deeply: {
-//     nested: {
-//       value: 42
-//     }
-//   }
-// }
-
-// Arrays are created for numeric paths
-setHistory( 'initial.items.0.name', 'First');
-// initial = {
-//   items: [{ name: 'First' }]
-// }
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Trying to access non-object/array properties with dot-bracket notation
-- Out of bounds negative indices
-
-```ts
-// initial = {
-//   count: 1,
-//   posts: ['post1', 'post2']
-// };
-
-// Invalid paths
-setHistory( 'initial.count.path.invalid', 42); // Error: `count` is not an object.
-
-// Out of bounds
-setHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Set History Callback
-
-Update using callbacks with access to both state and initial:
-
-```tsx
-// state = { count: 1 }
-// initial = { count: 0 }
-
-// Full state callback
-setHistory( ({ historyDraft }) => {
-  historyDraft.state.count += 1;
-  historyDraft.initial.count = 1;
-});
-
-// Path-specific callback
-setHistory( 'state.count', (props) => {
-  props.draft += 1;
-});
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Set History Callback Parameters
-
-The callback receives comprehensive history state access:
-
-```tsx
-setHistory(({
-  historyDraft,  // Mutable state and initial
-  state,         // Current immutable state
-  initial,       // Current immutable initial
-  prev,          // Previous immutable state
-  prevInitial,   // Previous immutable initial
-  changes,       // Immutable changes
-}) => {
-  historyDraft.state.count += 1;
-  historyDraft.initial.lastReset = Date.now();
-});
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Path-based Set History Callback Parameters
-
-Contains [State History](#state-history) properties plus:
-
-- **draft**: The mutable part of the `state` value relative to path.
-	- **ALERT**: When path leads to a primitive value, you must use mutate `draft` via non-destructuring.
-		- i.e. `setHistory( 'initial.path.to.primitive', (props) => props.draft = 5 )`
-- **stateProp**: The current immutable `state` value relative to path.
-- **initialProp**: The `initial` immutable value relative to path.
-- **prevProp**: The previous immutable `state` value relative to path. Can be `undefined`.
-- **prevInitialProp**: The previous immutable `initial` value relative to path. Can be `undefined`.
-- **changesProp**: Immutable changed value made to the `state` value relative to path. Can be `undefined`.
-
-```ts
-setHistory( 'initial.my.data', ( {
-  // same as set( callback )
-  historyDraft, state, prev, initial, prevInitial, changes,
-  draft, // Mutable state value relative to path
-  stateProp, // Immutable state value relative to path
-  prevProp, // Immutable previous state value relative to path
-  initialProp, // Immutable initial value relative to path
-  prevInitialProp, // Immutable previous initial value relative to path
-  changesProp, // Immutable changed value made to state value relative to path
-}, ) => {
-  // your code
-}, );
+set( 'initial.items', []);  // Correct way to clear
 ```
 
 </section>

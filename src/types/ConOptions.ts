@@ -18,7 +18,7 @@ export type ConOptions<
 	 * The action handlers have access to a subset of the controls object.
 	 *
 	 * @param {object} props - Accessing state {@link CreateActsProps setters and getters}
-	 * @param {SetState.set} props.set - See {@link SetState.set set}
+	 * @param {SetState.set} props.set - See {@link Set.set set}
 	 * @returns Record of keys with {@link ActRecord sync and async functions}
 	 * @example
 	 * ```ts

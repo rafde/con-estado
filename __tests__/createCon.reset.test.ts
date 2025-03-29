@@ -25,9 +25,9 @@ describe( 'createCon - reset', () => {
 			list: [undefined, 'item2',],
 		};
 
-		estado.setHistory( 'state', ( { draft, }, ) => {
-			draft.counter = 10;
-			draft.list.push( 'item2', );
+		estado.commit( ( { state, }, ) => {
+			state.counter = 10;
+			state.list.push( 'item2', );
 		}, );
 
 		expect( history, ).not.toStrictEqual( estado.get(), );
@@ -58,7 +58,7 @@ describe( 'createCon - reset', () => {
 			list: ['new', 'initial',],
 		};
 
-		estado.setHistory( 'initial', newInitial, );
+		estado.set( 'initial', newInitial, );
 		estado.reset();
 		const testHistory = estado.get();
 

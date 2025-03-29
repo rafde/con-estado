@@ -16,19 +16,19 @@ describe( 'createCon -  options.acts', () => {
 			{
 				acts: props => ( {
 					increment() {
-						props.setHistory( ( { historyDraft, }, ) => {
-							historyDraft.state.counter += 1;
+						props.commit( ( { state, }, ) => {
+							state.counter += 1;
 						}, );
 					},
 					addItem( item: string, ) {
-						props.setHistory( ( { historyDraft, }, ) => {
-							historyDraft.state.list.push( item, );
+						props.commit( ( { state, }, ) => {
+							state.list.push( item, );
 						}, );
 					},
 					async asyncIncrement() {
 						return Promise.resolve().then( () => {
-							props.setHistory( ( { historyDraft, }, ) => {
-								historyDraft.state.counter += 10;
+							props.commit( ( { state, }, ) => {
+								state.counter += 10;
 							}, );
 						}, );
 					},

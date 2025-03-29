@@ -32,7 +32,6 @@ describe( 'useCon', () => {
 				mergeHistory: props.mergeHistory,
 				reset: props.reset,
 				set: props.set,
-				setHistory: props.setHistory,
 				wrap: props.wrap,
 				state: props.state,
 				subscribe: props.subscribe,
@@ -46,15 +45,15 @@ describe( 'useCon', () => {
 		expect( result.current[ 0 ], ).toEqual( initialState, );
 
 		act( () => {
-			result.current[ 1 ].setHistory( 'state', ( { draft, }, ) => {
-				draft.count++;
+			result.current[ 1 ].commit( ( { state, }, ) => {
+				state.count++;
 			}, );
 		}, );
 		expect( result.current[ 0 ].count, ).toBe( 1, );
 
 		act( () => {
-			result.current[ 1 ].setHistory( 'state', ( { draft, }, ) => {
-				draft.count--;
+			result.current[ 1 ].commit( ( { state, }, ) => {
+				state.count--;
 			}, );
 		}, );
 
@@ -65,7 +64,7 @@ describe( 'useCon', () => {
 		const { result, } = renderHook( () => useCon( initialState, ), );
 		const oldHistory = result.current;
 		act( () => {
-			result.current[ 1 ].setHistory( 'state.count', 0, );
+			result.current[ 1 ].set( 'state.count', 0, );
 		}, );
 		const newHistory = result.current;
 		expect( oldHistory, ).toBe( newHistory, );
@@ -77,12 +76,12 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setHistory: props.setHistory,
+					set: props.set,
 				} ),
 			), );
 
 			act( () => {
-				result.current.setHistory( 'state.text', 'world', );
+				result.current.set( 'state.text', 'world', );
 			}, );
 
 			expect( result.current.test, ).toBe( 'world', );
@@ -93,13 +92,13 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.get( 'initial.text', ),
-					setHistory: props.setHistory,
+					set: props.set,
 				} ),
 			), );
 
 			const oldHistory = result.current;
 			act( () => {
-				result.current.setHistory( 'state.count', 0, );
+				result.current.set( 'state.count', 0, );
 			}, );
 			const newHistory = result.current;
 			expect( oldHistory, ).toBe( newHistory, );
@@ -110,12 +109,12 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setHistory: props.setHistory,
+					set: props.set,
 				} ),
 			), );
 
 			act( () => {
-				result.current.setHistory( 'state.text', 'world', );
+				result.current.set( 'state.text', 'world', );
 			}, );
 
 			expect( result.current.test, ).toBe( 'world', );
@@ -125,10 +124,10 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
-					acts( { setHistory, }, ) {
+					acts( { set, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								setHistory( 'state.text', text, );
+								set( 'state.text', text, );
 							},
 						};
 					},
@@ -151,7 +150,7 @@ describe( 'useCon', () => {
 				initialState,
 				props => ( {
 					test: props.state.text,
-					setText: ( text: string, ) => props.setHistory( 'state.text', text, ),
+					setText: ( text: string, ) => props.set( 'state.text', text, ),
 				} ),
 			), );
 
@@ -196,7 +195,7 @@ describe( 'useCon', () => {
 			const { result: sResults, } = renderHook( () => result.current[ 1 ].useSelector(), );
 
 			act( () => {
-				sResults.current[ 1 ].setHistory( 'state.count', 11, );
+				sResults.current[ 1 ].set( 'state.count', 11, );
 			}, );
 			expect( result.current[ 0 ].count, ).toBe( 11, );
 			expect( sResults.current[ 0 ].count, ).toBe( 11, );
@@ -210,14 +209,14 @@ describe( 'useCon', () => {
 			} ), ), );
 
 			act( () => {
-				sResults.current.set( 'count', 11, );
+				sResults.current.set( 'state.count', 11, );
 			}, );
 			expect( result.current[ 0 ].count, ).toBe( 11, );
 			expect( sResults.current.count, ).toBe( 11, );
 
 			const oldS = sResults.current;
 			act( () => {
-				result.current[ 1 ].set( 'text', 'test', );
+				result.current[ 1 ].set( 'state.text', 'test', );
 			}, );
 
 			expect( oldS, ).toBe( sResults.current, );
@@ -229,7 +228,7 @@ describe( 'useCon', () => {
 			const { result: sResults, } = renderHook( () => result.current(), );
 
 			act( () => {
-				sResults.current[ 1 ].setHistory( 'state.count', 11, );
+				sResults.current[ 1 ].set( 'state.count', 11, );
 			}, );
 			expect( sResults.current[ 0 ].count, ).toBe( 11, );
 			expect( result.current, ).toBe( old, );
@@ -244,7 +243,7 @@ describe( 'useCon', () => {
 			} ), ), );
 
 			act( () => {
-				sResults.current.set( 'count', 11, );
+				sResults.current.set( 'state.count', 11, );
 			}, );
 			expect( sResults.current.count, ).toBe( 11, );
 			expect( result.current, ).toBe( old, );
@@ -259,7 +258,7 @@ describe( 'useCon', () => {
 			const old = sResults.current;
 
 			act( () => {
-				result.current[ 1 ].setHistory( 'state.count', 11, );
+				result.current[ 1 ].set( 'state.count', 11, );
 			}, );
 			expect( result.current[ 0 ].count, ).toBe( 11, );
 			expect( sResults.current, ).toBe( old, );
@@ -271,26 +270,26 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				initialState,
 				{
-					acts: ( { setHistory, }, ) => ( {
+					acts: ( { commit, }, ) => ( {
 						increment() {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count++;
+							commit( ( { state, }, ) => {
+								state.count++;
 							}, );
 						},
 						decrement() {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count--;
+							commit( ( { state, }, ) => {
+								state.count--;
 							}, );
 						},
 						incrementBy( num: number, ) {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count += num;
+							commit( ( { state, }, ) => {
+								state.count += num;
 							}, );
 						},
 						asyncIncrement() {
 							return Promise.resolve().then( () => {
-								setHistory( 'state', ( { draft, }, ) => {
-									draft.count++;
+								commit( ( { state, }, ) => {
+									state.count++;
 								}, );
 							}, );
 						},
@@ -330,18 +329,18 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon(
 				{ value: 0, },
 				{
-					acts: ( { setHistory, }, ) => ( {
+					acts: ( { commit, }, ) => ( {
 						complexOperation( multiplier: number, ) {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.value = draft.value * multiplier + 1;
+							commit( ( { state, }, ) => {
+								state.value = state.value * multiplier + 1;
 							}, );
 						},
 						chainedOperation() {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.value += 5;
+							commit( ( { state, }, ) => {
+								state.value += 5;
 							}, );
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.value *= 2;
+							commit( ( { state, }, ) => {
+								state.value *= 2;
 							}, );
 						},
 					} ),
@@ -399,7 +398,7 @@ describe( 'useCon', () => {
 			const { result, } = renderHook( () => useCon( initialState, ), );
 
 			act( () => {
-				result.current[ 1 ].setHistory( 'state', { count: 1, }, );
+				result.current[ 1 ].set( 'state', { count: 1, }, );
 			}, );
 
 			expect( result.current[ 0 ].count, ).toBe( 1, );

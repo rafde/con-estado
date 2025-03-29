@@ -181,7 +181,7 @@ export type Merge<S extends DS,> = {
 		*
 		* merge( 'posts', [] ); // does nothing
 		* ```
-		* If you want to clear an `array`, use {@link SetState.set set} instead.
+		* If you want to clear an `array`, use {@link Set.set set} instead.
 		*
 		*  @returns Updated history object
 		*/
@@ -310,7 +310,7 @@ export type Merge<S extends DS,> = {
 		*
 		* merge( [ 'posts' ], [] ); // does nothing
 		* ```
-		* If you want to clear an `array`, use {@link SetState.set set} instead.
+		* If you want to clear an `array`, use {@link Set.set set} instead.
 		*
 		* @returns Updated history object
 		*/

@@ -31,8 +31,8 @@ describe( 'createConStore', () => {
 		const [initialSnapshot, controls,] = result.current;
 
 		act( () => {
-			controls.setHistory( 'state', ( { draft, }, ) => {
-				draft.count++;
+			controls.commit( ( { state, }, ) => {
+				state.count++;
 			}, );
 		}, );
 
@@ -46,8 +46,8 @@ describe( 'createConStore', () => {
 		const [initialSnapshot, controls,] = result.current;
 
 		act( () => {
-			controls.setHistory( 'state', ( { draft, }, ) => {
-				draft.count = 0;
+			controls.commit( ( { state, }, ) => {
+				state.count = 0;
 			}, );
 		}, );
 
@@ -60,20 +60,20 @@ describe( 'createConStore', () => {
 			return createConStore(
 				initialState,
 				{
-					acts: ( { setHistory, }, ) => ( {
+					acts: ( { commit, }, ) => ( {
 						increment() {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count++;
+							commit( ( { state, }, ) => {
+								state.count++;
 							}, );
 						},
 						incrementBy( num: number, ) {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count += num;
+							commit( ( { state, }, ) => {
+								state.count += num;
 							}, );
 						},
 						decrement() {
-							setHistory( 'state', ( { draft, }, ) => {
-								draft.count--;
+							commit( ( { state, }, ) => {
+								state.count--;
 							}, );
 						},
 					} ),
@@ -136,7 +136,7 @@ describe( 'createConStore', () => {
 			const { result: defaultResult, } = renderHook( () => useConSelector(), );
 
 			act( () => {
-				defaultResult.current[ 1 ].set( 'count', 11, );
+				defaultResult.current[ 1 ].set( 'state.count', 11, );
 			}, );
 
 			expect( result.current, ).toBe( lastCurrent, );
@@ -193,10 +193,10 @@ describe( 'createConStore', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{
-					acts( { setHistory, }, ) {
+					acts( { set, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								setHistory( 'state.test', text, );
+								set( 'state.test', text, );
 							},
 						};
 					},
@@ -219,10 +219,10 @@ describe( 'createConStore', () => {
 			const useConSelector = createConStore(
 				initialState,
 				{
-					acts( { setHistory, }, ) {
+					acts( { set, }, ) {
 						return {
 							setText: ( text: string, ) => {
-								setHistory( 'state.test', text, );
+								set( 'state.test', text, );
 							},
 						};
 					},
