@@ -17,37 +17,10 @@ import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
-import isStr from './isStr';
 import merge from './mergeHistory';
 import noop from './noop';
 import parseSegments from './parseSegments';
 import reset from './reset';
-
-function _returnStateArgs( args: unknown[], ) {
-	const [statePath, nextState,] = args;
-	if ( isNil( nextState, ) ) {
-		return [
-			'state',
-			statePath,
-		];
-	}
-
-	if ( isStr( statePath, ) ) {
-		return [
-			`state.${statePath}`,
-			nextState,
-		];
-	}
-
-	if ( Array.isArray( statePath, ) ) {
-		return [
-			['state', ...statePath,],
-			nextState,
-		];
-	}
-
-	return [];
-}
 
 const EMPTY_OBJECT = Object.freeze( {}, );
 
@@ -121,32 +94,25 @@ export default function createCon<
 		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 
-	function set( ...args: unknown[] ) {
-		if ( args.length === 0 ) {
-			return history;
-		}
-
-		return handleStateUpdate( getDraft, args, );
-	}
-
-	function mergeHistory( ...args: unknown[] ) {
-		return merge( args, history, getDraft, );
-	}
-
 	const props: CreateActsProps<S> = {
 		commit( ...args: unknown[] ) {
 			return handleCommit( getDraft, history, ...args, );
 		},
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
-		mergeHistory,
 		merge( ...args: unknown[] ) {
-			return mergeHistory( ..._returnStateArgs( args, ), );
+			return merge( args, history, getDraft, );
 		},
 		reset() {
 			return _dispatch( reset( history, beforeChange, ), );
 		},
-		set,
+		set( ...args: unknown[] ) {
+			if ( args.length === 0 ) {
+				return history;
+			}
+
+			return handleStateUpdate( getDraft, args, );
+		},
 		wrap( ...args: unknown[] ) {
 			return handleWrap( getDraft, history, ...args, );
 		},

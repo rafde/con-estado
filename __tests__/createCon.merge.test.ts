@@ -1,14 +1,14 @@
 import { describe, it, expect, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 
-describe( 'createCon - mergeHistory', () => {
+describe( 'createCon - merge', () => {
 	it( 'should merge when given only initial', () => {
 		const con = createCon( {
 			count: 0,
 			data: { value: 'test', },
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {
 				data: {
 					value: 'updated',
@@ -28,7 +28,7 @@ describe( 'createCon - mergeHistory', () => {
 			data: { value: 'test', },
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				data: { value: 'updated', },
 			},
@@ -47,7 +47,7 @@ describe( 'createCon - mergeHistory', () => {
 			noChange: 'none',
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {
 				data: { value: 'initial', },
 			},
@@ -78,7 +78,7 @@ describe( 'createCon - mergeHistory', () => {
 			noChange: 'none',
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {
 				nested: {
 					b: { value: 4, },
@@ -110,7 +110,7 @@ describe( 'createCon - mergeHistory', () => {
 	it( 'should handle arrays', () => {
 		const con = createCon( [1, 2, 3, 4,], );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: [4, 5, 6,],
 			state: [7, 8, 9,],
 		}, );
@@ -122,7 +122,7 @@ describe( 'createCon - mergeHistory', () => {
 	it( 'should handle array source with longer target length', () => {
 		const con = createCon( [1, 2,], );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: [7, 8, 9, 10, 11, 12,],
 		}, );
 
@@ -132,7 +132,7 @@ describe( 'createCon - mergeHistory', () => {
 	it( 'should handle sparse array source with longer target length', () => {
 		const con = createCon( [1, 2, 3, 4, 5,], );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: [2, , , 8, 11, 12,],
 		}, );
 
@@ -146,7 +146,7 @@ describe( 'createCon - mergeHistory', () => {
 			c: 1 as null | number | undefined,
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {
 				a: 1,
 				b: 2,
@@ -187,7 +187,7 @@ describe( 'createCon - mergeHistory', () => {
 			noChange: 'none',
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {
 				level1: {
 					level2: {
@@ -253,7 +253,7 @@ describe( 'createCon - mergeHistory', () => {
 			noChange?: string
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				level1: {
 					level2: {
@@ -288,7 +288,7 @@ describe( 'createCon - mergeHistory', () => {
 			noChange: 'none',
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: largeState,
 		}, );
 
@@ -305,7 +305,7 @@ describe( 'createCon - mergeHistory', () => {
 	it( 'should handle edge case with both initial and state as empty objects', () => {
 		const con = createCon( { key: 'value', }, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: {},
 			state: {},
 		}, );
@@ -320,7 +320,7 @@ describe( 'createCon - mergeHistory', () => {
 			key2: 'value2' as string | null | undefined,
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			initial: { key1: null, },
 			state: { key2: undefined, },
 		}, );
@@ -343,7 +343,7 @@ describe( 'createCon - mergeHistory', () => {
 			}
 		}, );
 
-		con.mergeHistory( 'state.nested.items', [, 'prop',], );
+		con.merge( 'state.nested.items', [, 'prop',], );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {
@@ -354,7 +354,7 @@ describe( 'createCon - mergeHistory', () => {
 			},
 		}, );
 
-		con.mergeHistory( 'state.nested.items', [, 'prop1',], );
+		con.merge( 'state.nested.items', [, 'prop1',], );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {
@@ -374,7 +374,7 @@ describe( 'createCon - mergeHistory', () => {
 			}
 		}, );
 
-		con.mergeHistory( 'state.nested.items[2]', 'prop', );
+		con.merge( 'state.nested.items[2]', 'prop', );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {
@@ -398,7 +398,7 @@ describe( 'createCon - mergeHistory', () => {
 			}
 		}, );
 
-		con.mergeHistory( 'state.nested.items[2].prop', 'prop', );
+		con.merge( 'state.nested.items[2].prop', 'prop', );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {
@@ -424,7 +424,7 @@ describe( 'createCon - mergeHistory', () => {
 			},
 		}, );
 
-		con.mergeHistory( 'state.nested.items[2].prop', 'also prop', );
+		con.merge( 'state.nested.items[2].prop', 'also prop', );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {
@@ -453,7 +453,7 @@ describe( 'createCon - mergeHistory', () => {
 		circular.circular = circular;
 
 		const con = createCon( circular, );
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				circular,
 			},
@@ -469,7 +469,7 @@ describe( 'createCon - mergeHistory', () => {
 			nested: { updated: date1, },
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				created: date2,
 				nested: { updated: date2, },
@@ -486,7 +486,7 @@ describe( 'createCon - mergeHistory', () => {
 			nested: { regex: /original/g, },
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				pattern: /updated/i,
 				nested: { regex: /new/g, },
@@ -507,7 +507,7 @@ describe( 'createCon - mergeHistory', () => {
 			],
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				mixed: ['one', 2, { three: 'three', }, [5, 6,],],
 			},
@@ -541,8 +541,8 @@ describe( 'createCon - mergeHistory', () => {
 
 		const con = createCon( initial, );
 
-		con.mergeHistory( 'state.matrix[1][1][0]', 'updated', );
-		con.mergeHistory( 'state.matrix[2].nested[1]', 'changed', );
+		con.merge( 'state.matrix[1][1][0]', 'updated', );
+		con.merge( 'state.matrix[2].nested[1]', 'changed', );
 
 		expect( con.get( 'state', ).matrix, ).toEqual( [
 			[1, 2,],
@@ -566,7 +566,7 @@ describe( 'createCon - mergeHistory', () => {
 			value: 'updated',
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: update,
 		}, );
 
@@ -578,7 +578,7 @@ describe( 'createCon - mergeHistory', () => {
 			sparse: [1, , 3, , 5,],
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				sparse: [, 2, , 4, , 6, , 8,],
 			},
@@ -606,7 +606,7 @@ describe( 'createCon - mergeHistory', () => {
 			],
 		}, );
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				items: [
 					{
@@ -645,7 +645,7 @@ describe( 'createCon - mergeHistory', () => {
 		const nullProto = Object.create( null, );
 		nullProto.b = 2;
 
-		con.mergeHistory( {
+		con.merge( {
 			state: {
 				normal: nullProto,
 				special: { c: 3, },

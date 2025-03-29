@@ -828,14 +828,7 @@ const {
 
 ### `set`
 
-`set` provides ways to set `state` and/or `initial` values simultaneously:
-
-</section>
-<section className="relative space-y-2">
-
-#### `set` object
-
-Replace both `state` and `initial` values:
+`set` provides ways to replace `state` and/or `initial` values simultaneously.
 
 ```tsx
 // state = { count: 1, items: ['old'] }
@@ -866,7 +859,7 @@ set( {
 
 #### Path-based `set`
 
-Set specific paths in `state` or `initial`:
+Replace specific values at specific paths in `state` or `initial`:
 
 ```tsx
 // state = { user: { name: 'John', age: 25 }, items: ['one', 'two'] }
@@ -1272,47 +1265,37 @@ commit(
 
 ### `merge`
 
-`merge` provides deep partial `object`/`array` merging capabilities with multiple ways to specify merge targets:
+Merge `object`s/`array`s at a specific path.
 
-</section>
-<section className="relative space-y-2">
+```ts
+// initial.user = {
+//   profile: { firstName: 'John', },
+//   preferences: { theme: 'light', },
+// };
 
-#### Merge Partial State
-
-Deeply merge partial state into current state:
-
-```tsx
-// state = {
+merge( {
   user: {
-    profile: { firstName: 'John' },
-    preferences: { theme: 'light' }
+    profile: { lastName: 'Doe', },
+    preferences: { theme: 'dark', },
   }
-};
+} );
 
-merge({
-  user: {
-    profile: { lastName: 'Doe' },
-    preferences: { theme: 'dark' }
-  }
-});
-
-// state = {
-//   user: {
-//     profile: { firstName: 'John', lastName: 'Doe' },
-//     preferences: { theme: 'dark' }
-//   }
+// initial.user = {
+//   profile: { firstName: 'John', lastName: 'Doe', },
+//   preferences: { theme: 'dark', },
 // };
 ```
+
 </section>
 <section className="relative space-y-2">
 
-#### Path-based Merging
+#### Path-based `merge`
 
-`merge` updates `state` at a specific `string` path, e.g. 'user.profile', in the history state using a dot-bracket-notation for path
-or `array` of `string`s or `number`s (for `array`s).
+`merge` updates `state` at a specific `string` path, e.g. 'user.profile',
+in the history state using a dot-bracket-notation for path or `array` of `string`s or `number`s (for `array`s).
 
 ```tsx
-// state = {
+// initial = {
 //   user: {
 //     profile: { name: 'John' },
 //     settings: { notifications: { email: true } }
@@ -1320,35 +1303,36 @@ or `array` of `string`s or `number`s (for `array`s).
 // };
 
 // String path
-merge( 'user.profile', { age: 30 } );
+merge( 'initial.user.profile', { age: 30 } );
 // state.user.profile === { name: 'John', age: 30 }
 
 // Array path
-merge( [ 'user', 'settings' ], { theme: 'dark' } );
-// state.user.settings === { notifications: { email: true }, theme: 'dark' }
+merge( [ 'initial', 'user', 'settings' ], { theme: 'dark' } );
+// initial.user.settings === { notifications: { email: true }, theme: 'dark' }
 ```
 
-Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
+Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]`
+is valid if 'posts' has at least one element.
 
 ```ts
-// state = { posts: [ 
+// initial = { posts: [ 
 //  undefined, 
 //  { title: 'Second post', content: 'Second post content', }, 
 // ], }
 
-merge( 'posts[-1]', { title: 'Updated Second Title', });
-// state = { posts: [ 
+merge( 'initial.posts[-1]', { title: 'Updated Second Title', } );
+// initial = { posts: [ 
 //  undefined, 
 //  { title: 'Updated Second Title', content: 'Second post content', }, 
 // ], }; 
 
-merge( [ 'posts', -2 ], { title: 'Updated First Content' }, );
-// state = { posts: [
+merge( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
+// initial = { posts: [
 //  { title: 'Updated First Content', },
 //  { title: 'Updated Second Title', content: 'Second post content', },
 // ], }; 
 
-merge( 'posts[-3]', { title: 'Third Title', }, ); // throws error
+merge( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
 ```
 
 **Error Cases**
@@ -1359,60 +1343,60 @@ Throws errors in these situations:
 - Out of bounds negative indices
 
 ```ts
-// state = {
+// initial = {
 //   count: 1,
 //   posts: ['post1', 'post2']
 // };
 
 // Invalid paths
-merge('count.path.invalid', 42); // Error: `count` is not an object.
+merge( 'initial.count.path.invalid', 42 ); // Error: `count` is not an object.
 
 // Invalid paths
-merge( 'posts', { post: 'new post' } ); // Error: cannot merge object into array
+merge( 'initial.posts', { post: 'new post' } ); // Error: cannot merge object into array
 
 // Out of bounds
-merge('posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
+merge( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
 <section className="relative space-y-2">
 
-##### Merge Special Characters in Paths
+##### `merge` Special Characters in Paths
 
 Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
 
 Does not apply to array path keys.
 
 ```ts
-// state = {
+// initial = {
 //   path: {
 //     'user.name[s]': 'Name',
 //   },
 // };
 
-merge( 'path.user\\.name\\[s]', 'New Name', );
-// merge( [ 'path', 'user.name[s]' ], 'New Name', );
+merge( 'initial.path.user\\.name\\[s]', 'New Name', );
+// merge( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
 ```
 
 </section>
 <section className="relative space-y-2">
 
-#### Merging Non-existing Paths
+##### `merge` Non-existing Path
 
 Automatically creates intermediate `object`s/`array`s:
 
 ```tsx
-// state = {};
+// initial = {};
 
-merge('nested.data', { value: 42 });
-// state = {
+merge( 'initial.nested.data', { value: 42 });
+// initial = {
 //   nested: {
 //     data: { value: 42 }
 //   }
 // };
 
-merge('items[1]', { name: 'Second' });
-// state = {
+merge( 'initial.items[1]', { name: 'Second' });
+// initial = {
 //   items: [
 //     undefined,
 //     { name: 'Second' }
@@ -1423,58 +1407,38 @@ merge('items[1]', { name: 'Second' });
 </section>
 <section className="relative space-y-2">
 
-#### Merging Arrays
-
-Special handling for array updates:
-
-```tsx
-// state = {
-//   posts: [
-//     { id: 1, title: 'First Post' },
-//     { id: 2, title: 'Second Post', content: 'Original' }
-//   ]
-// };
-
-// Update specific array elements using sparse arrays
-merge('posts', [
-  undefined,  // Skip first element
-  { content: 'Updated' }  // Update second element
-]);
-
-// state.posts === [
-//   { id: 1, title: 'First Post' },
-//   { id: 2, title: 'Second Post', content: 'Updated' }
-// ];
-
-// Using negative indices
-merge('posts[-1]', { status: 'published' });
-// Updates last element
-
-// Empty array merge does nothing
-merge('posts', []); // No change. Use set( 'posts', [] ) to clear an array
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Merging Special Cases
+#### `merge` Special Cases
 
 1. Non-plain Objects:
 
 ```tsx
 // Non-plain objects replace instead of merge
-merge('date', new Date());  // Replaces entire value
-merge('regex', /pattern/);  // Replaces entire value
+merge( 'initial.date', new Date() );  // Replaces entire value
+merge( 'initial.regex', /pattern/ );  // Replaces entire value
+merge( 'initial.existing.object', {} );  // Does nothing
 ```
 
 2. Array Operations:
 
 ```tsx
-// state = { items: [1, 2, 3] };
+// initial = { items: [1, 2, 3] };
+
+// Update specific array elements using sparse arrays
+merge( 'initial.items', [
+  undefined,  // Skip first element
+  22 // Update second element
+]);
+// initial = { items: [1, 22, 3] };
+
+// Using negative indices
+merge( 'initial.items[-1]', -11);
+// Updates last element
+// initial = { items: [1, 22, -11] };
+
 
 // To clear an array, use set instead
-set('items', []);  // Correct way to clear
-merge('items', []); // Does nothing
+merge( 'initial.items', [] ); // Does nothing
+set( 'initial.items', [] );  // Correct way to clear
 ```
 
 </section>
@@ -1802,6 +1766,8 @@ const removed = removeItem(1);  // returns 'b'
 // state.items === [ 'a', 'c' ]
 ```
 
+Returning Mutative draft objects will be converted to immutable objects.
+
 </section>
 <section className="relative space-y-2">
 
@@ -1818,207 +1784,6 @@ const [
 const {
   acts,
 } = useConSelector( ( { acts, } ) => ( { acts, } ), );
-```
-
-</section>
-<section className="relative space-y-2">
-
-### `mergeHistory`
-
-Works like [merge](#merge), `mergeHistory` updates `state` or `initial`
-at a specific path in the history `state` using an `array` of `string`s or `number`s (for `array`s).
-
-```ts
-// initial.user = {
-//   profile: { firstName: 'John', },
-//   preferences: { theme: 'light', },
-// };
-
-mergeHistory( {
-  user: {
-    profile: { lastName: 'Doe', },
-    preferences: { theme: 'dark', },
-  }
-} );
-
-// initial.user = {
-//   profile: { firstName: 'John', lastName: 'Doe', },
-//   preferences: { theme: 'dark', },
-// };
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Path-based Merging History
-
-`mergeHistory` updates `state` at a specific `string` path, e.g. 'user.profile', 
-in the history state using a dot-bracket-notation for path or `array` of `string`s or `number`s (for `array`s).
-
-```tsx
-// initial = {
-//   user: {
-//     profile: { name: 'John' },
-//     settings: { notifications: { email: true } }
-//   }
-// };
-
-// String path
-mergeHistory( 'initial.user.profile', { age: 30 } );
-// state.user.profile === { name: 'John', age: 30 }
-
-// Array path
-mergeHistory( [ 'initial', 'user', 'settings' ], { theme: 'dark' } );
-// initial.user.settings === { notifications: { email: true }, theme: 'dark' }
-```
-
-Negative indices are allowed, but they can't be out of bounds. E.g., `['posts', -1]` or `posts[-1]` is valid if 'posts' has at least one element.
-
-```ts
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Second post', content: 'Second post content', }, 
-// ], }
-
-mergeHistory( 'initial.posts[-1]', { title: 'Updated Second Title', });
-// initial = { posts: [ 
-//  undefined, 
-//  { title: 'Updated Second Title', content: 'Second post content', }, 
-// ], }; 
-
-mergeHistory( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
-// initial = { posts: [
-//  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
-// ], }; 
-
-mergeHistory( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
-```
-
-**Error Cases**
-
-Throws errors in these situations:
-- Type mismatches
-- Trying to access non-object/array properties with dot-bracket notation
-- Out of bounds negative indices
-
-```ts
-// initial = {
-//   count: 1,
-//   posts: ['post1', 'post2']
-// };
-
-// Invalid paths
-mergeHistory( 'initial.count.path.invalid', 42 ); // Error: `count` is not an object.
-
-// Invalid paths
-mergeHistory( 'initial.posts', { post: 'new post' } ); // Error: cannot merge object into array
-
-// Out of bounds
-mergeHistory( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
-```
-
-</section>
-<section className="relative space-y-2">
-
-##### Merge History for Special Characters in Paths
-
-Keys containing dots `.`, or opening bracket `[` must be escaped with backslashes.
-
-Does not apply to array path keys.
-
-```ts
-// initial = {
-//   path: {
-//     'user.name[s]': 'Name',
-//   },
-// };
-
-mergeHistory( 'initial.path.user\\.name\\[s]', 'New Name', );
-// mergeHistory( [ 'initial', 'path', 'user.name[s]' ], 'New Name', );
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Merge History for Non-existing Path 
-
-Automatically creates intermediate `object`s/`array`s:
-
-```tsx
-// initial = {};
-
-mergeHistory( 'initial.nested.data', { value: 42 });
-// initial = {
-//   nested: {
-//     data: { value: 42 }
-//   }
-// };
-
-mergeHistory( 'initial.items[1]', { name: 'Second' });
-// initial = {
-//   items: [
-//     undefined,
-//     { name: 'Second' }
-//   ]
-// };
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Merge History for Arrays
-
-Special handling for array updates:
-
-```tsx
-// initial = {
-//   posts: [
-//     { id: 1, title: 'First Post' },
-//     { id: 2, title: 'Second Post', content: 'Original' }
-//   ]
-// };
-
-// Update specific array elements using sparse arrays
-mergeHistory( 'initial.posts', [
-  undefined,  // Skip first element
-  { content: 'Updated' }  // Update second element
-]);
-
-// initial.posts === [
-//   { id: 1, title: 'First Post' },
-//   { id: 2, title: 'Second Post', content: 'Updated' }
-// ];
-
-// Using negative indices
-mergeHistory( 'initial.posts[-1]', { status: 'published' });
-// Updates last element
-
-// Empty array merge does nothing
-mergeHistory( 'initial.posts', []); // No change. Use set( 'posts', [] ) to clear an array
-```
-
-</section>
-<section className="relative space-y-2">
-
-#### Merge History Special Cases
-
-1. Non-plain Objects:
-
-```tsx
-// Non-plain objects replace instead of merge
-mergeHistory( 'initial.date', new Date());  // Replaces entire value
-mergeHistory( 'initial.regex', /pattern/);  // Replaces entire value
-```
-
-2. Array Operations:
-
-```tsx
-// initial = { items: [1, 2, 3] };
-
-// To clear an array, use set instead
-mergeHistory( 'initial.items', []); // Does nothing
-set( 'initial.items', []);  // Correct way to clear
 ```
 
 </section>
