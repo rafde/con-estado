@@ -100,6 +100,32 @@ describe( 'createCon - commit', () => {
 		}, );
 	}, );
 
+	it( 'should delete from array paths', () => {
+		// First update
+		con.commit( ['items',], ( props, ) => {
+			props.stateProp.splice( 0, 1, );
+		}, );
+
+		expect( con.get().state.items, ).toEqual( [], );
+	}, );
+
+	it( 'should delete from object path', () => {
+		// First update
+		con.commit( ( props, ) => {
+			props.state.count++;
+		}, );
+
+		expect( con.get().state.count, ).toEqual( 1, );
+
+		// delete
+		con.commit( ( props, ) => {
+			// @ts-expect-error -- testing delete
+			delete props.state.count;
+		}, );
+
+		expect( con.get().state.count, ).toEqual( undefined, );
+	}, );
+
 	it( 'should provide correct callback properties for array paths', () => {
 		// First update
 		con.commit( ['items', 0, 'price',], ( props, ) => {
