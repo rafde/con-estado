@@ -26,58 +26,130 @@ export type CreateConStoreOptions<
 };
 
 /**
- * Creates a global state store with history tracking and subscription through React's {@link useSyncExternalStore} capabilities.
- * Similar to {@link useCon} but for managing global state that persists across component unmounts.
+ * Creates a global state store with history tracking and subscription capabilities using React's useSyncExternalStore.
+ * Provides a centralized solution for state management that persists across component unmounts.
  *
- * @example
- * Basic usage
- * ```ts
- * // Create a store
+ * @template S - The data structure type extending DS (must be a plain object or array)
+ * @template AR - Action Record type defining custom action handlers
+ * @template SP - Additional selector props type
+ * @template Sel - Selector type with default being DefaultSelector
+ *
+ * @param {Initial<DS>} initial - Initial state value or factory function
+ * @param {ConOptions<DS, ActRecord>} [options] - Configuration options for the store
+ * @param {Selector<DS, ActRecord, Record<string, unknown>>} [selector] - Optional selector function to customize hook return value
+ *
+ * @returns A React hook function with attached static control methods
+ *
+ * @example Basic Usage
+ * ```tsx
+ * // Create store
  * const useStore = createConStore({
  *   user: { name: '', age: 0 },
  *   settings: { theme: 'light' }
  * });
  *
- * // Use in components
+ * // Use in component
  * function UserProfile() {
  *   const [state, { set }] = useStore();
+ *
  *   return (
  *     <input
  *       value={state.user.name}
- *       onChange={e => set('user.name', e.target.value)}
+ *       onChange={e => set('state.user.name', e.target.value)}
  *     />
  *   );
  * }
  * ```
  *
- * @typeParam S - The {@link DS data structure (DS)} that can be used.
- * @typeParam AR - {@link ActRecord Action record} that will return from {@link CreateActs options.acts}
- * @typeParam Sel - {@link Selector}
+ * @example With Custom Actions
+ * ```tsx
+ * const useStore = createConStore(
+ *   { count: 0 },
+ *   {
+ *     acts: ({ commit }) => ({
+ *       increment: () => commit(({ state }) => { state.count++ }),
+ *       incrementBy: (amount: number) =>
+ *         commit(({ state }) => { state.count += amount }),
+ *       async asyncIncrement() {
+ *         await someAsyncOperation();
+ *         commit(({ state }) => { state.count++ });
+ *       }
+ *     })
+ *   }
+ * );
+ * ```
  *
- * @param {DS} initial - The initial {@link Initial state object or `function`} that returns the initial state object
+ * @example With Custom Selector
+ * ```tsx
+ * const useStore = createConStore(
+ *   { count: 0, text: '' },
+ *   {
+ *     acts: ({ set }) => ({
+ *       setText: (text: string) => set('state.text', text)
+ *     })
+ *   },
+ *   ({ state, acts }) => ({
+ *     count: state.count,
+ *     text: state.text,
+ *     setText: acts.setText
+ *   })
+ * );
  *
- * @param {ConOptions} [options] - Configuration {@link ConOptions options}.
+ * // Use in component
+ * function Component() {
+ *   const { count, text, setText } = useStore();
+ *   return <input value={text} onChange={e => setText(e.target.value)} />;
+ * }
+ * ```
  *
- * @param {ConOptions.acts} [options.acts] - A {@link ConOptions.acts function} that creates reusable actions for state management.
- * Takes control props (set, get, reset, etc.) and returns an object of action functions that can be asynchronous.
+ * @example With beforeChange and afterChange
+ * ```tsx
+ * const useStore = createConStore(
+ *   { count: 0 },
+ *   {
+ *     beforeChange: ({ historyDraft }) => {
+ *       // Validate or modify state before changes are applied
+ *       if (historyDraft.state.count < 0) {
+ *         historyDraft.state.count = 0;
+ *       }
+ *     },
+ *     afterChange: async ({ state }) => {
+ *       localStorage.setItem('appState', JSON.stringify(state));
+ *     }
+ *   }
+ * );
+ * ```
  *
- * @param {ConOptions.beforeChange} [options.beforeChange] - A {@link ConOptions.beforeChange function} to update `historyDraft` before it's finalized.
- * Receives a mutable `historyDraft` of both state and initial values, allowing you to modify them before changes are applied.
- * Called during set and reset operations with the corresponding action type.
+ * @example Using Static Methods
+ * ```tsx
+ * // Access store methods without hooks
+ * const { get, set, commit } = useStore;
  *
- * @param {ConOptions.afterChange} [options.afterChange] - A {@link ConOptions.afterChange function} that runs after state changes are dispatched.
- * Receives the immutable history object containing the current state, changes, and previous states.
- * Can be async and return a Promise or void.
+ * // Use in event handlers or services
+ * function handleGlobalEvent(data: any) {
+ *   set('state.lastEvent', data);
+ * }
  *
- * @param {ConMutOptions} [options.mutOptions] - Configuration {@link ConMutOptions options} for the Mutative library's state updates.
- * Controls how drafts are created and modified. Supports all Mutative options except `enablePatches`.
- * See {@link https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options Mutative Options}
+ * // Get current state
+ * const currentState = get();
+ * ```
  *
- * @param {Selector} [selector=DefaultSelector] - A {@link Selector function} to customize the shape of the returned state.
- * By {@link DefaultSelector default}, returns `[state, controls]`. Create your own selector to return a different structure.
- * Receives all controls and state history as props.
+ * @remarks
+ * - Store persists across component unmounts
+ * - Supports both synchronous and asynchronous actions
+ * - Provides optimized updates using React's useSyncExternalStore
+ * - Maintains full type safety across all operations
+ * - Includes history tracking for state changes
+ * - Supports middleware through afterChange option
+ * - Static methods available for non-component usage
+ * - Compatible with React's concurrent features
  *
- * @returns A React hook function that provides access to the store's state and controls.
+ * @throws {Error} When initial state is not a plain object or array
+ *
+ * @see {@link ConOptions} For detailed options configuration
+ * @see {@link Selector} For selector customization
+ * @see {@link ActRecord} For action handlers type
+ * @see {@link History} For state history structure
  */
 export function createConStore<
 	S extends DS,
@@ -94,78 +166,6 @@ export function createConStore<
 	SP,
 	Sel
 >;
-/**
- * Creates a global state store with history tracking and subscription through React's {@link useSyncExternalStore} capabilities.
- * Similar to {@link useCon} but for managing global state that persists across component unmounts.
- *
- * @example
- * Basic usage
- * ```ts
- * // Create a store
- * const useStore = createConStore({
- *   user: { name: '', age: 0 },
- *   settings: { theme: 'light' }
- * });
- *
- * // Use in components
- * function UserProfile() {
- *   const [state, { set }] = useStore();
- *   return (
- *     <input
- *       value={state.user.name}
- *       onChange={e => set('user.name', e.target.value)}
- *     />
- *   );
- * }
- * ```
- *
- * @typeParam S - The {@link DS data structure (DS)} that can be used.
- * @typeParam AR - {@link ActRecord Action record} that will return from {@link CreateActs options.acts}
- * @typeParam Sel - {@link Selector}
- *
- * @param {DS} initial - The initial {@link Initial state object or `function`} that returns the initial state object
- *
- * @param {Selector} [selector=DefaultSelector] - {@link Selector} A function to customize the shape of the returned state.
- * By {@link DefaultSelector default}, returns `[state, controls]`. Create your own selector to return a different structure.
- * Receives all controls and state history as props.
- *
- * @returns A React hook function that provides access to the store's state and controls.
- *
- * @example
- * `selector` example
- * ```ts
- * // Default selector usage: [state, controls]
- * const useStore = createConStore({ count: 0 });
- *
- * // Use in component
- * function Component() {
- *   const [state, controls] = useStore();
- *  }
- *
- * // Custom selector usage
- * const useStoreWithSelector = createConStore(
- *   { count: 0 },
- *   // Custom selector
- *   ({ state, wrap }) => ({
- *     count: state.count,
- *     increment: wrap(draft => { draft.count++ })
- *   })
- * );
- *
- * // Use in component
- * function Component() {
- *   const {count, increment} = useStoreWithSelector();
- * }
- *
- * // Overwrite selector
- * function Component() {
- *   const {count, increment} = useStoreWithSelector(({ state, wrap }) => ({
- *     count: state.count,
- *     increment: wrap(draft => { draft.count++ })
- *   }));
- * }
- * ```
- */
 export function createConStore<
 	S extends DS,
 	SP extends Record<string, unknown>,

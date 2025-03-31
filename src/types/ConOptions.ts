@@ -14,132 +14,121 @@ export type ConOptions<
 	MO extends ConMutOptions = ConMutOptions,
 > = {
 	/**
-	 * Optional factory function for creating a Record of action handlers and state transformations.
-	 * The action handlers have access to a subset of the controls object.
+	 * Factory function for creating custom action handlers and state transformations.
+	 * Provides a centralized way to define reusable state operations with full type safety.
 	 *
-	 * @param {CreateActsProps} props - Accessing state {@link CreateActsProps setters and getters}
-	 * @returns Record of keys with {@link ActRecord sync and async functions}
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   acts: (controls) => ({
-	 *     increment: () => controls.set(({ draft }) => {
-	 *       draft.count += 1
-	 *     }),
-	 *     addItem: (item) => controls.set(['items'], ({ draft }) => {
-	 *       draft.push(item)
-	 *     })
+	 * @param {CreateActsProps} props - Object containing state control methods:
+	 * - commit: For direct state mutations
+	 * - set: For immutable state updates
+	 * - wrap: For creating path-specific handlers
+	 * - get: For accessing current state
+	 * - merge: For merging partial states
+	 * - reset: For resetting state to initial
+	 *
+	 * @returns {ActRecord} Record of action handlers that can be sync or async
+	 *
+	 * @example Basic Actions
+	 * ```typescript
+	 * acts: (controls) => ({
+	 *   increment: () => controls.commit('state.count', ({ stateProp }) => stateProp++ ),
+	 *   addTodo: (text: string) => controls.commit('todos', ({ stateProp }) => {
+	 *     stateProp.push({ id: Date.now(), text });
 	 *   })
-	 * }
+	 * })
+	 * ```
+	 *
+	 * @example Async Actions
+	 * ```typescript
+	 * acts: ({ commit, set, merge, get }) => ({
+	 *   async fetchUser(id: string) {
+	 *     const user = await api.getUser(id);
+	 *     set('state.user', user);
+	 *   },
+	 *
+	 *   async saveUser(updates: Partial<User>) {
+	 *     // Optimistic update
+	 *     const prevUser = get('state.user');
+	 *     merge('state.user', updates);
+	 *     try {
+	 *       await api.updateUser(updates);
+	 *     } catch (error) {
+	 *       // Revert on failure
+	 *       set('state.user', prevUser);
+	 *       throw error;
+	 *     }
+	 *   }
+	 * })
+	 * ```
+	 *
+	 * @example Path-Specific Actions
+	 * ```typescript
+	 * acts: ({ wrap }) => ({
+	 *   updateTodo: wrap(
+	 *     'todos',
+	 *     ({ stateProp }, id: string, updates: Partial<Todo>) => {
+	 *       const todo = stateProp.find(t => t.id === id);
+	 *       if (todo) Object.assign(todo, updates);
+	 *     }
+	 *   )
+	 * })
 	 * ```
 	 */
 	acts?: ( props: CreateActsProps<S> ) => AR
 	/**
-	 * Post-change async callback function executed after state changes are applied.
-	 * Provides access to the updated {@link History history}.
+	 * Pre-commit hook for validating and transforming state before changes are applied.
+	 * Enables enforcing business rules, data normalization, and maintaining invariants.
 	 *
-	 * @template S - The state type
-	 * @param {Immutable<History<S>>} history - The updated immutable {@link History history}.
-	 * @returns {Promise<void> | void} Optional promise if async operations needed
+	 * @param {object} params - Hook parameters
+	 * @param {Draft<HistoryState<DS>>} params.historyDraft - Mutable draft of the history state
+	 * - state: Mutable state
+	 * - initial: Mutable initial state
+	 * @param {History} params.history - Current immutable history
+	 * - state: Current state
+	 * - prev: Previous state
+	 * - initial: Initial state
+	 * - prevInitial: Previous initial state
+	 * - changes: Tracked changes between state and initial
+	 * @param {DeepPartial<HistoryState<DS>>} params.patches - Partial state containing pending changes
+	 * @param {'set' | 'reset' | 'merge' | 'commit' | 'wrap'} params.type - Operation type that triggered changes
 	 *
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   afterChange: (history) => {
-	 *     console.log('State updated:', history.state)
-	 *     console.log('Previous state:', history.prev)
-	 *     localStorage.setItem('appState', JSON.stringify(history.state))
+	 * @example Validation Rules
+	 * ```typescript
+	 * beforeChange: ({ historyDraft, patches, history }) => {
+	 *   // Ensure count stays within bounds
+	 *   if (typeof patches?.state?.count === 'number') {
+	 *     historyDraft.state.count = Math.min(
+	 *       Math.max(0, historyDraft.state.count),
+	 *       100
+	 *     );
+	 *   }
+	 *
+	 *   // Validate user data
+	 *   const email = patches.state.user.email;
+	 *   if ( email && !isValidEmail(email)) {
+	 *     historyDraft.state.user.email = history.state.user.email;
 	 *   }
 	 * }
 	 * ```
 	 *
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   afterChange: ({ state, prev, initial }) => {
-	 *     if (state.count !== prev?.count) {
-	 *       analytics.track('count_changed', {
-	 *         from: prev?.count,
-	 *         to: state.count,
-	 *         initial: initial.count
-	 *       })
-	 *     }
+	 * @example Data Normalization
+	 * ```typescript
+	 * beforeChange: ( { historyDraft, patches, history } ) => {
+	 *   // Trim text fields
+	 *   if ( patches.state.user?.name ) {
+	 *     historyDraft.state.user.name = patches.state.user.name.trim();
 	 *   }
-	 * }
-	 * ```
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   afterChange: async (history) => {
-	 *     // Async operations
-	 *     await api.saveState(history.state)
-	 *     await db.recordChanges(history.changes)
-	 *     await notifications.send({
-	 *       type: 'state_updated',
-	 *       data: history.state
-	 *     })
-   *   }
-	 * }
-	 * ```
-	 */
-	afterChange?: (
-		history: Immutable<History<S>>,
-	) => Promise<void> | void
-	/**
-	 * Additional mutation options that can be passed to control state updates.
-	 * Allows customizing how mutations are handled and processed.
 	 *
-	 * @template MO - Mutation options type
-	 * @property {MO} mutOptions - Configuration options for mutations
-	 *
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   mutOptions: {
-	 *     freeze: true, // Freeze objects after mutations
-	 *     strict: true, // Enforce strict mode for mutations
+	 *   // Sort arrays
+	 *   if ( Array.isArray( patches?.state?.items ) ) {
+	 *     historyDraft.state.items.sort((a, b) => a.order - b.order);
 	 *   }
-	 * }
-	 * ```
-	 */
-	mutOptions?: MO
-	/**
-	 * Transform function to modify state before it's committed to history.
-	 * Enables validation, normalization, or transformation of state updates.
 	 *
-	 * @template S - The state type
-	 * @param {object} params - available parameters
-	 * @param {Draft<HistoryState>} params.historyDraft - Mutable historyDraft of the {@link HistoryState history state}
-	 * @param {History} params.history - Current immutable {@link History history}
-	 * @param {'set' | 'reset' | 'merge' | 'commit' | 'wrap'} params.type - The operation type that triggered changes.
-	 * @param {Partial<HistoryState>} params.patches -  A partial state object that contains the latest deeply nested
-	 * changes made to `state` and/or `initial`. Useful for when you want to include additional changes based on what `patches` contains.
-	 *
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   beforeChange: ({historyDraft}) => {
-	 *     // Add timestamps to all updates
-	 *     historyDraft.state.lastModified = Date.now()
-	 *     // Maintain sorted order of items
-	 *     historyDraft.state.items.sort((a, b) => a.priority - b.priority)
-	 *   }
+	 *   // Add metadata
+	 *   historyDraft.state.lastModified = Date.now();
 	 * }
 	 * ```
 	 *
-	 * @example
-	 * ```ts
-	 * const options = {
-	 *   beforeChange: ({historyDraft, patches}) => {
-	 *     // Ensure count never goes negative
-	 *     const patchCount = patches?.state?.count;
-	 *     if (typeof patchCount === 'number' && count > 10) {
-	 *       // don't let count go over 10 for whatever reason
-	 *       historyDraft.state.count = 10;
-	 *     }
-	 *   }
-	 * }
-	 *```
+	 * @throws {Error} When validation rules are violated
 	 */
 	beforeChange?: ( params: {
 		historyDraft: Draft<HistoryState<S>>
@@ -147,4 +136,94 @@ export type ConOptions<
 		patches: DeepPartial<HistoryState<S>>
 		type: 'set' | 'reset' | 'merge' | 'commit' | 'wrap'
 	} ) => void
+	/**
+	 * Post-commit hook for handling side effects after state changes are applied.
+	 * Perfect for persistence, synchronization, analytics, and other async operations.
+	 *
+	 * @param {Immutable<History<S>>} history - Updated immutable history containing:
+	 * - state: Current state
+	 * - prev: Previous state
+	 * - initial: Initial state
+	 * - prevInitial: Previous initial state
+	 * - changes: Tracked changes between state and initial
+	 *
+	 * @returns {Promise<void> | void} Optional promise for async operations
+	 *
+	 * @example Persistence
+	 * ```typescript
+	 * afterChange: async (history) => {
+	 *   // Local storage
+	 *   localStorage.setItem('appState', JSON.stringify(history.state));
+	 *
+	 *   // Database
+	 *   if (history.prev?.user !== history.state.user) {
+	 *     await db.users.update(history.state.user);
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * @example Analytics and Logging
+	 * ```typescript
+	 * afterChange: ({ state, prev, changes }) => {
+	 *   // Track specific changes
+	 *   if (state.visits !== prev?.visits) {
+	 *     analytics.track('visit_count_changed', {
+	 *       from: prev?.visits,
+	 *       to: state.visits
+	 *     });
+	 *   }
+	 *
+	 *   // Log all changes
+	 *   console.log('State changes:', changes);
+	 * }
+	 * ```
+	 *
+	 * @example External Sync
+	 * ```typescript
+	 * afterChange: async (history) => {
+	 *   // Sync with backend
+	 *   await api.syncState(history.state);
+	 *
+	 *   // Notify other systems
+	 *   await websocket.broadcast('state_updated', {
+	 *     changes: history.changes,
+	 *     timestamp: Date.now()
+	 *   });
+	 *
+	 *   // Update cache
+	 *   cache.set('lastState', history.state);
+	 * }
+	 * ```
+	 */
+	afterChange?: (
+		history: Immutable<History<S>>,
+	) => Promise<void> | void
+	/**
+	 * Configuration options for controlling how mutations are processed.
+	 * Allows fine-tuning of state update behavior and performance characteristics.
+	 *
+	 * @property {ConMutOptions} mutOptions - Mutation configuration extending ConMutOptions
+	 *
+	 * @example Basic Configuration
+	 * ```typescript
+	 * mutOptions: {
+	 *   enableAutoFreeze: true,        // Freeze objects after mutations
+	 *   strict: true,        // Enforce strict mode
+	 * }
+	 * ```
+	 *
+	 * @example Performance Tuning
+	 * ```typescript
+	 * mutOptions: {
+	 *   // Disable features for performance
+	 *   enableAutoFreeze: false,          // Disable object freezing
+	 *
+	 *   // Enable features for debugging
+	 *   strict: true,           // Catch mutations outside handlers
+	 * }
+	 * ```
+	 *
+	 * @see {@link ConMutOptions} For complete list of available options
+	 */
+	mutOptions?: MO
 };

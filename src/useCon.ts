@@ -13,62 +13,109 @@ import type { SelectorProps, } from './types/SelectorProps';
 import type { UseSelectorProp, } from './types/UseSelectorProp';
 
 /**
- * React hook for managing local state with history tracking and actions.
+ * React hook for managing local component state with advanced state management features.
+ * Provides similar functionality to createConStore but scoped to component lifecycle.
  *
- * @typeParam S - The {@link DS data structure (DS)} that can be used.
- * @typeParam AR - {@link ActRecord Action record} that will return from {@link CreateActs options.acts}
- * @typeParam Sel - {@link Selector}
+ * @template S - Base state type extending DS (Data Structure)
+ * @template AR - Action Record type for custom actions
+ * @template US - UseSelector prop type for selector customization
+ * @template Sel - Selector type with default being DefaultSelector
  *
- * @param {DS} initial - The initial {@link Initial state object or `function`} that returns the initial state object
+ * @overload Basic usage with options
+ * @param {Initial<DS>} initial - Initial state value or factory function
+ * @param {ConOptions<DS, ActRecord>} [options] - Configuration options for state management
+ * @param {Selector<DS, ActRecord, UseSelectorProp<DS, ActRecord>>} [selector] - Optional selector function to customize return value
+ * @returns Value determined by selector (default: [state, controls])
  *
- * @param {ConOptions} [options] - Configuration {@link ConOptions options}.
+ * @overload Direct selector usage
+ * @param {Initial<DS>} initial - Initial state value or factory function
+ * @param {Selector<DS, ActRecord, UseSelectorProp<DS, ActRecord>>} [selector] - Selector function to customize return value
+ * @returns Value determined by selector
  *
- * @param {ConOptions.acts} [options.acts] - A {@link ConOptions.acts function} that creates reusable actions for state management.
- * Takes control props (set, get, reset, etc.) and returns an object of action functions that can be asynchronous.
+ * @example Basic Usage
+ * ```tsx
+ * function Counter() {
+ *   const [state, { commit }] = useCon({ count: 0 });
  *
- * @param {ConOptions.beforeChange} [options.beforeChange] - A {@link ConOptions.beforeChange function} to update `historyDraft` before changes are finalized.
- * Receives a mutable `historyDraft` of both state and initial values, allowing you to modify them before changes are applied.
- * Called during set and reset operations with the corresponding action type.
+ *   return (
+ *     <button onClick={() => commit('count', ({ stateProp }) => stateProp++)}>
+ *       Count: {state.count}
+ *     </button>
+ *   );
+ * }
+ * ```
  *
- * @param {ConOptions.afterChange} [options.afterChange] - A {@link ConOptions.afterChange function} that runs after state changes are dispatched.
- * Receives the immutable history object containing the current state, changes, and previous states.
- * Can be async and return a Promise or void.
+ * @example With Custom Actions
+ * ```tsx
+ * function TodoList() {
+ *   const [state, { acts }] = useCon(
+ *     { todos: [] },
+ *     {
+ *       acts: ({ commit }) => ({
+ *         addTodo: (text: string) => {
+ *           commit('todos', ({ stateProp }) => {
+ *             stateProp.push({ id: Date.now(), text });
+ *           });
+ *         }
+ *       })
+ *     }
+ *   );
  *
- * @param {ConMutOptions} [options.mutOptions] - {@link ConMutOptions} Configuration options for the Mutative library's state updates.
- * Controls how drafts are created and modified. Supports all Mutative options except `enablePatches`.
- * See {@link https://mutative.js.org/docs/api-reference/create#createstate-fn-options---options Mutative Options}
+ *   return (
+ *     <div>
+ *       <button onClick={() => acts.addTodo('New Todo')}>Add</button>
+ *       {state.todos.map(todo => <div key={todo.id}>{todo.text}</div>)}
+ *     </div>
+ *   );
+ * }
+ * ```
  *
- * @param {Selector} [selector=DefaultSelector] - A {@link Selector function} to customize the shape of the returned state.
- * By {@link DefaultSelector default}, returns `[state, controls]`. Create your own selector to return a different structure.
- * Receives all controls and state history as props.
+ * @example With Custom Selector
+ * ```tsx
+ * function UserProfile() {
+ *   const { name, updateName } = useCon(
+ *     { user: { name: '', email: '' } },
+ *     {
+ *       acts: ({ set }) => ({
+ *         updateName: (name: string) => set('state.user.name', name)
+ *       })
+ *     },
+ *     ({ state, acts }) => ({
+ *       name: state.user.name,
+ *       updateName: acts.updateName
+ *     })
+ *   );
+ *
+ *   return <input value={name} onChange={e => updateName(e.target.value)} />;
+ * }
+ * ```
+ *
+ * @example With useSelector
+ * ```tsx
+ * function ExpensiveComponent() {
+ *   const [state, { useSelector }] = useCon({ data: [], filter: '' });
+ *
+ *   // Memoized selection that only updates when relevant data changes
+ *   const filteredData = useSelector(({ state }) =>
+ *     state.data.filter(item => item.includes(state.filter))
+ *   );
+ *
+ *   return <div>{filteredData.map(item => <div key={item}>{item}</div>)}</div>;
+ * }
+ * ```
  *
  * @remarks
- * **TIP**: If your `selector` return value is/has a `function`, function will not be seen as a change to
- * trigger re-render. This is a precaution to prevent unnecessary re-renders since all dynamic functions create a new reference.
- * If you need to conditional return a `function`, it's better if you make a `function` that can handle your condition.
+ * - Hook is memoized internally to prevent unnecessary recreations
+ * - Supports all features of createConStore (commit, merge, wrap, etc.)
+ * - Provides additional useSelector hook for optimized renders
+ * - Maintains type safety across all operations
+ * - Supports both synchronous and asynchronous actions
+ * - Compatible with React's concurrent features
  *
- * example
- *
- * ```ts
- * // Won't re-render
- * const setCount = useCon( initialState, controls => controls.state.count < 10 ? controls.wrap('count') : () => {});
- *
- * // Won't re-render, but it will do something.
- * const setCount = useCon( initialState, controls => (value) => {
- *   controls.state.count < 10 ? controls.set('count', value) : undefined
- * });
- * ```
- *
- * ```ts
- * // This will re-render when `controls.state.count` value is updated
- * const setCount = useCon( initialState, controls => ({
- *   count: controls.state.count,
- *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
- * }));
- * ```
- *
- * @returns Returns state and controls based on the {@link Selector}.
- * - By {@link DefaultSelector default}, returns `[state, controls]`
+ * @see {@link createConStore} For global state management
+ * @see {@link ConOptions} For available options
+ * @see {@link Selector} For selector customization
+ * @see {@link ActRecord} For action handlers type
  */
 export function useCon<
 	S extends DS,
@@ -80,62 +127,6 @@ export function useCon<
 	options?: ConOptions<S, AR>,
 	selector?: Sel
 ): ReturnType<Sel>;
-/**
- * React hook for managing local state with history tracking and actions.
- *
- * @typeParam S - The {@link DS data structure (DS)} that can be used.
- * @typeParam Sel - {@link Selector}
- *
- * @param {DS} initial - The initial {@link Initial state object or `function`} that returns the initial state object
- *
- * @param {Selector} selector - {@link Selector} A function to customize the shape of the returned state.
- * By default, returns `[state, controls]`. Create your own selector to return a different structure.
- * Receives all controls and state history as props.
- *
- * @example
- * `selector` example
- * ```ts
- * // Default selector usage: [state, controls]
- * const [state, controls] = useCon({ count: 0 });
- *
- * // Custom selector usage
- * const { count, increment } = useCon(
- *   { count: 0 },
- *   // Custom selector
- *   ({ state, set }) => ({
- *     count: state.count,
- *     increment: () => set(({draft}) => draft.count++ )
- *   })
- * );
- * ```
- *
- * @remarks
- * **TIP**: If your `selector` return value is/has a `function`, function will not be seen as a change to
- * trigger re-render. This is a precaution to prevent unnecessary re-renders since all dynamic functions create a new reference.
- * If you need to conditional return a `function`, it's better if you make a `function` that can handle your condition.
- *
- * example
- *
- * ```ts
- * // Won't re-render
- * const setCount = useCon( initialState, controls => controls.state.count < 10 ? controls.wrap('count') : () => {});
- *
- * // Won't re-render, but it will do something.
- * const setCount = useCon( initialState, controls => (value) => {
- *   controls.state.count < 10 ? controls.set('count', value) : undefined
- * });
- * ```
- *
- * ```ts
- * // This will re-render when `controls.state.count` value is updated
- * const setCount = useCon( initialState, controls => ({
- *   count: controls.state.count,
- *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
- * }));
- * ```
- *
- * @returns Return based on what the {@link Selector} returns.
- */
 export function useCon<
 	S extends DS,
 	Sel extends Selector<S, Record<never, never>, UseSelectorProp<S, Record<never, never>>>,
