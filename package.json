@@ -105,6 +105,6 @@
 	"sideEffects": false,
 	"source": "src/index.ts",
 	"types": "dist/types.d.ts",
-	"version": "0.6.2",
+	"version": "0.7.0",
 	"website": "https://rafde.github.io/con-estado"
 }
