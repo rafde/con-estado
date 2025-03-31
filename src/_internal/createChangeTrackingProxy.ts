@@ -13,7 +13,7 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 	while ( i < len ) {
 		if ( isNil( currentTarget, ) ) {
 			// it should't get here. You can only make a nested change if the target has the nested value
-			return false;
+			return true;
 		}
 		const currentProp = propPath[ i ];
 
@@ -24,7 +24,7 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 		currentTarget = Reflect.get( currentTarget, currentProp, );
 		i++;
 	}
-	return false;
+	return true;
 }
 
 function applyChange( propPath: ArrayPath, target: object, changes: object, value: unknown, ) {
@@ -39,7 +39,7 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 	while ( i < len ) {
 		if ( isNil( currentTarget, ) ) {
 			// it should't get here. You can only make a nested change if the target has the nested value
-			return false;
+			return true;
 		}
 
 		const currentProp = propPath[ i ];
@@ -67,7 +67,7 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 		currentTarget = Reflect.get( currentTarget, currentProp, );
 		i++;
 	}
-	return false;
+	return true;
 }
 
 export function deleteChange( propPath: ArrayPath, changes: object, ) {
@@ -82,7 +82,7 @@ export function deleteChange( propPath: ArrayPath, changes: object, ) {
 
 		if ( !( currentProp in currentChanges ) ) {
 			// If the property does not exist in changes, stop traversal
-			return false;
+			return true;
 		}
 
 		if ( i >= end ) {
@@ -173,7 +173,7 @@ function trackerProxy( {
 		deleteProperty( proxy, prop, ) {
 			const path = [...propPath, prop,];
 			deleteChange( path, changes, );
-			return deleteChange( path, proxy, );
+			return deleteChange( path, parent, );
 		},
 	}, );
 }
