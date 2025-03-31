@@ -42,7 +42,7 @@ type Set<
 	 * @returns Updated history object
 	 *
 	 * @overload String path update
-	 * @param statePath - Dot-bracket notation path to target state property (e.g. 'stateuser.profile.name')
+	 * @param statePath - Dot-bracket notation path to target state property (e.g. 'state.user.profile.name')
 	 * @param nextState - New value for the targeted property
 	 * @returns Updated history object
 	 *
