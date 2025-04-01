@@ -158,7 +158,7 @@ export function useCon<
 					...opts,
 					[ getSnapshotSymbol ]: props => ( {
 						...props,
-						useSelector( sel: Parameters<typeof _useSelector>[0] = defaultSelector<S, AR, US>, ) {
+						useSelector( sel = defaultSelector<S, AR, US>, ) {
 							return _useSelector( sel, );
 						},
 					} as SelectorProps<S, AR, US> ),

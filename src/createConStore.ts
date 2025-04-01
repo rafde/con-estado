@@ -222,7 +222,7 @@ export function createConStore<
 
 	const initialSnapshot = getSnapshot( estado.get(), );
 
-	function useConSelector<Sel extends Selector<S, AR, SP>,>( select?: Sel, ) {
+	function useConSelector( select?: unknown, ) {
 		const selectorCallback = useSelCb<S, AR, SP>(
 			sel,
 			select,

@@ -88,9 +88,10 @@ export default function createCon<
 			// No argument version
 			return history as Immutable<History<S>>;
 		}
+		const path = typeof stateHistoryPath === 'string' ? parseSegments( stateHistoryPath, ) : stateHistoryPath;
 		return getDeepValueParentByArray(
 			history,
-			parseSegments( stateHistoryPath, ),
+			path,
 		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 

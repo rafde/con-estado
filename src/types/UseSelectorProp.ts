@@ -1,7 +1,12 @@
 import type { ActRecord, } from './ActRecord';
+import type { CreateConSubscribe, } from './CreateConSubscribe';
 import type { DefaultSelector, } from './DefaultSelector';
 import type { DS, } from './DS';
+import type { GetArrayPathValue, } from './GetArrayPathValue';
+import type { History, } from './History';
+import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { Selector, } from './Selector';
+import type { StringPathToArray, } from './StringPathToArray';
 
 export type UseSelectorProp<
 	S extends DS,
@@ -82,4 +87,11 @@ export type UseSelectorProp<
 	 * ```
 	 */
 	useSelector<Sel extends Selector<S, AR, UseSelectorProp<S, AR>>, >( select: Sel ): ReturnType<Sel>
+	useSelector<K extends NestedRecordKeys<History<S>>,>( select: K ): GetArrayPathValue<History<S>, StringPathToArray<K>>
+	useSelector<A extends NestedRecordKeys<
+		CreateConSubscribe<S, AR, Record<never, never>>
+	>,>( select: A ): GetArrayPathValue<
+		CreateConSubscribe<S, AR, Record<never, never>>,
+		StringPathToArray<A>
+	>
 };

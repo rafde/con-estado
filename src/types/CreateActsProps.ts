@@ -76,6 +76,9 @@ export type CreateActsProps<
 	get<SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath: SHP
 	): Immutable<GetArrayPathValue<History<S>, StringPathToArray<SHP>>>
+	get<SHP extends StringPathToArray<NestedRecordKeys<History<S>>>,>(
+		stateHistoryPath: SHP
+	): Immutable<GetArrayPathValue<History<S>, SHP>>
 }
 // & GetDraftRecord<S>
 & Setters<S>;
