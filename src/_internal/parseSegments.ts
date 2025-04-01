@@ -13,7 +13,6 @@ function cleanString( str: string, ) {
 
 function extractArraySegments( input: string[], ) {
 	const result = [];
-	let isArr = false;
 	for ( const str of input ) {
 		if ( !str ) {
 			continue;
@@ -21,17 +20,13 @@ function extractArraySegments( input: string[], ) {
 		if ( BRACKET_TEST.test( str, ) ) {
 			return EMPTY_ARRAY;
 		}
-		const num = parseInt( str, 10, );
-		const isInt = Number.isInteger( num, );
-		if ( isArr && !isInt ) {
-			return EMPTY_ARRAY;
-		}
 
+		const num = parseInt( str, 10, );
 		if ( Number.isInteger( num, ) ) {
 			result.push( num, );
-			isArr = true;
 			continue;
 		}
+
 		const clean = cleanString( str, );
 		result.push( clean, );
 	}
@@ -74,12 +69,7 @@ export default function parseSegments( path: string, ) {
 	}
 
 	const objPath = path.split( SPLIT_DOT, );
-	const first = objPath.shift();
-
-	if ( first == null ) {
-		cache.set( path, EMPTY_ARRAY, );
-		return EMPTY_ARRAY;
-	}
+	const first = objPath.shift() as string;
 
 	const segments = handleExtract( first, );
 	if ( !segments.length ) {
