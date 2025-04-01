@@ -17,7 +17,7 @@ import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
-import merge from './mergeHistory';
+import merge from './merge';
 import noop from './noop';
 import parseSegments from './parseSegments';
 import reset from './reset';
@@ -102,6 +102,10 @@ export default function createCon<
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		merge( ...args: unknown[] ) {
+			if ( args.length === 0 ) {
+				return history;
+			}
+
 			return merge( args, history, getDraft, );
 		},
 		reset() {
