@@ -65,4 +65,38 @@ describe( 'createCon - reset', () => {
 		expect( testHistory.initial, ).toBe( newInitial, );
 		expect( testHistory.prevInitial, ).toBe( newInitial, );
 	}, );
+
+	it( 'should update initial state when modified in beforeChange during reset', () => {
+		const initialState = {
+			counter: 0,
+			list: ['item1',],
+		};
+
+		const estado = createCon( initialState, {
+			beforeChange: ( { historyDraft, }, ) => {
+				// Modify initial state during reset
+				historyDraft.initial.counter = 100;
+				historyDraft.initial.list = ['modified',];
+			},
+		}, );
+
+		// First modify the state
+		estado.commit( ( { state, }, ) => {
+			state.counter = 50;
+			state.list.push( 'item2', );
+		}, );
+
+		// Then reset
+		estado.reset();
+		const newHistory = estado.get();
+
+		// Verify initial state was updated
+		expect( newHistory.initial, ).not.toBe( initialState, );
+		expect( newHistory.initial, ).toEqual( {
+			counter: 100,
+			list: ['modified',],
+		}, );
+		// Verify state matches the new initial
+		expect( newHistory.state, ).toEqual( newHistory.initial, );
+	}, );
 }, );
