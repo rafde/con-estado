@@ -12,7 +12,7 @@ import createHistoryProxy from './createHistoryProxy';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
 import handleCommit from './handleCommit';
-import handleStateUpdate from './handleStateUpdate';
+import set from './set';
 import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
@@ -116,7 +116,7 @@ export default function createCon<
 				return history;
 			}
 
-			return handleStateUpdate( getDraft, args, );
+			return set( getDraft, args, );
 		},
 		wrap( ...args: unknown[] ) {
 			return handleWrap( getDraft, history, ...args, );

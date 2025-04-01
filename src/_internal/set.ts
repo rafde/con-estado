@@ -6,7 +6,7 @@ import isStr from './isStr';
 import isUndef from './isUndef';
 import parseSegments from './parseSegments';
 
-export default function handleStateUpdate<
+export default function set<
 	S extends DS,
 >(
 	getDraft: GetDraftRecord<S>['getDraft'],
