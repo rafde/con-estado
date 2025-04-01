@@ -6,13 +6,18 @@ export default defineConfig( {
 	plugins: [react(),],
 	test: {
 		coverage: {
+			provider: 'v8', // Explicitly specify v8 provider
 			reportsDirectory: './coverage',
-			all: false,
+			all: true,
 			include: [
-				'src/*.ts',
-				'src/internal/*.ts',
+				'src/**/*.ts', // Update pattern to catch all TypeScript files in src
 			],
-			reporter: ['text', 'html', 'json-summary',],
+			reporter: [
+				'text',
+				'html',
+				'json-summary',
+				'lcov', // Add lcov for better IDE integration
+			],
 		},
 		environment: 'happy-dom',
 		globals: true,
