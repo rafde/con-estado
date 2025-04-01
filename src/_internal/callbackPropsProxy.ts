@@ -74,14 +74,11 @@ export default function callbackPropsProxy<
 				const draft = prop === 'stateProp' ? historyDraft.state : historyDraft.initial;
 				return getDeepValueParentByArray( draft, statePathArray, )[ 0 ];
 			}
-
-			return target[ prop as keyof typeof target ];
 		},
 
 		set( _target, prop, value, ) {
 			if ( prop === 'state' || prop === 'initial' ) {
-				Reflect.set( historyDraft, prop, value, );
-				return true;
+				return Reflect.set( historyDraft, prop, value, );
 			}
 
 			if ( statePathArray && ( prop === 'initialProp' || prop === 'stateProp' ) ) {

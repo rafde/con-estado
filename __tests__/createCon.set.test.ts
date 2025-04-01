@@ -376,6 +376,14 @@ describe( 'createCon - set', () => {
 	}, );
 
 	describe( 'set edge cases', () => {
+		it( 'should handle null prototype objects', () => {
+			const con = createCon( { count: 0, }, );
+			const history = con.get();
+			// @ts-expect-error -- testing empty set
+			const result = con.set();
+			expect( result, ).toEqual( history, );
+		}, );
+
 		it( 'should handle empty arrays', () => {
 			const con = createCon( [] as number[], );
 
@@ -502,6 +510,68 @@ describe( 'createCon - set', () => {
 
 			con.set( 'state.users.user1\\.2.megaPosts[5].comments[2].text', 'updated', );
 			expect( con.get().state.users[ 'user1.2' ].megaPosts[ 5 ].comments[ 2 ].text, ).toBe( 'updated', );
+		}, );
+	}, );
+
+	describe( 'set error cases', () => {
+		it( 'should throw error when object has neither state nor initial properties', () => {
+			const estado = createCon( {
+				n: 1,
+				o: {
+					on: 2,
+				},
+			}, );
+
+			expect( () => {
+				estado.set( {
+					// @ts-expect-error -- testing invalid input
+					invalidProp: 'value',
+				}, );
+			}, ).toThrowError( 'First parameter needs an object with `state` or `initial` properties', );
+
+			expect( () => {
+				// @ts-expect-error -- testing invalid input
+				estado.set( {}, );
+			}, ).toThrowError( 'First parameter needs an object with `state` or `initial` properties', );
+		}, );
+
+		it( 'should throw error when path is invalid', () => {
+			const estado = createCon( {
+				a: [],
+				n: 1,
+				o: {
+					on: 2,
+				},
+			}, );
+
+			expect( () => {
+				// @ts-expect-error -- testing invalid input
+				estado.set( 'state.a[-1]', 'value', );
+			}, ).toThrowError( 'out of bounds for array length', );
+
+			expect( () => {
+				// @ts-expect-error -- testing invalid input
+				estado.set( 123, 'value', );
+			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+
+			expect( () => {
+				// @ts-expect-error -- testing invalid input
+				estado.set( true, 'value', );
+			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+
+			expect( () => {
+				// @ts-expect-error -- testing invalid input
+				estado.set( { invalid: 'path', }, 'value', );
+			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+
+			// Valid cases should not throw
+			expect( () => {
+				estado.set( ['state', 'n',], 2, );
+			}, ).not.toThrow();
+
+			expect( () => {
+				estado.set( 'state.n', 2, );
+			}, ).not.toThrow();
 		}, );
 	}, );
 }, );
