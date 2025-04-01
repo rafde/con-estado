@@ -100,6 +100,26 @@ describe( 'createConStore', () => {
 
 			expect( result.current[ 0 ].count, ).toBe( 0, );
 		}, );
+
+		describe( 'by path', () => {
+			it( 'should update state correctly when actions are dispatched from path', () => {
+				const { result: countResult, } = renderHook( () => useConSelector( 'state.count', ), );
+				const { result: actIncrement, } = renderHook( () => useConSelector( 'acts.increment', ), );
+				const { result: actDecrement, } = renderHook( () => useConSelector( 'acts.decrement', ), );
+
+				act( () => {
+					actIncrement.current();
+				}, );
+
+				expect( countResult.current, ).toBe( 1, );
+
+				act( () => {
+					actDecrement.current();
+				}, );
+
+				expect( countResult.current, ).toBe( 0, );
+			}, );
+		}, );
 	}, );
 
 	describe( 'selector', () => {

@@ -2,8 +2,12 @@ import type { ActRecord, } from './ActRecord';
 import type { CreateConSubscribe, } from './CreateConSubscribe';
 import type { DefaultSelector, } from './DefaultSelector';
 import type { DS, } from './DS';
+import type { GetArrayPathValue, } from './GetArrayPathValue';
+import type { History, } from './History';
+import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { Selector, } from './Selector';
 import type { SelectorProps, } from './SelectorProps';
+import type { StringPathToArray, } from './StringPathToArray';
 
 /**
  * Return type for a store creation function that combines state controls with selector functionality.
@@ -48,5 +52,10 @@ export type CreateConStoreReturnType<
 	Sel extends Selector<S, AR, SP> = DefaultSelector<S, AR, SP>,
 > = CreateConSubscribe<S, AR, SelectorProps<S, AR, SP>> & {
 	(): ReturnType<Sel>
+	<A extends NestedRecordKeys<CreateConSubscribe<S, AR, SP>>,>( select: A ): GetArrayPathValue<
+		CreateConSubscribe<S, AR, SP>,
+		StringPathToArray<A>
+	>
+	<K extends NestedRecordKeys<History<S>>,>( select: K ): GetArrayPathValue<History<S>, StringPathToArray<K>>
 	<Sel extends Selector<S, AR, SP>, >( select: Sel ): ReturnType<Sel>
 };
