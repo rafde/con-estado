@@ -8,7 +8,7 @@ describe( 'createCon - merge', () => {
 			data: { value: 'test', },
 		}, );
 
-		con.merge( {
+		const result = con.merge( {
 			initial: {
 				data: {
 					value: 'updated',
@@ -20,6 +20,11 @@ describe( 'createCon - merge', () => {
 			count: 0,
 			data: { value: 'updated', },
 		}, );
+
+		// @ts-expect-error -- testing no args
+		const result2 = con.merge();
+
+		expect( result2, ).toEqual( result, );
 	}, );
 
 	it( 'should merge when given only state', () => {
@@ -355,6 +360,37 @@ describe( 'createCon - merge', () => {
 		}, );
 
 		con.merge( 'state.nested.items', [, 'prop1',], );
+
+		expect( con.get( 'state', ), ).toEqual( {
+			nested: {
+				items: [
+					,
+					'prop1',
+				],
+			},
+		}, );
+	}, );
+
+	it( 'should use array path to merge deeply nested array', () => {
+		const con = createCon( {
+		} as {
+			nested: {
+				items: Array<string | undefined>
+			}
+		}, );
+
+		con.merge( ['state', 'nested', 'items',], [, 'prop',], );
+
+		expect( con.get( 'state', ), ).toEqual( {
+			nested: {
+				items: [
+					,
+					'prop',
+				],
+			},
+		}, );
+
+		con.merge( ['state', 'nested', 'items',], [, 'prop1',], );
 
 		expect( con.get( 'state', ), ).toEqual( {
 			nested: {

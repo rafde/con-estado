@@ -13,9 +13,6 @@ export default function merge<S extends DS,>(
 	history: History<S>,
 	getDraft: GetDraftRecord<S>['getDraft'],
 ): History<S> {
-	if ( args.length === 0 ) {
-		return history;
-	}
 	const [historyDraft, finalize,] = getDraft();
 	const [statePath, nextState,] = args;
 

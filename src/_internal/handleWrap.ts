@@ -28,9 +28,6 @@ export default function handleWrap<
 	}
 
 	const _isValidStatePath = isValidStatePath( statePath, );
-	if ( _isValidStatePath && !isNextStateType ) {
-		throw new Error( 'Wrapper method second parameter needs a callback function to wrap', );
-	}
 
 	const statePathArray = isStr( statePath, )
 		? parseSegments( statePath, )

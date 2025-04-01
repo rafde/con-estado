@@ -156,10 +156,15 @@ describe( 'createCon - wrap', () => {
 	}, );
 
 	it( 'takes async function ', async() => {
-		const wrapped = con.wrap( async( props, increment: number, ) => await Promise.resolve().then( () => props.state.count += increment, ), );
+		const wrapped = con.wrap( async( props, increment: number, ) => await Promise.resolve().then(
+			() => {
+				props.state.count += increment;
+				return props.state;
+			},
+		), );
 		return waitFor( async() => {
-			await wrapped( 5, );
-			expect( con.get().state.count, ).toBe( 5, );
+			const result = await wrapped( 5, );
+			expect( result, ).toEqual( con.get().state, );
 		}, );
 	}, );
 }, );
