@@ -38,7 +38,7 @@
 		"rimraf": "6.0.1",
 		"typescript": "5.8.2",
 		"typescript-eslint": "8.28.0",
-		"vitest": "3.0.9"
+		"vitest": "3.1.1"
 	},
 	"exports": {
 		"import": "./dist/esm/index.mjs",
