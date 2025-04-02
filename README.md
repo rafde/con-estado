@@ -77,7 +77,7 @@ const initialState = {
   },
 };
 
-const useGlobalSelector = createConStore( initialState, {
+const useConSelector = createConStore( initialState, {
   acts: ({ set }) => ({
     onChangeInput: (
       event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -94,14 +94,14 @@ const useGlobalSelector = createConStore( initialState, {
 });
 
 function App() {
-  const state = useGlobalSelector( ( props ) => props.state );
+  const state = useConSelector( 'state' );
   // Does not recreate handler
-  const onClickButton = useGlobalSelector( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
+  const onClickButton = useConSelector( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
     console.log( 'toggle email was ', props.stateProp);
     props.stateProp = !props.stateProp;
     console.log( 'toggle email is ', props.stateProp);
   } ) );
-  const onChangeInput = useGlobalSelector.acts.onChangeInput;
+  const onChangeInput = useConSelector.acts.onChangeInput;
 
   return (
     <div>
@@ -140,14 +140,14 @@ Key advantages:
 
 ### Using Selectors with Global Store
 
-When using `createConStore`, the `useGlobalSelector` hook is provided for optimized component updates:
+When using `createConStore`, the `useConSelector` hook is provided for optimized component updates:
 
 ```tsx
-const useGlobalSelector = createConStore(initialState);
+const useConSelector = createConStore(initialState);
 
 function UserProfile() {
   // Only re-renders when selected data changes
-  const userData = useGlobalSelector( { state } => ({
+  const userData = useConSelector( { state } => ({
     name: state.user.name,
     avatar: state.user.avatar
   }));
@@ -249,6 +249,12 @@ function App() {
 `con-estado` supports flexible path notation for state updates:
 
 ```tsx
+// from useCon
+const theme = useSelector( 'state.user.preferences.theme' );
+// from createConStore
+const globalTheme = useConSelector( 'state.user.preferences.theme' );
+
+const set = useSelector( 'set' );
 // Dot-bracket notation
 set( 'state.user.preferences.theme', 'dark' );
 
@@ -259,6 +265,7 @@ set( [ 'state', 'user', 'preferences', 'theme' ], 'dark');
 set( 'state.todos[0].done', true );
 set( 'state.todos[-1].text', 'Last item' ); // Negative indices supported
 
+const merge = useConSelector( 'merge' );
 // Array operations
 merge( 'state.todos', [ { done: true, } ] ) ; // Merge first element in array
 set( 'state.todos', [] );            // Clear array
@@ -694,6 +701,23 @@ const setCount = useCon( initialState, controls => ({
 }));
 ```
 
+You can also access the controls directly from `useSelector` using a `string` path.
+
+If a `string` path starts with `state`, `initial`, `prev`, `prevInitial` or `changes`,
+it returns the value of the property from the [State History](#state-history).
+
+```ts
+const name = useSelector( 'state.user.name' );
+```
+
+If a `string` path to `acts` is provided, it returns the action function.
+
+```ts
+const yourAction = useSelector( 'acts.yourAction' );
+```
+
+Other `string` paths to `get`, `commit`, `merge`, `reset`, `set`, `subscribe`, `wrap` will return corresponding `function`.
+
 </section>
 <section className="relative space-y-2">
 
@@ -751,6 +775,23 @@ const yourSelection = useConSelector(
 );
 ```
 
+You can also access the controls directly from `useConSelector` using a `string` path.
+
+If a `string` path starts with `state`, `initial`, `prev`, `prevInitial` or `changes`,
+it returns the value of the property from the [State History](#state-history).
+
+```ts
+const name = useConSelector( 'state.user.name' );
+```
+
+If a `string` path to `acts` is provided, it returns the action function.
+
+```ts
+const yourAction = useConSelector( 'acts.yourAction' );
+```
+
+Other `string` paths to `get`, `commit`, `merge`, `reset`, `set`, `subscribe`, `wrap` will return corresponding `function`.
+
 </section>
 <section className="relative space-y-2">
 
@@ -790,7 +831,8 @@ history.prevInitial;  // Previous initial state
 history.changes;      // Tracked changes between state and initial
 
 // Access nested properties directly
-const specificChange = get('changes.user.name');
+const specificChange = get( 'changes.user.name' );
+const specificChange = get( [ 'changes', 'user', '.name' ] );
 ```
 
 </section>
