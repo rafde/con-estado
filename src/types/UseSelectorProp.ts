@@ -13,84 +13,100 @@ export type UseSelectorProp<
 	AR extends ActRecord,
 > = {
 	/**
-	 * A function that returns a tuple containing the current state and selector props.
-	 * @overload
+	 * Hook for selecting and subscribing to state changes.
+	 * Returns the entire state and controls when called with no arguments.
 	 *
-	 * @template S - The state type
-	 * @template AR - Action record type
-	 * @template DefaultSelector - The default selector type
+	 * @returns Default selector return value containing state and controls
 	 *
-	 * @returns Tuple containing the current state and selector props.
-	 *
-	 * @remarks
-	 * **TIP**: If your `selector` return value is/has a `function`, function will not be seen as a change to
-	 * trigger re-render. This is a precaution to prevent unnecessary re-renders since all dynamic functions create a new reference.
-	 * If you need to conditional return a `function`, it's better if you make a `function` that can handle your condition.
-	 *
-	 * example
-	 *
-	 * ```ts
-	 * // Won't re-render
-	 * const setCount = useCon(
-	 *   initialState,
-	 *   controls => controls.state.count < 10 ? controls.wrap('count') : () => {}
-	 * );
-	 *
-	 * // Won't re-render, but it will do something.
-	 * const setCount = useCon( initialState, controls => (value) => {
-	 *   controls.state.count < 10 ? controls.set('count', value) : undefined
-	 * });
-	 * ```
-	 *
-	 * ```ts
-	 * // This will re-render when `controls.state.count` value is updated
-	 * const setCount = useCon( initialState, controls => ({
-	 *   count: controls.state.count,
-	 *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
-	 * }));
+	 * @example
+	 * ```typescript
+	 * // Get full state and controls
+	 * const [state, controls] = useSelector();
 	 * ```
 	 */
 	useSelector(): ReturnType<DefaultSelector<S, AR, UseSelectorProp<S, AR>>>
+
 	/**
-	 * A function that returns a derived value from the current state.
-	 * @overload
+	 * Hook for selecting specific parts of state using a custom selector function.
+	 * Only triggers re-renders when selected values change.
 	 *
-	 * @typeParam {Selector} select - A selector `function` that returns a derived value
-	 * @returns The derived value returned by the selector function.
+	 * @param select - Custom selector function to transform state
+	 * @returns The transformed state based on selector
 	 *
 	 * @remarks
-	 * **TIP**: If your `selector` return value is/has a `function`, function will not be seen as a change to
-	 * trigger re-render. This is a precaution to prevent unnecessary re-renders since all dynamic functions create a new reference.
-	 * If you need to conditional return a `function`, it's better if you make a `function` that can handle your condition.
+	 * If your selector returns a function, it won't trigger re-renders on reference changes.
+	 * This is intentional to prevent unnecessary re-renders from dynamic function creation.
 	 *
-	 * example
-	 *
-	 * ```ts
-	 * // Won't re-render
-	 * const setCount = useCon(
-	 *   initialState,
-	 *   controls => controls.state.count < 10 ? controls.wrap('count') : () => {}
-	 * );
-	 *
-	 * // Won't re-render, but it will do something.
-	 * const setCount = useCon( initialState, controls => (value) => {
-	 *   controls.state.count < 10 ? controls.set('count', value) : undefined
-	 * });
-	 * ```
-	 *
-	 * ```ts
-	 * // This will re-render when `controls.state.count` value is updated
-	 * const setCount = useCon( initialState, controls => ({
-	 *   count: controls.state.count,
-	 *   setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
+	 * @example
+	 * ```typescript
+	 * // Select specific state values
+	 * const userData = useSelector(({ state }) => ({
+	 *   name: state.user.name,
+	 *   email: state.user.email
 	 * }));
+	 *
+	 * // Select with computed values
+	 * const todoStats = useSelector(({ state }) => ({
+	 *   total: state.todos.length,
+	 *   completed: state.todos.filter(t => t.completed).length
+	 * }));
+	 *
+	 * // Function return (won't cause re-renders)
+	 * const setCount = useSelector(controls =>
+	 *   controls.state.count < 10
+	 *     ? controls.wrap('count')
+	 *     : () => {}
+	 * );
 	 * ```
 	 */
-	useSelector<Sel extends Selector<S, AR, UseSelectorProp<S, AR>>, >( select: Sel ): ReturnType<Sel>
-	useSelector<K extends NestedRecordKeys<History<S>>,>( select: K ): GetArrayPathValue<History<S>, StringPathToArray<K>>
+	useSelector<Sel extends Selector<S, AR, UseSelectorProp<S, AR>>,>(
+		select: Sel
+	): ReturnType<Sel>
+
+	/**
+	 * Hook for selecting nested state values using dot-bracket notation path.
+	 * Provides type-safe access to nested state properties.
+	 *
+	 * @param select - Dot notation path to nested state value
+	 * @returns The value at the specified path
+	 *
+	 * @example
+	 * ```typescript
+	 * // Select nested state value
+	 * const theme = useSelector('state.user.preferences.theme');
+	 *
+	 * // Select from state history
+	 * const prevValue = useSelector('prev.user.name');
+	 * const initialValue = useSelector('initial.user.name');
+	 * ```
+	 */
+	useSelector<K extends NestedRecordKeys<History<S>>,>(
+		select: K
+	): GetArrayPathValue<History<S>, StringPathToArray<K>>
+
+	/**
+	 * Hook for selecting control functions and actions using dot notation path.
+	 * Provides type-safe access to control functions and defined actions.
+	 *
+	 * @param select - Dot notation path to control function or action
+	 * @returns The function at the specified path
+	 *
+	 * @example
+	 * ```typescript
+	 * // Select control functions
+	 * const set = useSelector('set');
+	 * const merge = useSelector('merge');
+	 *
+	 * // Select defined actions
+	 * const updateUser = useSelector('acts.updateUser');
+	 * const resetForm = useSelector('acts.resetForm');
+	 * ```
+	 */
 	useSelector<A extends NestedRecordKeys<
 		CreateConSubscribe<S, AR, Record<never, never>>
-	>,>( select: A ): GetArrayPathValue<
+	>,>(
+		select: A
+	): GetArrayPathValue<
 		CreateConSubscribe<S, AR, Record<never, never>>,
 		StringPathToArray<A>
 	>
