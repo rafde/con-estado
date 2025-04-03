@@ -20,6 +20,7 @@ const nextConfig = {
 	},
 	transpilePackages: [
 		'lucide-react',
+		'next-mdx-remote',
 	],
 	images: {
 		remotePatterns: [
