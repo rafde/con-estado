@@ -6,6 +6,6 @@ function onChange() {
 }
 
 export default function NavHiddenCheck() {
-	const isNavOpen = useNav( ( { state: { isNavOpen, }, }, ) => isNavOpen, );
+	const isNavOpen = useNav( 'state.isNavOpen', );
 	return <input type="checkbox" className="peer/side hidden" checked={isNavOpen} onChange={onChange} />;
 }

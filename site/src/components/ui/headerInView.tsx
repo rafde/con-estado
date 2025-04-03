@@ -7,11 +7,8 @@ export default function TopicInView( { href, }: { href: string }, ) {
 	const elRef = useRef<HTMLDivElement>( null, );
 	const topicObserver = useTopicView( ( { acts, }, ) => acts.topicObserver(), );
 	useEffect( () => {
-		if ( elRef.current == null || !topicObserver ) {
-			return;
-		}
 		const el = elRef.current;
-		if ( !el ) {
+		if ( !el || !topicObserver ) {
 			return;
 		}
 
