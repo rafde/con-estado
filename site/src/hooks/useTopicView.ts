@@ -6,18 +6,18 @@ const useTopicView = createConStore(
 		firstTopicHref: '',
 	},
 	{
-		acts( { setWrap, }, ) {
+		acts( { wrap, }, ) {
 			let topicObserver: IntersectionObserver | null = null;
 
 			const topicHrefMap = new Map<string, number | undefined>();
-			const addTopic = setWrap( ( { draft, }, topicEntry: IntersectionObserverEntry, ) => {
+			const addTopic = wrap( ( { state, }, topicEntry: IntersectionObserverEntry, ) => {
 				const target = topicEntry.target as HTMLDivElement;
 				const topicHref = target.dataset.href as string;
 				const offset = target?.parentElement?.offsetTop;
 
-				draft.topicHrefs.push( topicHref, );
+				state.topicHrefs.push( topicHref, );
 				topicHrefMap.set( topicHref, offset, );
-				draft.topicHrefs = draft.topicHrefs.toSorted( ( a, b, ) => {
+				state.topicHrefs = state.topicHrefs.toSorted( ( a, b, ) => {
 					const aTop = topicHrefMap.get( a, );
 					const bTop = topicHrefMap.get( b, );
 					if ( aTop == null ) {
@@ -28,16 +28,16 @@ const useTopicView = createConStore(
 					}
 					return aTop - bTop;
 				}, );
-				draft.firstTopicHref = draft.topicHrefs[ 0 ];
+				state.firstTopicHref = state.topicHrefs[ 0 ];
 			}, );
-			const removeTopic = setWrap( ( { draft, }, topicEntry: IntersectionObserverEntry, ) => {
+			const removeTopic = wrap( ( { state, }, topicEntry: IntersectionObserverEntry, ) => {
 				const target = topicEntry.target as HTMLDivElement;
 				const topicHref = target.dataset.href as string;
-				const topicHrefs = draft.topicHrefs.filter( href => href !== topicHref, );
+				const topicHrefs = state.topicHrefs.filter( href => href !== topicHref, );
 
 				topicHrefMap.delete( topicHref, );
-				draft.topicHrefs = topicHrefs;
-				draft.firstTopicHref = topicHrefs[ 0 ];
+				state.topicHrefs = topicHrefs;
+				state.firstTopicHref = topicHrefs[ 0 ];
 			}, );
 
 			return {
