@@ -7,25 +7,25 @@ const useNav = createConStore(
 		isNavOpen: true,
 	},
 	{
-		acts( { set, setWrap, }, ) {
+		acts( { set, wrap, }, ) {
 			return {
 				open() {
-					set( {
+					set( 'state', {
 						isNavOverlayOpen: true,
 						isNavOpen: true,
 					}, );
 				},
 				close() {
-					set( {
+					set( 'state', {
 						isNavOverlayOpen: false,
 						isNavOpen: false,
 					}, );
 				},
-				toggle: setWrap( ( { draft, }, ) => {
-					const isNavOpen = !draft.isNavOpen;
-					draft.isNavOpen = isNavOpen;
+				toggle: wrap( ( { state, }, ) => {
+					const isNavOpen = !state.isNavOpen;
+					state.isNavOpen = isNavOpen;
 					if ( !isNavOpen ) {
-						draft.isNavOverlayOpen = false;
+						state.isNavOverlayOpen = false;
 					}
 				}, ),
 			};
