@@ -106,7 +106,7 @@ export default function createCon<
 				return history;
 			}
 
-			return merge( args, history, getDraft, );
+			return merge( args, getDraft, );
 		},
 		reset() {
 			return _dispatch( reset( history, beforeChange, ), );

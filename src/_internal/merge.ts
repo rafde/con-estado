@@ -10,7 +10,6 @@ import parseSegments from './parseSegments';
 
 export default function merge<S extends DS,>(
 	args: unknown[],
-	history: History<S>,
 	getDraft: GetDraftRecord<S>['getDraft'],
 ): History<S> {
 	const [historyDraft, finalize,] = getDraft();
