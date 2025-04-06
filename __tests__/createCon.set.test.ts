@@ -564,6 +564,12 @@ describe( 'createCon - set', () => {
 				estado.set( { invalid: 'path', }, 'value', );
 			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
 
+			expect( () => {
+				const history = estado.get();
+				// @ts-expect-error -- testing invalid input
+				history.state = 'value';
+			}, ).toThrowError( /trap returned falsish/, );
+
 			// Valid cases should not throw
 			expect( () => {
 				estado.set( ['state', 'n',], 2, );
