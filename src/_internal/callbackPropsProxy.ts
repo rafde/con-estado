@@ -43,10 +43,6 @@ export default function callbackPropsProxy<
 			const isChange = prop === 'changes';
 			const hasChanges = isChange || isChangesProp;
 			if ( hasChanges && !( 'changes' in baseTarget ) ) {
-				if ( isChangesProp && !hasStatePath ) {
-					return;
-				}
-
 				const changes = findChanges(
 					history.initial,
 					history.state,
@@ -77,10 +73,6 @@ export default function callbackPropsProxy<
 		},
 
 		set( _target, prop, value, ) {
-			if ( prop === 'state' || prop === 'initial' ) {
-				return Reflect.set( historyDraft, prop, value, );
-			}
-
 			if ( statePathArray && ( prop === 'initialProp' || prop === 'stateProp' ) ) {
 				const draft = prop === 'stateProp' ? historyDraft.state : historyDraft.initial;
 				deepUpdate( draft, statePathArray, () => value, );
