@@ -191,4 +191,38 @@ describe( 'createDraftChangeTrackingProxy', () => {
 		expect( proxy.null, ).toBeNull();
 		expect( proxy.undefined, ).toBeUndefined();
 	}, );
+
+	it( 'should handle property deletion at root level', () => {
+		const initial = {
+			name: 'John',
+			age: 30,
+			city: 'New York',
+		};
+		const [proxy, changes,] = createDraftChangeTrackingProxy( initial, );
+
+		// First make some changes
+		proxy.name = 'Jane';
+		proxy.age = 31;
+
+		// Then delete properties
+		// @ts-expect-error -- testing delete
+		delete proxy.name;
+		// @ts-expect-error -- testing delete
+		delete proxy.city;
+
+		// Verify changes object reflects deletions
+		expect( changes, ).toEqual( {
+			age: 31,
+		}, );
+
+		// Verify proxy reflects deletions
+		expect( proxy, ).toEqual( {
+			age: 31,
+		}, );
+
+		// Verify original object is modified
+		expect( initial, ).toEqual( {
+			age: 31,
+		}, );
+	}, );
 }, );
