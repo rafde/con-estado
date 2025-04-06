@@ -1,4 +1,4 @@
-import { create, isDraft, } from 'mutative';
+import { create, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { ConOptions, } from '../types/ConOptions';
 import type { DS, } from '../types/DS';
@@ -6,10 +6,6 @@ import type { History, } from '../types/History';
 import type { ConMutOptions, } from '../types/ConMutOptions';
 import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
-import isNil from './isNil';
-import isStr from './isStr';
-import parseSegments from './parseSegments';
 
 export default function getHistoryDraft<
 	S extends DS,
@@ -18,7 +14,6 @@ export default function getHistoryDraft<
 	history: History<S>,
 	setHistory: ( nextHistory: History<S>, ) => History<S>,
 	beforeChange: Exclude<ConOptions<S, ActRecord, MO>['beforeChange'], undefined>,
-	stateHistoryPath?: unknown,
 	mutOptions?: MO,
 ) {
 	const [
@@ -57,20 +52,6 @@ export default function getHistoryDraft<
 		const nextHistory = createHistoryProxy( next, );
 
 		return setHistory( nextHistory, );
-	}
-
-	if ( isStr( stateHistoryPath, ) ) {
-		const value = getDeepValueParentByArray(
-			draft,
-			parseSegments( stateHistoryPath, ),
-		)[ 0 ];
-		if ( isNil( value, ) || !isDraft( value, ) ) {
-			throw new Error( `Key path ${stateHistoryPath} cannot be a draft. It's value is ${draft} of type ${typeof draft}`, );
-		}
-		return [
-			value,
-			finalize,
-		] as const;
 	}
 
 	return [
