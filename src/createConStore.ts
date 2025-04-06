@@ -229,13 +229,11 @@ export function createConStore<
 		);
 		const initSnapshotCallback = useCallback(
 			() => selectorCallback( initialSnapshot, ),
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[],
+			[selectorCallback,],
 		);
 		const snapshotCallback = useCallback(
 			() => selectorCallback( snapshot, ),
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[],
+			[selectorCallback,],
 		);
 
 		return useSyncExternalStore(
