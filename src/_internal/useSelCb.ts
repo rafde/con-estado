@@ -41,13 +41,10 @@ function getSelectorValue<
 		return selector( snapshot, );
 	}
 
-	if ( isStr( selector, ) ) {
-		const selectorPath = parseSegments( selector, );
-		const head = selectorPath[ 0 ];
-
-		if ( HistoryKeys.has( <string>head, ) ) {
-			const { get, } = snapshot;
-			return get( selectorPath as StringPathToArray<NestedRecordKeys<History<S>>>, );
+	const selectorPath = isStr( selector, ) ? parseSegments( selector, ) : selector;
+	if ( Array.isArray( selectorPath, ) ) {
+		if ( HistoryKeys.has( selectorPath[ 0 ], ) ) {
+			return snapshot.get( selectorPath as StringPathToArray<NestedRecordKeys<History<S>>>, );
 		}
 
 		return getDeepValueParentByArray( snapshot, selectorPath, )[ 0 ];
