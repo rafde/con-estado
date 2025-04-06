@@ -1,6 +1,7 @@
 import { fixupPluginRules, } from '@eslint/compat';
 import react from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import stylistic from '@stylistic/eslint-plugin';
 import globals from 'globals';
 import js from '@eslint/js';
@@ -194,4 +195,5 @@ export default tseslint.config(
 			strict: 'off',
 		},
 	},
+	reactCompiler.configs.recommended,
 );

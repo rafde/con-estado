@@ -14,8 +14,7 @@ export default function CodeBlockCopyButton( props: CodeBlockCopyButtonProps, ) 
 			setCopied( true, );
 			setTimeout( () => setCopied( false, ), 2000, );
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
+		[props.code,],
 	);
 
 	return <button

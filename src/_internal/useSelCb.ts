@@ -1,5 +1,5 @@
 import { createCustomEqual, } from 'fast-equals';
-import { useCallback, useMemo, useRef, } from 'react';
+import { useCallback, useRef, } from 'react';
 import type { ActRecord, } from '../types/ActRecord';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
@@ -27,21 +27,33 @@ function getSelectorValue<
 	S extends DS,
 	AR extends ActRecord,
 	SP extends Record<string, unknown>,
->( selector: unknown, snapshot: SelectorProps<S, AR, SP>, ) {
+>(
+	{
+		defaultSelector,
+		selector,
+	}: {
+		defaultSelector: Selector<S, AR, SP>
+		selector?: unknown
+	},
+	snapshot: SelectorProps<S, AR, SP>,
+) {
 	if ( isFunc( selector, ) ) {
 		return selector( snapshot, );
 	}
 
-	if ( Array.isArray( selector, ) ) {
-		const head = selector[ 0 ];
+	if ( isStr( selector, ) ) {
+		const selectorPath = parseSegments( selector, );
+		const head = selectorPath[ 0 ];
 
-		if ( HistoryKeys.has( head, ) ) {
+		if ( HistoryKeys.has( <string>head, ) ) {
 			const { get, } = snapshot;
-			return get( selector as StringPathToArray<NestedRecordKeys<History<S>>>, );
+			return get( selectorPath as StringPathToArray<NestedRecordKeys<History<S>>>, );
 		}
 
-		return getDeepValueParentByArray( snapshot, selector, )[ 0 ];
+		return getDeepValueParentByArray( snapshot, selectorPath, )[ 0 ];
 	}
+
+	return defaultSelector( snapshot, );
 }
 
 export default function useSelCb<
@@ -49,25 +61,16 @@ export default function useSelCb<
 	AR extends ActRecord,
 	SP extends Record<string, unknown>,
 >( defaultSelector: Selector<S, AR, SP>, selector?: unknown, ) {
-	const _selector = useMemo(
-		() => {
-			if ( isFunc( selector, ) ) {
-				return selector;
-			}
+	const selectorRef = useRef( {
+		defaultSelector,
+		selector,
+	}, );
 
-			if ( isStr( selector, ) ) {
-				return parseSegments( selector, );
-			}
+	const resultRef = useRef( undefined as unknown, );
 
-			return defaultSelector;
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
-	);
-	const resultRef = useRef( null as unknown, );
 	return useCallback(
 		( snapshot: SelectorProps<S, AR, SP>, ) => {
-			const next = getSelectorValue( _selector, snapshot, );
+			const next = getSelectorValue( selectorRef.current, snapshot, );
 			const prev = resultRef.current;
 			if ( isEqual( prev, next, ) ) {
 				return resultRef.current;
@@ -75,7 +78,6 @@ export default function useSelCb<
 			resultRef.current = next;
 			return resultRef.current;
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[],
 	);
 }

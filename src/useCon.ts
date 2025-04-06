@@ -1,4 +1,4 @@
-import { useMemo, } from 'react';
+import { useMemo, useRef, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
 import isPlainObj from './_internal/isPlainObj';
@@ -144,16 +144,21 @@ export function useCon<
 	options?: unknown,
 	selector?: unknown,
 ) {
+	const paramsRef = useRef( {
+		initial,
+		options,
+		selector,
+	}, );
 	const useSelector = useMemo(
 		() => {
 			const [
 				opts,
 				sel,
-			] = isPlainObj( options, )
-				? [options as ConOptions<S, AR>, selector as Sel,]
-				: [{} as ConOptions<S, AR>, options as Sel,];
+			] = isPlainObj( paramsRef.current.options, )
+				? [paramsRef.current.options as ConOptions<S, AR>, paramsRef.current.selector as Sel,]
+				: [{} as ConOptions<S, AR>, paramsRef.current.options as Sel,];
 			const _useSelector = createConStore<S, AR, US, Sel>(
-				initial,
+				paramsRef.current.initial,
 				{
 					...opts,
 					[ getSnapshotSymbol ]: props => ( {
@@ -168,7 +173,6 @@ export function useCon<
 
 			return _useSelector;
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[],
 	);
 
