@@ -692,4 +692,43 @@ describe( 'createCon - merge', () => {
 			b: 2, }, );
 		expect( con.get( 'state', ).special, ).toEqual( { c: 3, }, );
 	}, );
+
+	it( 'should return same reference when source and target are identical', () => {
+		const initialObj = {
+			value: 'test',
+			nested: { data: 42, } as { data: number } | null,
+		};
+		const con = createCon( initialObj, );
+
+		// Get the current state
+		const currentState = con.get( 'state', );
+
+		// Merge the same state object into itself
+		con.merge( {
+			state: currentState,
+		}, );
+
+		// Verify that the reference remains the same
+		expect( con.get( 'state', ), ).toBe( currentState, );
+
+		// Also test with nested objects
+		const nestedObj = currentState.nested;
+		con.merge( {
+			state: {
+				nested: nestedObj,
+			},
+		}, );
+
+		// Verify nested reference remains the same
+		expect( con.get( 'state', ).nested, ).toBe( nestedObj, );
+
+		con.merge( {
+			state: {
+				nested: null,
+			},
+		}, );
+
+		// Verify nested reference remains the same
+		expect( con.get( 'state', ).nested, ).toBe( null, );
+	}, );
 }, );

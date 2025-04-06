@@ -79,10 +79,6 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 }
 
 export default function deepMerge( target: unknown, source: unknown, refSet = new WeakSet(), ) {
-	if ( Object.is( target, source, ) ) {
-		return target;
-	}
-
 	if ( !isObj( target, ) || !isObj( source, ) ) {
 		return source;
 	}
