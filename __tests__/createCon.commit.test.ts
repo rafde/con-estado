@@ -29,6 +29,7 @@ describe( 'createCon - commit', () => {
 			expect( props.prevProp, ).toBe( undefined, );
 			expect( props.prevInitialProp, ).toBe( undefined, );
 			expect( props.changesProp, ).toBe( undefined, );
+			expect( props.changesProp, ).toBe( undefined, );
 			expect( props.prev, ).toBe( undefined, );
 			expect( props.prevInitial, ).toBe( undefined, );
 			expect( props.changes, ).toBe( undefined, );
@@ -86,6 +87,9 @@ describe( 'createCon - commit', () => {
 			props.initialProp = 15;
 		}, );
 
+		const prev = con.get( 'state', );
+		const prevInitial = con.get( 'initial', );
+
 		// Second update
 		con.commit( 'nested.value', ( props, ) => {
 			expect( props.prevProp, ).toBe( 10, );
@@ -97,6 +101,19 @@ describe( 'createCon - commit', () => {
 
 			props.stateProp = 30;
 			props.initialProp = 25;
+		}, );
+
+		// third update
+		con.commit( 'nested', ( props, ) => {
+			expect( props.prevProp?.value, ).toBe( 20, );
+			expect( props.prevInitialProp?.value, ).toBe( 15, );
+			expect( props.changesProp?.value, ).toBe( 30, );
+			expect( props.prev, ).toEqual( prev, );
+			expect( props.prevInitial, ).toEqual( prevInitial, );
+			expect( props.changes, ).toEqual( { nested: { value: 30, }, }, );
+
+			props.stateProp.value = 35;
+			props.initialProp.value = 30;
 		}, );
 	}, );
 
@@ -226,8 +243,12 @@ describe( 'createCon - commit', () => {
 	it( 'should maintain previous state references', () => {
 		const beforeState = con.get().state;
 
-		con.commit( ( { state, }, ) => {
-			state.count = 5;
+		con.commit( ( props, ) => {
+			props.state.count = 5;
+			expect( () => {
+				// @ts-expect-error -- testing throw
+				props.something = 'test';
+			}, ).toThrowError( /trap returned falsish/, );
 		}, );
 
 		const history = con.get();
