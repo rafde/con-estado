@@ -1,5 +1,4 @@
 import { strictDeepEqual, } from 'fast-equals';
-import isNil from './isNil';
 import isObj from './isObj';
 
 type ArrayPath = Array<string | symbol | number>;
@@ -11,10 +10,6 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 	const len = propPath.length;
 	const end = len - 1;
 	while ( i < len ) {
-		if ( isNil( currentTarget, ) ) {
-			// it should't get here. You can only make a nested change if the target has the nested value
-			return true;
-		}
 		const currentProp = propPath[ i ];
 
 		// If we are at the last property in the path, set the value
@@ -24,7 +19,6 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 		currentTarget = Reflect.get( currentTarget, currentProp, );
 		i++;
 	}
-	return true;
 }
 
 function applyChange( propPath: ArrayPath, target: object, changes: object, value: unknown, ) {
@@ -37,11 +31,6 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 	const end = len - 1;
 	// Traverse the property path
 	while ( i < len ) {
-		if ( isNil( currentTarget, ) ) {
-			// it should't get here. You can only make a nested change if the target has the nested value
-			return true;
-		}
-
 		const currentProp = propPath[ i ];
 
 		// If we are at the last property in the path, set the value
@@ -67,7 +56,6 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 		currentTarget = Reflect.get( currentTarget, currentProp, );
 		i++;
 	}
-	return true;
 }
 
 export function deleteChange( propPath: ArrayPath, changes: object, ) {
@@ -92,8 +80,6 @@ export function deleteChange( propPath: ArrayPath, changes: object, ) {
 		currentChanges = Reflect.get( currentChanges, currentProp, );
 		i++;
 	}
-
-	return true;
 }
 
 type TrackerProxyOptions = {
@@ -167,13 +153,14 @@ function trackerProxy( {
 			if ( !strictDeepEqual( oldValue, value, ) ) {
 				applyChange( path, parent, changes, value, );
 			}
-
-			return applyTargetChange( path, parent, value, );
+			applyTargetChange( path, parent, value, );
+			return true;
 		},
 		deleteProperty( proxy, prop, ) {
 			const path = [...propPath, prop,];
 			deleteChange( path, changes, );
-			return deleteChange( path, parent, );
+			deleteChange( path, parent, );
+			return true;
 		},
 	}, );
 }
