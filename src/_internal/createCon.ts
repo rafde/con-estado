@@ -70,13 +70,11 @@ export default function createCon<
 	}
 
 	const getDraft = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
-		const statePath = isPlainObj( stateHistoryPath, ) ? undefined : stateHistoryPath;
 		const _mutOptions = isPlainObj( stateHistoryPath, ) ? stateHistoryPath : options;
 		return getHistoryDraft(
 			history,
 			_dispatch,
 			beforeChange,
-			statePath,
 			_mutOptions,
 		);
 	};
