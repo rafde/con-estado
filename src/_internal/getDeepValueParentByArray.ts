@@ -1,6 +1,5 @@
 import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
 import isNil from './isNil';
-import isPlainObj from './isPlainObj';
 
 export default function getDeepValueParentByArray<
 	S extends object,
@@ -15,11 +14,6 @@ export default function getDeepValueParentByArray<
 	let parent;
 	let value = state;
 	for ( const key of arrayPath ) {
-		const isObj = isPlainObj( value, );
-		const isArray = Array.isArray( value, );
-		if ( isObj && isArray ) {
-			break;
-		}
 		const ck = key as keyof typeof parent;
 		parent = value;
 		value = parent[ ck ];
