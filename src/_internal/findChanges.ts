@@ -1,6 +1,7 @@
 import type { DS, } from '../types/DS';
 import isArray from './isArray';
 import isPlainObj from './isPlainObj';
+import objectIs from './objectIs';
 import { reflectGet, reflectSet, } from './reflect';
 
 function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boolean {
@@ -10,7 +11,7 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 	const bValue = isPlainObj( b, ) || isArray( b, )
 		? reflectGet( b, key, )
 		: b;
-	if ( Object.is( aValue, bValue, ) ) {
+	if ( objectIs( aValue, bValue, ) ) {
 		return false;
 	}
 	const areObjects = isPlainObj( aValue, ) && isPlainObj( bValue, );
@@ -28,7 +29,7 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 }
 
 export default function findChanges<T extends DS,>( a: T, b: T, ) {
-	if ( Object.is( a, b, ) ) {
+	if ( objectIs( a, b, ) ) {
 		return;
 	}
 	let changes: Record<string, unknown> | Array<unknown> = {};

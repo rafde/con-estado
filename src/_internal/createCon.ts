@@ -12,6 +12,7 @@ import createHistoryProxy from './createHistoryProxy';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
 import getHistoryDraft from './getHistoryDraft';
 import handleCommit from './handleCommit';
+import objectIs from './objectIs';
 import set from './set';
 import handleWrap from './handleWrap';
 import isNil from './isNil';
@@ -60,7 +61,7 @@ export default function createCon<
 	} = options;
 
 	function _dispatch( nextHistory: History<S>, ) {
-		if ( Object.is( history, nextHistory, ) ) {
+		if ( objectIs( history, nextHistory, ) ) {
 			return history;
 		}
 		history = nextHistory;

@@ -3,6 +3,7 @@ import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
+import objectIs from './objectIs';
 import { reflectGet, reflectSet, } from './reflect';
 
 function getIndex( path: unknown, currentTarget: Array<unknown>, ) {
@@ -61,7 +62,7 @@ export default function deepUpdate<T extends object,>( target: T, arrayPath: Arr
 		if ( i === lastIndex ) {
 			const oldValue = reflectGet( currentTarget, key, );
 			const newValue = value( oldValue, );
-			if ( Object.is( oldValue, newValue, ) ) {
+			if ( objectIs( oldValue, newValue, ) ) {
 				return;
 			}
 			reflectSet(

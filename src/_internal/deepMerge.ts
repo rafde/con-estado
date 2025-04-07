@@ -3,6 +3,7 @@ import isArray from './isArray';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isUndef from './isUndef';
+import objectIs from './objectIs';
 import { reflectGet, } from './reflect';
 
 function setRef( target: unknown, refSet: WeakSet<object>, ) {
@@ -34,7 +35,7 @@ function mergeArray( target: unknown, source: unknown[], refSet: WeakSet<object>
 
 		if ( isPlainObj( arrSourceValue, ) || isArray( arrSourceValue, ) ) {
 			const result = deepMerge( arrTargetValue, arrSourceValue, refSet, );
-			if ( !Object.is( arrTargetValue, result, ) ) {
+			if ( !objectIs( arrTargetValue, result, ) ) {
 				target[ i ] = result;
 			}
 			continue;
