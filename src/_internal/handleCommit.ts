@@ -42,10 +42,6 @@ export default function handleCommit<
 		? parseSegments( statePath, )
 		: statePath as Array<string | number>;
 
-	if ( !statePathArray ) {
-		throw new Error( '`commit` method first parameter needs a valid state path string or array', );
-	}
-
 	nextState(
 		callbackPropsProxy( {
 			historyDraft,
