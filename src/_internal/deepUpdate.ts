@@ -3,6 +3,7 @@ import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
+import { reflectGet, reflectSet, } from './reflect';
 
 function getIndex( path: unknown, currentTarget: Array<unknown>, ) {
 	const isNum = typeof path === 'number';
@@ -58,12 +59,12 @@ export default function deepUpdate<T extends object,>( target: T, arrayPath: Arr
 		}
 
 		if ( i === lastIndex ) {
-			const oldValue = Reflect.get( currentTarget, key, );
+			const oldValue = reflectGet( currentTarget, key, );
 			const newValue = value( oldValue, );
 			if ( Object.is( oldValue, newValue, ) ) {
 				return;
 			}
-			Reflect.set(
+			reflectSet(
 				currentTarget,
 				key,
 				newValue,
@@ -74,13 +75,13 @@ export default function deepUpdate<T extends object,>( target: T, arrayPath: Arr
 		pathArr.push( path, );
 		// how to handle undefined??
 		if ( Object.hasOwn( currentTarget, key, ) ) {
-			currentTarget = Reflect.get( currentTarget, key, );
+			currentTarget = reflectGet( currentTarget, key, );
 			continue;
 		}
 
 		const currentValue = typeof arrayPath[ i + 1 ] === 'number' ? [] : {};
 
-		Reflect.set(
+		reflectSet(
 			currentTarget,
 			key,
 			currentValue,

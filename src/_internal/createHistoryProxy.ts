@@ -1,6 +1,7 @@
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import findChanges from './findChanges';
+import { reflectGet, reflectSet, } from './reflect';
 
 export default function createHistoryProxy<
 	S extends DS,
@@ -12,11 +13,11 @@ export default function createHistoryProxy<
 					history.initial,
 					history.state,
 				);
-				Reflect.set( history, prop, changes, );
+				reflectSet( history, prop, changes, );
 				return changes;
 			}
 
-			return Reflect.get( history, prop, );
+			return reflectGet( history, prop, );
 		},
 		set() {
 			return false;
