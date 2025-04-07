@@ -1,13 +1,14 @@
 import type { DS, } from '../types/DS';
 import isArray from './isArray';
 import isPlainObj from './isPlainObj';
+import { reflectGet, reflectSet, } from './reflect';
 
 function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boolean {
 	const aValue = isPlainObj( a, ) || isArray( a, )
-		? Reflect.get( a, key, )
+		? reflectGet( a, key, )
 		: a;
 	const bValue = isPlainObj( b, ) || isArray( b, )
-		? Reflect.get( b, key, )
+		? reflectGet( b, key, )
 		: b;
 	if ( Object.is( aValue, bValue, ) ) {
 		return false;
@@ -15,12 +16,12 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 	const areObjects = isPlainObj( aValue, ) && isPlainObj( bValue, );
 	const areArrays = isArray( aValue, ) && isArray( bValue, );
 	if ( !areObjects && !areArrays ) {
-		Reflect.set( changes, key, bValue, );
+		reflectSet( changes, key, bValue, );
 		return true;
 	}
 	const nestedChanges = findChanges( aValue, bValue, );
 	if ( nestedChanges != null ) {
-		Reflect.set( changes, key, nestedChanges, );
+		reflectSet( changes, key, nestedChanges, );
 		return true;
 	}
 	return false;

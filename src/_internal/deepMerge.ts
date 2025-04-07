@@ -3,6 +3,7 @@ import isArray from './isArray';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isUndef from './isUndef';
+import { reflectGet, } from './reflect';
 
 function setRef( target: unknown, refSet: WeakSet<object>, ) {
 	if ( isObj( target, ) ) {
@@ -51,8 +52,8 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 	}
 
 	for ( const key in source ) {
-		const sourceValue = Reflect.get( source, key, );
-		const targetValue = Reflect.get( target, key, );
+		const sourceValue = reflectGet( source, key, );
+		const targetValue = reflectGet( target, key, );
 
 		if ( !isObj( targetValue, ) ) {
 			target[ key ] = sourceValue;

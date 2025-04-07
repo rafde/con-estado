@@ -1,10 +1,9 @@
 import { strictDeepEqual, } from 'fast-equals';
 import isArray from './isArray';
 import isObj from './isObj';
+import { reflectSet, } from './reflect';
 
 type ArrayPath = Array<string | symbol | number>;
-
-const reflectSet = Reflect.set;
 
 function applyTargetChange( propPath: ArrayPath, target: object, value: unknown, isDelete = false, ) {
 	// Clone the property path to avoid mutating the input array

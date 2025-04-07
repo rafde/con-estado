@@ -5,6 +5,7 @@ import type { HistoryState, } from '../types/HistoryState';
 import deepUpdate from './deepUpdate';
 import findChanges from './findChanges';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import { reflectGet, reflectSet, } from './reflect';
 
 const PROP_TO_HISTORY = {
 	changesProp: 'changes',
@@ -36,7 +37,7 @@ export default function callbackPropsProxy<
 	return new Proxy( baseTarget, {
 		get( target, prop, ) {
 			if ( prop in baseTarget ) {
-				return Reflect.get( baseTarget, prop, );
+				return reflectGet( baseTarget, prop, );
 			}
 
 			const isChangesProp = hasStatePath && prop === 'changesProp';
@@ -47,7 +48,7 @@ export default function callbackPropsProxy<
 					history.initial,
 					history.state,
 				);
-				Reflect.set( baseTarget, 'changes', changes, );
+				reflectSet( baseTarget, 'changes', changes, );
 
 				if ( isChange ) {
 					return changes;
@@ -58,10 +59,10 @@ export default function callbackPropsProxy<
 			if ( !( prop in baseTarget ) && statePathArray && prop in PROP_TO_HISTORY ) {
 				const propKey = prop as HistoryPropKeys;
 				const [value,] = getDeepValueParentByArray(
-					Reflect.get( baseTarget, PROP_TO_HISTORY[ propKey ], ),
+					reflectGet( baseTarget, PROP_TO_HISTORY[ propKey ], ),
 					statePathArray,
 				);
-				Reflect.set( baseTarget, propKey, value, );
+				reflectSet( baseTarget, propKey, value, );
 				return value;
 			}
 
