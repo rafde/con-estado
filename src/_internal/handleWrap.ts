@@ -3,6 +3,7 @@ import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
 import callbackPropsProxy from './callbackPropsProxy';
+import isArray from './isArray';
 import isFunc from './isFunc';
 import isObj from './isObj';
 import isStr from './isStr';
@@ -31,7 +32,7 @@ export default function handleWrap<
 
 	const statePathArray = isStr( statePath, )
 		? parseSegments( statePath, )
-		: Array.isArray( statePath, )
+		: isArray( statePath, )
 			? statePath as Array<string | number>
 			: null;
 

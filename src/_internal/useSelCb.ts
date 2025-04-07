@@ -8,6 +8,7 @@ import type { Selector, } from '../types/Selector';
 import type { SelectorProps, } from '../types/SelectorProps';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import getDeepValueParentByArray from './getDeepValueParentByArray';
+import isArray from './isArray';
 import isFunc from './isFunc';
 import isStr from './isStr';
 import parseSegments from './parseSegments';
@@ -42,7 +43,7 @@ function getSelectorValue<
 	}
 
 	const selectorPath = isStr( selector, ) ? parseSegments( selector, ) : selector;
-	if ( Array.isArray( selectorPath, ) ) {
+	if ( isArray( selectorPath, ) ) {
 		if ( HistoryKeys.has( selectorPath[ 0 ], ) ) {
 			return snapshot.get( selectorPath as StringPathToArray<NestedRecordKeys<History<S>>>, );
 		}

@@ -1,18 +1,19 @@
 import type { DS, } from '../types/DS';
+import isArray from './isArray';
 import isPlainObj from './isPlainObj';
 
 function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boolean {
-	const aValue = isPlainObj( a, ) || Array.isArray( a, )
+	const aValue = isPlainObj( a, ) || isArray( a, )
 		? Reflect.get( a, key, )
 		: a;
-	const bValue = isPlainObj( b, ) || Array.isArray( b, )
+	const bValue = isPlainObj( b, ) || isArray( b, )
 		? Reflect.get( b, key, )
 		: b;
 	if ( Object.is( aValue, bValue, ) ) {
 		return false;
 	}
 	const areObjects = isPlainObj( aValue, ) && isPlainObj( bValue, );
-	const areArrays = Array.isArray( aValue, ) && Array.isArray( bValue, );
+	const areArrays = isArray( aValue, ) && isArray( bValue, );
 	if ( !areObjects && !areArrays ) {
 		Reflect.set( changes, key, bValue, );
 		return true;
@@ -31,7 +32,7 @@ export default function findChanges<T extends DS,>( a: T, b: T, ) {
 	}
 	let changes: Record<string, unknown> | Array<unknown> = {};
 	let hasChanges = false;
-	if ( Array.isArray( a, ) && Array.isArray( b, ) ) {
+	if ( isArray( a, ) && isArray( b, ) ) {
 		const maxLength = Math.max( a.length, b.length, );
 		changes = new Array( maxLength, );
 

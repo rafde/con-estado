@@ -1,3 +1,4 @@
+import isArray from './isArray';
 import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
@@ -18,7 +19,7 @@ function getIndex( path: unknown, currentTarget: Array<unknown>, ) {
 }
 
 function getKey( path: unknown, currentTarget: unknown, ) {
-	if ( Array.isArray( currentTarget, ) ) {
+	if ( isArray( currentTarget, ) ) {
 		return getIndex( path, currentTarget, );
 	}
 

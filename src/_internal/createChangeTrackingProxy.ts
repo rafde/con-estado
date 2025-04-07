@@ -1,4 +1,5 @@
 import { strictDeepEqual, } from 'fast-equals';
+import isArray from './isArray';
 import isObj from './isObj';
 
 type ArrayPath = Array<string | symbol | number>;
@@ -55,7 +56,7 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 			reflectSet(
 				currentChanges,
 				currentProp,
-				Array.isArray( targetValue, ) ? [] : {},
+				isArray( targetValue, ) ? [] : {},
 			);
 		}
 
