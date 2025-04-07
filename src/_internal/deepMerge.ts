@@ -3,6 +3,18 @@ import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isUndef from './isUndef';
 
+function setRef( target: unknown, refSet: WeakSet<object>, ) {
+	if ( isObj( target, ) ) {
+		const ref = isDraft( target, ) ? original( target, ) : target;
+		if ( refSet.has( ref, ) ) {
+			return true;
+		}
+		refSet.add( ref, );
+		return false;
+	}
+	return false;
+}
+
 function mergeArray( target: unknown, source: unknown[], refSet: WeakSet<object>, ) {
 	if ( !Array.isArray( target, ) ) {
 		return source;
@@ -17,22 +29,14 @@ function mergeArray( target: unknown, source: unknown[], refSet: WeakSet<object>
 			continue;
 		}
 
-		if ( isObj( arrSourceValue, ) ) {
-			const ref = isDraft( arrSourceValue, ) ? original( arrSourceValue, ) : arrSourceValue;
-			if ( refSet.has( ref, ) ) {
-				continue;
-			}
-			refSet.add( ref, );
+		if ( setRef( arrSourceValue, refSet, ) ) {
+			continue;
 		}
 
 		const arrTargetValue = target[ i ];
 
-		if ( isObj( arrTargetValue, ) ) {
-			const ref = isDraft( arrTargetValue, ) ? original( arrTargetValue, ) : arrTargetValue;
-			if ( refSet.has( ref, ) ) {
-				continue;
-			}
-			refSet.add( ref, );
+		if ( setRef( arrTargetValue, refSet, ) ) {
+			continue;
 		}
 
 		if ( isPlainObj( arrSourceValue, ) || Array.isArray( arrSourceValue, ) ) {
@@ -63,11 +67,10 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 		}
 
 		if ( isPlainObj( sourceValue, ) || Array.isArray( sourceValue, ) ) {
-			const ref = isDraft( sourceValue, ) ? original( sourceValue, ) : sourceValue;
-			if ( refSet.has( ref, ) ) {
+			if ( setRef( sourceValue, refSet, ) ) {
 				continue;
 			}
-			refSet.add( ref, );
+
 			deepMerge( targetValue, sourceValue, refSet, );
 		}
 		else {
