@@ -6,6 +6,7 @@ import type { History, } from '../types/History';
 import type { ConMutOptions, } from '../types/ConMutOptions';
 import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
+import objectIs from './objectIs';
 
 export default function getHistoryDraft<
 	S extends DS,
@@ -42,8 +43,8 @@ export default function getHistoryDraft<
 			patches,
 		}, );
 		const next = _finalize() as History<S>;
-		const areStatesEqual = Object.is( history.state, next.state, );
-		const areInitialsEqual = Object.is( history.initial, next.initial, );
+		const areStatesEqual = objectIs( history.state, next.state, );
+		const areInitialsEqual = objectIs( history.initial, next.initial, );
 		if ( areStatesEqual && areInitialsEqual ) {
 			return history;
 		}
