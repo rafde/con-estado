@@ -1,4 +1,5 @@
 import { isDraft, original, } from 'mutative';
+import isArray from './isArray';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
 import isUndef from './isUndef';
@@ -16,36 +17,28 @@ function setRef( target: unknown, refSet: WeakSet<object>, ) {
 }
 
 function mergeArray( target: unknown, source: unknown[], refSet: WeakSet<object>, ) {
-	if ( !Array.isArray( target, ) ) {
+	if ( !isArray( target, ) ) {
 		return source;
 	}
 
 	const sLen = source.length;
 	for ( let i = 0; i < sLen; i++ ) {
 		const arrSourceValue = source[ i ];
-
-		// don't overwrite with undefined
-		if ( isUndef( arrSourceValue, ) ) {
-			continue;
-		}
-
-		if ( setRef( arrSourceValue, refSet, ) ) {
-			continue;
-		}
-
 		const arrTargetValue = target[ i ];
 
-		if ( setRef( arrTargetValue, refSet, ) ) {
+		// don't overwrite with undefined
+		if ( isUndef( arrSourceValue, ) || setRef( arrSourceValue, refSet, ) || setRef( arrTargetValue, refSet, ) ) {
 			continue;
 		}
 
-		if ( isPlainObj( arrSourceValue, ) || Array.isArray( arrSourceValue, ) ) {
+		if ( isPlainObj( arrSourceValue, ) || isArray( arrSourceValue, ) ) {
 			const result = deepMerge( arrTargetValue, arrSourceValue, refSet, );
 			if ( !Object.is( arrTargetValue, result, ) ) {
 				target[ i ] = result;
 			}
 			continue;
 		}
+
 		target[ i ] = arrSourceValue;
 	}
 
@@ -62,11 +55,11 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 		const targetValue = Reflect.get( target, key, );
 
 		if ( !isObj( targetValue, ) ) {
-			Reflect.set( target, key, sourceValue, );
+			target[ key ] = sourceValue;
 			continue;
 		}
 
-		if ( isPlainObj( sourceValue, ) || Array.isArray( sourceValue, ) ) {
+		if ( isPlainObj( sourceValue, ) || isArray( sourceValue, ) ) {
 			if ( setRef( sourceValue, refSet, ) ) {
 				continue;
 			}
@@ -74,7 +67,7 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 			deepMerge( targetValue, sourceValue, refSet, );
 		}
 		else {
-			Reflect.set( target, key, sourceValue, );
+			target[ key ] = sourceValue;
 		}
 	}
 
@@ -86,7 +79,7 @@ export default function deepMerge( target: unknown, source: unknown, refSet = ne
 		return source;
 	}
 
-	if ( Array.isArray( source, ) ) {
+	if ( isArray( source, ) ) {
 		return mergeArray( target, source, refSet, );
 	}
 
