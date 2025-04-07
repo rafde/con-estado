@@ -1,6 +1,7 @@
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import deepUpdate from './deepUpdate';
+import isArray from './isArray';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
 import isUndef from './isUndef';
@@ -33,7 +34,7 @@ export default function set<
 		? parseSegments( statePath, )
 		: statePath;
 
-	if ( !Array.isArray( statePathArray, ) ) {
+	if ( !isArray( statePathArray, ) ) {
 		throw new Error( 'First parameter needs a valid state path string or array', );
 	}
 
