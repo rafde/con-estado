@@ -3,7 +3,7 @@ import isObj from './isObj';
 
 type ArrayPath = Array<string | symbol | number>;
 
-function applyTargetChange( propPath: ArrayPath, target: object, value: unknown, ) {
+function applyTargetChange( propPath: ArrayPath, target: object, value: unknown, isDelete = false, ) {
 	// Clone the property path to avoid mutating the input array
 	let currentTarget = target; // Tracks the current target level
 	let i = 0;
@@ -12,10 +12,18 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 	while ( i < len ) {
 		const currentProp = propPath[ i ];
 
+		if ( isDelete && !( currentProp in currentTarget ) ) {
+			// If the property does not exist in changes, stop traversal
+			return true;
+		}
+
 		// If we are at the last property in the path, set the value
 		if ( i >= end ) {
-			return Reflect.set( currentTarget, currentProp, value, );
+			return isDelete
+				? Reflect.deleteProperty( currentTarget, currentProp, )
+				: Reflect.set( currentTarget, currentProp, value, );
 		}
+
 		currentTarget = Reflect.get( currentTarget, currentProp, );
 		i++;
 	}
@@ -42,42 +50,16 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 		if ( !( currentProp in currentChanges ) ) {
 			const targetValue = Reflect.get( currentTarget, currentProp, );
 
-			// Initialize the corresponding type in the changes object
-			if ( Array.isArray( targetValue, ) ) {
-				Reflect.set( currentChanges, currentProp, [], );
-			}
-			else {
-				Reflect.set( currentChanges, currentProp, {}, );
-			}
+			Reflect.set(
+				currentChanges,
+				currentProp,
+				Array.isArray( targetValue, ) ? [] : {},
+			);
 		}
 
 		// Update the pointers to traverse deeper into `changes` and `target`
 		currentChanges = Reflect.get( currentChanges, currentProp, );
 		currentTarget = Reflect.get( currentTarget, currentProp, );
-		i++;
-	}
-}
-
-export function deleteChange( propPath: ArrayPath, changes: object, ) {
-	let currentChanges = changes; // Tracks the current level in changes
-
-	let i = 0;
-	const len = propPath.length;
-	const end = len - 1;
-	// Traverse the property path
-	while ( i < len ) {
-		const currentProp = propPath[ i ];
-
-		if ( !( currentProp in currentChanges ) ) {
-			// If the property does not exist in changes, stop traversal
-			return true;
-		}
-
-		if ( i >= end ) {
-			return Reflect.deleteProperty( currentChanges, currentProp, );
-		}
-
-		currentChanges = Reflect.get( currentChanges, currentProp, );
 		i++;
 	}
 }
@@ -158,8 +140,8 @@ function trackerProxy( {
 		},
 		deleteProperty( proxy, prop, ) {
 			const path = [...propPath, prop,];
-			deleteChange( path, changes, );
-			deleteChange( path, parent, );
+			applyTargetChange( path, changes, undefined, true, );
+			applyTargetChange( path, parent, undefined, true, );
 			return true;
 		},
 	}, );
