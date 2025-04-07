@@ -3,6 +3,8 @@ import isObj from './isObj';
 
 type ArrayPath = Array<string | symbol | number>;
 
+const reflectSet = Reflect.set;
+
 function applyTargetChange( propPath: ArrayPath, target: object, value: unknown, isDelete = false, ) {
 	// Clone the property path to avoid mutating the input array
 	let currentTarget = target; // Tracks the current target level
@@ -20,11 +22,11 @@ function applyTargetChange( propPath: ArrayPath, target: object, value: unknown,
 		// If we are at the last property in the path, set the value
 		if ( i >= end ) {
 			return isDelete
-				? Reflect.deleteProperty( currentTarget, currentProp, )
-				: Reflect.set( currentTarget, currentProp, value, );
+				? delete currentTarget[ currentProp as keyof typeof currentTarget ]
+				: reflectSet( currentTarget, currentProp, value, );
 		}
 
-		currentTarget = Reflect.get( currentTarget, currentProp, );
+		currentTarget = currentTarget[ currentProp as keyof typeof currentTarget ];
 		i++;
 	}
 }
@@ -43,14 +45,14 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 
 		// If we are at the last property in the path, set the value
 		if ( i >= end ) {
-			return Reflect.set( currentChanges, currentProp, value, );
+			return reflectSet( currentChanges, currentProp, value, );
 		}
 
 		// Check if the property exists in `changes`. If not, initialize it based on the type in `target`.
 		if ( !( currentProp in currentChanges ) ) {
-			const targetValue = Reflect.get( currentTarget, currentProp, );
+			const targetValue = currentTarget[ currentProp as keyof typeof currentTarget ];
 
-			Reflect.set(
+			reflectSet(
 				currentChanges,
 				currentProp,
 				Array.isArray( targetValue, ) ? [] : {},
@@ -58,8 +60,8 @@ function applyChange( propPath: ArrayPath, target: object, changes: object, valu
 		}
 
 		// Update the pointers to traverse deeper into `changes` and `target`
-		currentChanges = Reflect.get( currentChanges, currentProp, );
-		currentTarget = Reflect.get( currentTarget, currentProp, );
+		currentChanges = currentChanges[ currentProp as keyof typeof currentChanges ];
+		currentTarget = currentTarget[ currentProp as keyof typeof currentTarget ];
 		i++;
 	}
 }
@@ -84,7 +86,7 @@ function handleProxyGet(
 	const { target, propPath, changes, valueWM, parent, prop, } = options;
 
 	// Access the value using Reflect
-	const value = Reflect.get( target, prop, );
+	const value = target[ prop as keyof typeof target ];
 
 	// Return primitive or non-object values directly
 	if ( !isObj( value, ) ) {
@@ -131,8 +133,7 @@ function trackerProxy( {
 		},
 		set( valueProxy, prop, value, ) {
 			const path = [...propPath, prop,];
-			const oldValue = Reflect.get( target, prop, );
-			if ( !strictDeepEqual( oldValue, value, ) ) {
+			if ( !strictDeepEqual( target[ prop as keyof typeof target ], value, ) ) {
 				applyChange( path, parent, changes, value, );
 			}
 			applyTargetChange( path, parent, value, );
@@ -163,16 +164,17 @@ export default function createDraftChangeTrackingProxy<S extends object,>( paren
 			}, );
 		},
 		set( proxy, prop, value, ) {
-			const oldValue = Reflect.get( parent, prop, );
-			if ( !strictDeepEqual( oldValue, value, ) ) {
-				Reflect.set( changes, prop, value, );
+			if ( !strictDeepEqual( parent[ prop as keyof typeof parent ], value, ) ) {
+				reflectSet( changes, prop, value, );
 			}
 
-			return Reflect.set( proxy, prop, value, );
+			proxy[ prop as keyof typeof proxy ] = value;
+			return true;
 		},
 		deleteProperty( proxy, prop, ) {
-			Reflect.deleteProperty( changes, prop, );
-			return Reflect.deleteProperty( parent, prop, );
+			delete changes[ prop as keyof typeof changes ];
+			delete parent[ prop as keyof typeof parent ];
+			return true;
 		},
 	}, );
 	return [
