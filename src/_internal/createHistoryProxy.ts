@@ -5,21 +5,18 @@ import findChanges from './findChanges';
 export default function createHistoryProxy<
 	S extends DS,
 >( history: History<S>, ) {
-	const hasCheckedChanges = false;
-	return new Proxy( history as History<S>, {
-		get( _target, propertyKey, ) {
-			if ( propertyKey === 'changes' && !hasCheckedChanges ) {
+	return new Proxy( history, {
+		get( _target, prop, ) {
+			if ( prop === 'changes' && !( 'changes' in history ) ) {
 				const changes = findChanges(
 					history.initial,
 					history.state,
-				) as History<S>['changes'];
-				Reflect.set( history, propertyKey, changes, );
+				);
+				Reflect.set( history, prop, changes, );
 				return changes;
 			}
 
-			if ( propertyKey in history ) {
-				return Reflect.get( history, propertyKey, );
-			}
+			return Reflect.get( history, prop, );
 		},
 		set() {
 			return false;
