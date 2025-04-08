@@ -11,7 +11,7 @@
 	"devDependencies": {
 		"@eslint/compat": "1.2.8",
 		"@eslint/eslintrc": "3.3.1",
-		"@eslint/js": "9.23.0",
+		"@eslint/js": "9.24.0",
 		"@parcel/bundler-library": "2.14.4",
 		"@parcel/packager-ts": "2.14.4",
 		"@parcel/transformer-typescript-types": "2.14.4",
@@ -25,7 +25,7 @@
 		"@vitest/eslint-plugin": "1.1.39",
 		"eslint": "9.24.0",
 		"eslint-plugin-react": "7.37.5",
-		"eslint-plugin-react-compiler": "19.0.0-beta-e993439-20250328",
+		"eslint-plugin-react-compiler": "19.0.0-beta-e993439-20250405",
 		"eslint-plugin-react-hooks": "5.2.0",
 		"eslint-plugin-testing-library": "7.1.1",
 		"fast-equals": "5.2.2",
@@ -38,7 +38,7 @@
 		"react-dom": "19.1.0",
 		"rimraf": "6.0.1",
 		"typescript": "5.8.3",
-		"typescript-eslint": "8.29.0",
+		"typescript-eslint": "8.29.1",
 		"vitest": "3.1.1"
 	},
 	"exports": {
