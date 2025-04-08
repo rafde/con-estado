@@ -62,7 +62,7 @@ For applications needing global state management, `createConStore` provides a so
 ```tsx
 // Demo
 import { ChangeEvent } from 'react';
-import { createConStore } from 'con-estado';
+import { createConStore, ConHistoryStateKeys, } from 'con-estado';
 
 // Define your initial state
 const initialState = {
@@ -82,7 +82,9 @@ const useConSelector = createConStore( initialState, {
     onChangeInput: (
       event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
-      const name = event.target.name as unknown as Parameters<typeof set>[0];
+      const name = event.target.name as ConHistoryStateKeys<
+        typeof initialState
+      >;
       const value = event.target.value;
       console.log( 'onChangeInput', name, value );
       set(
@@ -181,7 +183,7 @@ When you need to manage state within a component with the power of `createConSto
 ```tsx
 // Demo
 import { ChangeEvent } from 'react';
-import { useCon } from 'con-estado';
+import { useCon, ConHistoryStateKeys, } from 'con-estado';
 // Define your initial state
 const initialState = {
   user: {
@@ -199,7 +201,9 @@ function App() {
   const [ state, { useSelector, acts } ] = useCon( initialState, {
     acts: ({ set }) => ({
       onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
-        const name = event.target.name as unknown as Parameters<typeof set>[0];
+        const name = event.target.name as ConHistoryStateKeys<
+          typeof initialState
+        >;
         const value = event.target.value;
         console.log( 'onChangeInput', name, value );
         set( name, value );
@@ -294,7 +298,7 @@ function UserPreferences() {
         theme: props.state.user.preferences.theme,
         updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
           props.set(
-            event.target.name as Parameter<typeof props.set>[0],
+            event.target.name as ConHistoryStateKeys<typeof initialState>,
             event.target.value,
           );
         },
