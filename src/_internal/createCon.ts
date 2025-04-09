@@ -9,7 +9,7 @@ import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
+import deepAccess from './deepAccess';
 import getHistoryDraft from './getHistoryDraft';
 import handleCommit from './handleCommit';
 import objectIs from './objectIs';
@@ -88,10 +88,10 @@ export default function createCon<
 			return history as Immutable<History<S>>;
 		}
 		const path = typeof stateHistoryPath === 'string' ? parseSegments( stateHistoryPath, ) : stateHistoryPath;
-		return getDeepValueParentByArray(
+		return deepAccess(
 			history,
 			path,
-		)[ 0 ] as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
+		) as Immutable<GetArrayPathValue<S, StringPathToArray<typeof stateHistoryPath>>>;
 	}
 
 	const props: CreateActsProps<S> = {

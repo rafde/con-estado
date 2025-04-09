@@ -1,6 +1,6 @@
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
-import deepUpdate from './deepUpdate';
+import deepAccess from './deepAccess';
 import isArray from './isArray';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
@@ -38,7 +38,7 @@ export default function set<
 		throw new Error( 'First parameter needs a valid state path string or array', );
 	}
 
-	deepUpdate( draftHistory, statePathArray, () => nextState, );
+	deepAccess( draftHistory, statePathArray, () => nextState, );
 
 	return finalize();
 }

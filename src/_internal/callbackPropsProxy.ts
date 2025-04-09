@@ -2,9 +2,8 @@ import type { Draft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import type { HistoryState, } from '../types/HistoryState';
-import deepUpdate from './deepUpdate';
+import deepAccess from './deepAccess';
 import findChanges from './findChanges';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
 import { reflectGet, reflectSet, } from './reflect';
 
 const PROP_TO_HISTORY = {
@@ -58,7 +57,7 @@ export default function callbackPropsProxy<
 			// Handle history property lookups
 			if ( !( prop in baseTarget ) && statePathArray && prop in PROP_TO_HISTORY ) {
 				const propKey = prop as HistoryPropKeys;
-				const [value,] = getDeepValueParentByArray(
+				const value = deepAccess(
 					reflectGet( baseTarget, PROP_TO_HISTORY[ propKey ], ),
 					statePathArray,
 				);
@@ -69,14 +68,14 @@ export default function callbackPropsProxy<
 			const isDraftProp = hasStatePath && ( prop === 'stateProp' || prop === 'initialProp' );
 			if ( statePathArray && isDraftProp ) {
 				const draft = prop === 'stateProp' ? historyDraft.state : historyDraft.initial;
-				return getDeepValueParentByArray( draft, statePathArray, )[ 0 ];
+				return deepAccess( draft, statePathArray, );
 			}
 		},
 
 		set( _target, prop, value, ) {
 			if ( statePathArray && ( prop === 'initialProp' || prop === 'stateProp' ) ) {
 				const draft = prop === 'stateProp' ? historyDraft.state : historyDraft.initial;
-				deepUpdate( draft, statePathArray, () => value, );
+				deepAccess( draft, statePathArray, () => value, );
 				return true;
 			}
 

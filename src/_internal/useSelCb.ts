@@ -7,7 +7,7 @@ import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { Selector, } from '../types/Selector';
 import type { SelectorProps, } from '../types/SelectorProps';
 import type { StringPathToArray, } from '../types/StringPathToArray';
-import getDeepValueParentByArray from './getDeepValueParentByArray';
+import deepAccess from './deepAccess';
 import isArray from './isArray';
 import isFunc from './isFunc';
 import isStr from './isStr';
@@ -48,7 +48,7 @@ function getSelectorValue<
 			return snapshot.get( selectorPath as StringPathToArray<NestedRecordKeys<History<S>>>, );
 		}
 
-		return getDeepValueParentByArray( snapshot, selectorPath, )[ 0 ];
+		return deepAccess( snapshot, selectorPath, );
 	}
 
 	return defaultSelector( snapshot, );
