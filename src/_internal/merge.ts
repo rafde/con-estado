@@ -1,8 +1,8 @@
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
+import deepAccess from './deepAccess';
 import deepMerge from './deepMerge';
-import deepUpdate from './deepUpdate';
 import isPlainObj from './isPlainObj';
 import isStr from './isStr';
 import isValidStatePath from './isValidStatePath';
@@ -20,7 +20,7 @@ export default function merge<S extends DS,>(
 			? parseSegments( statePath, )
 			: statePath as Array<string | number>;
 
-		deepUpdate( historyDraft, statePathArray, oldValue => deepMerge( oldValue, nextState, ), );
+		deepAccess( historyDraft, statePathArray, oldValue => deepMerge( oldValue, nextState, ), );
 	}
 	else if ( isPlainObj( statePath, ) ) {
 		deepMerge( historyDraft, statePath, );
