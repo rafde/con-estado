@@ -137,14 +137,14 @@ describe( 'createCon - wrap', () => {
 		expect(
 			// @ts-expect-error -- testing throw
 			() => con.wrap(),
-		).toThrowError( /callback function to wrap/, );
+		).toThrowError( /needs a callback function/, );
 	}, );
 
 	it( 'should should throw an error if first param is valid but second param is not a function', () => {
 		expect(
 			// @ts-expect-error -- testing throw
 			() => con.wrap( 'count', ),
-		).toThrowError( /callback function to wrap/, );
+		).toThrowError( /needs a callback function/, );
 	}, );
 
 	it( 'takes function that returns a promise', async() => {
