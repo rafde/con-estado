@@ -1,10 +1,9 @@
 import { useCallback, useSyncExternalStore, } from 'react';
-import isFunc from './_internal/isFunc';
+import { isFunc, isPlainObj, } from './_internal/is';
 import type { CreateConStoreReturnType, } from './types/CreateConStoreReturnType';
 import defaultSelector from './_internal/defaultSelector';
 import createConSubLis from './_internal/createConSubLis';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
-import isPlainObj from './_internal/isPlainObj';
 import useSelCb from './_internal/useSelCb';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';

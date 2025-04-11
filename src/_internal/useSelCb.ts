@@ -8,9 +8,8 @@ import type { Selector, } from '../types/Selector';
 import type { SelectorProps, } from '../types/SelectorProps';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import deepAccess from './deepAccess';
+import { isFunc, isStr, } from './is';
 import isArray from './isArray';
-import isFunc from './isFunc';
-import isStr from './isStr';
 import parseSegments from './parseSegments';
 
 const isEqual = createCustomEqual( {
