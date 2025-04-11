@@ -13,7 +13,6 @@ import deepAccess from './deepAccess';
 import getHistoryDraft from './getHistoryDraft';
 import handleCommit from './handleCommit';
 import objectIs from './objectIs';
-import set from './set';
 import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
@@ -22,6 +21,7 @@ import merge from './merge';
 import noop from './noop';
 import parseSegments from './parseSegments';
 import reset from './reset';
+import handleStateOperation from './stateOperations';
 
 const EMPTY_OBJECT = Object.freeze( {}, );
 
@@ -111,11 +111,7 @@ export default function createCon<
 			return _dispatch( reset( history, beforeChange, ), );
 		},
 		set( ...args: unknown[] ) {
-			if ( args.length === 0 ) {
-				return history;
-			}
-
-			return set( getDraft, args, );
+			return handleStateOperation( 'set', getDraft, history, args, ) as History<S>;
 		},
 		wrap( ...args: unknown[] ) {
 			return handleWrap( getDraft, history, ...args, );
