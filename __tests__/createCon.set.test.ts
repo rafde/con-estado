@@ -378,10 +378,10 @@ describe( 'createCon - set', () => {
 	describe( 'set edge cases', () => {
 		it( 'should handle null prototype objects', () => {
 			const con = createCon( { count: 0, }, );
-			const history = con.get();
-			// @ts-expect-error -- testing empty set
-			const result = con.set();
-			expect( result, ).toEqual( history, );
+			expect( () => {
+				// @ts-expect-error -- testing empty set
+				con.set();
+			}, ).toThrowError( 'Invalid state path', );
 		}, );
 
 		it( 'should handle empty arrays', () => {
@@ -527,12 +527,12 @@ describe( 'createCon - set', () => {
 					// @ts-expect-error -- testing invalid input
 					invalidProp: 'value',
 				}, );
-			}, ).toThrowError( 'First parameter needs an object with `state` or `initial` properties', );
+			}, ).toThrowError( '`state` or `initial` properties', );
 
 			expect( () => {
 				// @ts-expect-error -- testing invalid input
 				estado.set( {}, );
-			}, ).toThrowError( 'First parameter needs an object with `state` or `initial` properties', );
+			}, ).toThrowError( '`state` or `initial` properties', );
 		}, );
 
 		it( 'should throw error when path is invalid', () => {
@@ -552,17 +552,17 @@ describe( 'createCon - set', () => {
 			expect( () => {
 				// @ts-expect-error -- testing invalid input
 				estado.set( 123, 'value', );
-			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+			}, ).toThrowError( 'Invalid state path', );
 
 			expect( () => {
 				// @ts-expect-error -- testing invalid input
 				estado.set( true, 'value', );
-			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+			}, ).toThrowError( 'Invalid state path', );
 
 			expect( () => {
 				// @ts-expect-error -- testing invalid input
 				estado.set( { invalid: 'path', }, 'value', );
-			}, ).toThrowError( 'First parameter needs a valid state path string or array', );
+			}, ).toThrowError( '`state` or `initial` properties', );
 
 			expect( () => {
 				const history = estado.get();
