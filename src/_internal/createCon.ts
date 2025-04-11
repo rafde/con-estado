@@ -12,7 +12,6 @@ import createHistoryProxy from './createHistoryProxy';
 import deepAccess from './deepAccess';
 import getHistoryDraft from './getHistoryDraft';
 import objectIs from './objectIs';
-import handleWrap from './handleWrap';
 import isNil from './isNil';
 import isObj from './isObj';
 import isPlainObj from './isPlainObj';
@@ -108,7 +107,7 @@ export default function createCon<
 			return handleStateOperation( 'set', getDraft, history, args, ) as History<S>;
 		},
 		wrap( ...args: unknown[] ) {
-			return handleWrap( getDraft, history, ...args, );
+			return handleStateOperation( 'wrap', getDraft, history, args, ) as ReturnType<CreateActsProps<S>['wrap']>;
 		},
 	};
 
