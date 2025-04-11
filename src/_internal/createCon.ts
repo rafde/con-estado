@@ -11,7 +11,6 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
 import deepAccess from './deepAccess';
 import getHistoryDraft from './getHistoryDraft';
-import handleCommit from './handleCommit';
 import objectIs from './objectIs';
 import handleWrap from './handleWrap';
 import isNil from './isNil';
@@ -96,7 +95,7 @@ export default function createCon<
 
 	const props: CreateActsProps<S> = {
 		commit( ...args: unknown[] ) {
-			return handleCommit( getDraft, history, ...args, );
+			return handleStateOperation( 'commit', getDraft, history, args, ) as History<S>;
 		},
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
