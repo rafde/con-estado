@@ -1,6 +1,6 @@
 import type { DS, } from '../types/DS';
+import { isPlainObj, } from './is';
 import isArray from './isArray';
-import isPlainObj from './isPlainObj';
 import objectIs from './objectIs';
 import { reflectGet, reflectSet, } from './reflect';
 
@@ -20,7 +20,7 @@ function setChanges<T,>( a: T, b: T, changes: DS, key: string | number, ): boole
 		reflectSet( changes, key, bValue, );
 		return true;
 	}
-	const nestedChanges = findChanges( aValue, bValue, );
+	const nestedChanges = findChanges( aValue as DS, bValue as DS, );
 	if ( nestedChanges != null ) {
 		reflectSet( changes, key, nestedChanges, );
 		return true;

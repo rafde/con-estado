@@ -1,7 +1,7 @@
 import { useMemo, useRef, } from 'react';
 import defaultSelector from './_internal/defaultSelector';
 import getSnapshotSymbol from './_internal/getSnapshotSymbol';
-import isPlainObj from './_internal/isPlainObj';
+import { isPlainObj, } from './_internal/is';
 import { createConStore, } from './createConStore';
 import type { ActRecord, } from './types/ActRecord';
 import type { DefaultSelector, } from './types/DefaultSelector';

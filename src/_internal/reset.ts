@@ -3,7 +3,7 @@ import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import { create, } from 'mutative';
 import createHistoryProxy from './createHistoryProxy';
-import isNil from './isNil';
+import { isNil, } from './is';
 import noop from './noop';
 
 export default function reset<S extends DS,>(

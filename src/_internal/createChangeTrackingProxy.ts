@@ -1,6 +1,6 @@
 import { strictDeepEqual, } from 'fast-equals';
+import { isObj, } from './is';
 import isArray from './isArray';
-import isObj from './isObj';
 import { reflectSet, } from './reflect';
 
 type ArrayPath = Array<string | symbol | number>;

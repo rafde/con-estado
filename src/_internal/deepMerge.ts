@@ -1,10 +1,8 @@
 import { isDraft, original, } from 'mutative';
+import { isObj, isPlainObj, isUndef, } from './is';
 import isArray from './isArray';
-import isObj from './isObj';
-import isPlainObj from './isPlainObj';
-import isUndef from './isUndef';
 import objectIs from './objectIs';
-import { reflectGet, } from './reflect';
+import { reflectGet, reflectSet, } from './reflect';
 
 function setRef( target: unknown, refSet: WeakSet<object>, ) {
 	if ( isObj( target, ) ) {
@@ -57,7 +55,7 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 		const targetValue = reflectGet( target, key, );
 
 		if ( !isObj( targetValue, ) ) {
-			target[ key ] = sourceValue;
+			reflectSet( target, key, sourceValue, );
 			continue;
 		}
 
@@ -69,7 +67,7 @@ function mergeObject( target: unknown, source: unknown, refSet: WeakSet<object>,
 			deepMerge( targetValue, sourceValue, refSet, );
 		}
 		else {
-			target[ key ] = sourceValue;
+			reflectSet( target, key, sourceValue, );
 		}
 	}
 

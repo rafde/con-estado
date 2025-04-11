@@ -5,15 +5,15 @@ import type { History, } from '../types/History';
 import callbackPropsProxy from './callbackPropsProxy';
 import deepAccess from './deepAccess';
 import deepMerge from './deepMerge';
+import { isFunc, isObj, isPlainObj, isStr, } from './is';
 import isArray from './isArray';
-import isFunc from './isFunc';
-import isObj from './isObj';
-import isPlainObj from './isPlainObj';
-import isStr from './isStr';
-import isValidStatePath from './isValidStatePath';
 import parseSegments from './parseSegments';
 
 type OperationType = 'set' | 'merge' | 'commit' | 'wrap';
+
+function isValidStatePath( statePath: unknown, ) {
+	return isStr( statePath, ) || isArray( statePath, );
+}
 
 function validateCallbackFunction( operation: 'commit' | 'wrap', [statePath, nextState,]: unknown[], ) {
 	if ( !isFunc( statePath, ) && !isFunc( nextState, ) ) {

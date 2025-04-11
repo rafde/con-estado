@@ -1,5 +1,4 @@
-import isNil from './isNil';
-import isObj from './isObj';
+import { isNil, isObj, } from './is';
 import isArray from './isArray';
 import objectIs from './objectIs';
 import { reflectGet, reflectSet, } from './reflect';
@@ -68,7 +67,7 @@ export default function deepAccess<
 
 		if ( typeof key === 'number' && key < 0 ) {
 			pathArr.push( key, );
-			const len = ( value as unknown[] ).length;
+			const len = ( value as unknown as unknown[] ).length;
 			if ( -key > len ) {
 				throw new Error( `Array index for ${pathArr.map( String, ).join( '.', )} was out of bounds for array length ${len}`, );
 			}
