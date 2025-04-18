@@ -1,9 +1,7 @@
-import react from '@vitejs/plugin-react';
 import { defineConfig, } from 'vitest/config';
 
 export default defineConfig( {
 	cacheDir: '.test-cache',
-	plugins: [react(),],
 	test: {
 		coverage: {
 			provider: 'v8', // Explicitly specify v8 provider
