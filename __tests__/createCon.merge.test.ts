@@ -731,4 +731,76 @@ describe( 'createCon - merge', () => {
 		// Verify nested reference remains the same
 		expect( con.get( 'state', ).nested, ).toBe( null, );
 	}, );
+
+	it( 'should handle merging array into non-array target', () => {
+		const con = createCon( {
+			notArray: 'string value',
+			regularArray: [1, 2, 3,],
+		} as {
+			notArray: string | number[]
+			regularArray: number[]
+		}, );
+
+		// Merge array into string (non-array target)
+		con.merge( {
+			state: {
+				notArray: [4, 5, 6,],
+			},
+		}, );
+
+		// The non-array target should be replaced with the array
+		expect( con.get( 'state', ).notArray, ).toEqual( [4, 5, 6,], );
+
+		// Regular array merge should still work normally
+		con.merge( {
+			state: {
+				regularArray: [7, 8,],
+			},
+		}, );
+		expect( con.get( 'state', ).regularArray, ).toEqual( [7, 8, 3,], );
+	}, );
+
+	it( 'should handle merging object into non-object target', () => {
+		const con = createCon( {
+			primitive: 42,
+			regularObj: {
+				a: 1,
+				b: 2,
+			},
+		} as {
+			primitive: number | { [key: string]: number }
+			regularObj: { [key: string]: number }
+		}, );
+
+		// Merge object into primitive (non-object target)
+		con.merge( {
+			state: {
+				primitive: {
+					c: 3,
+					d: 4,
+				},
+			},
+		}, );
+
+		// The non-object target should be replaced with the object
+		expect( con.get( 'state', ).primitive, ).toEqual( {
+			c: 3,
+			d: 4,
+		}, );
+
+		// Regular object merge should still work normally
+		con.merge( {
+			state: {
+				regularObj: {
+					b: 5,
+					e: 6,
+				},
+			},
+		}, );
+		expect( con.get( 'state', ).regularObj, ).toEqual( {
+			a: 1,
+			b: 5,
+			e: 6,
+		}, );
+	}, );
 }, );
