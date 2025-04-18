@@ -68,9 +68,7 @@ export default function deepAccess<
 		if ( typeof key === 'number' && key < 0 ) {
 			pathArr.push( key, );
 			const len = ( value as unknown as unknown[] ).length;
-			if ( -key > len ) {
-				throw new Error( `Array index for ${pathArr.map( String, ).join( '.', )} was out of bounds for array length ${len}`, );
-			}
+			throw new Error( `Array index for ${pathArr.map( String, ).join( '.', )} was out of bounds for array length ${len}`, );
 		}
 
 		pathArr.push( path, );
