@@ -1,26 +1,23 @@
 import type { Draft, } from 'mutative';
+import type { DeepPartial, } from './DeepPartial';
 import type { DS, } from './DS';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { History, } from './History';
 import type { HistoryState, } from './HistoryState';
 import type { Immutable, } from './Immutable';
-import type { Merge, } from './Merge';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
 
-type CallbackPathProps<
+interface CallbackPathProps<
 	S extends DS,
 	SP extends StringPathToArray<NestedRecordKeys<S>>,
-> = CallbackProps<S>
-	& {
-		stateProp: GetArrayPathValue<Draft<S>, SP>
-		initialProp: GetArrayPathValue<Draft<S>, SP>
-	}
-	& {
-		changesProp: GetArrayPathValue<S, SP> | undefined
-		prevInitialProp: GetArrayPathValue<S, SP> | undefined
-		prevProp: GetArrayPathValue<S, SP> | undefined
-	};
+> extends CallbackProps<S> {
+	stateProp: GetArrayPathValue<Draft<S>, SP>
+	initialProp: GetArrayPathValue<Draft<S>, SP>
+	changesProp: GetArrayPathValue<S, SP> | undefined
+	prevInitialProp: GetArrayPathValue<S, SP> | undefined
+	prevProp: GetArrayPathValue<S, SP> | undefined
+}
 
 type CallbackProps<
 	S extends DS,
@@ -39,17 +36,14 @@ type Set<
 	 *
 	 * @overload Completely replace `state` and/or `initial`
 	 * @param nextState - Object containing new `state` and/or `initial` values
-	 * @returns Updated history object
 	 *
 	 * @overload String path update
 	 * @param statePath - Dot-bracket notation path to target state property (e.g. 'state.user.profile.name')
 	 * @param nextState - New value for the targeted property
-	 * @returns Updated history object
 	 *
 	 * @overload Array path update
 	 * @param statePath - Array path to target state property (e.g. ['state', 'user', 'profile', 'name'])
 	 * @param nextState - New value for the targeted property
-	 * @returns Updated history object
 	 *
 	 * @example Complete state update
 	 * ```ts
@@ -120,21 +114,138 @@ type Set<
 			state?: S
 			initial: S
 		}
-	): History<S>
+	): void
 
 	set<
 		SP extends NestedRecordKeys<NS>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<NS, StringPathToArray<SP>>,
-	): History<S>
+	): void
 
 	set<
 		SP extends StringPathToArray<NestedRecordKeys<NS>>,
 	>(
 		statePath: SP,
 		nextState: GetArrayPathValue<NS, SP>,
-	): History<S>
+	): void
+};
+
+type Merge<
+	S extends DS,
+	NS extends HistoryState<S> = HistoryState<S>,
+> = {
+	/**
+	 * Deeply merges updates into `state` and/or `initial`.
+	 * Supports both complete state merges and targeted path merges.
+	 *
+	 * @template S - Base state type
+	 * @template NS - History state type (includes both state and initial)
+	 *
+	 * @overload Complete state merge
+	 * @param nextState - Partial object containing state and/or initial updates to merge
+	 *
+	 * @overload String path merge
+	 * @param statePath - Dot notation path to target state property (e.g. 'user.profile')
+	 * @param nextState - Partial object to merge at the targeted path
+	 *
+	 * @overload Array path merge
+	 * @param statePath - Array path to target state property (e.g. ['user', 'profile'])
+	 * @param nextState - Partial object to merge at the targeted path
+	 *
+	 * @example Complete state merge
+	 * ```ts
+	 * // Merge updates into both state and initial
+	 * merge({
+	 *   state: {
+	 *     user: { profile: { name: 'John' } }
+	 *   },
+	 *   initial: {
+	 *     settings: { theme: 'dark' }
+	 *   }
+	 * });
+	 * ```
+	 *
+	 * @example String path merge
+	 * ```ts
+	 * // Merge into nested object
+	 * merge( 'user.profile', {
+	 *   name: 'John',
+	 *   age: 30
+	 * });
+	 *
+	 * // Merge into array
+	 * merge( 'posts[0]', {
+	 *   title: 'Updated',
+	 *   views: 100
+	 * });
+	 *
+	 * // Merge with escaped special characters
+	 * merge( 'path.user\\.name\\[0]', { value: 'John' } );
+	 * ```
+	 *
+	 * @example Array path merge
+	 * ```ts
+	 * // Merge into nested object
+	 * merge( [ 'user', 'profile' ], {
+	 *   name: 'John',
+	 *   age: 30
+	 * });
+	 *
+	 * // Merge into array with negative index
+	 * merge( [ 'posts', -1 ], {
+	 *   title: 'Updated Last'
+	 * });
+	 * ```
+	 *
+	 * @example Array merging behavior
+	 * ```ts
+	 * // Sparse array updates
+	 * merge('posts', [
+	 *   undefined,           // Skip first element
+	 *   { title: 'New' },   // Update second element
+	 *   { status: 'draft' } // Update third element
+	 * ]);
+	 *
+	 * // Empty array merge (no effect)
+	 * merge('posts', []); // Does nothing
+	 * ```
+	 *
+	 * @remarks
+	 * - Performs deep merging of plain objects
+	 * - Creates missing intermediate objects/arrays in paths
+	 * - Non-plain objects/arrays replace instead of merge
+	 * - Array merging requires sparse arrays to indicate updates
+	 * - Empty array or plain object merges have no effect
+	 * - Supports negative indices for arrays (must be in bounds)
+	 * - Special characters in paths must be escaped in dot-bracket notation
+	 * - Maintains type safety across all merge patterns
+	 *
+	 * @throws {Error} When trying to:
+	 * - Access non-object/array properties with dot-bracket notation
+	 * - Merge incompatible types (e.g., object into array)
+	 * - Access out-of-bounds negative indices
+	 *
+	 * @see {@link History} For history object structure
+	 * @see {@link Set.set set} For direct value replacement
+	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
+	 */
+	merge( nextState: DeepPartial<NS> ): void
+	merge<
+		SP extends NestedRecordKeys<NS>,
+		Next = GetArrayPathValue<NS, StringPathToArray<SP>>,
+	>(
+		statePath: SP,
+		nextState: Next extends DS ? DeepPartial<Next> : Next
+	): void
+	merge<
+		SP extends StringPathToArray<NestedRecordKeys<NS>>,
+		Next = GetArrayPathValue<NS, SP>,
+	>(
+		statePath: SP,
+		nextState: Next extends DS ? DeepPartial<Next> : Next
+	): void
 };
 
 type Commit<
@@ -149,17 +260,14 @@ type Commit<
 	 *
 	 * @overload Function-based commit
 	 * @param nextState - Callback receiving mutable `state` and `initial`
-	 * @returns Updated history object
 	 *
 	 * @overload Array path-based commit
 	 * @param statePath - Array path to target state property
 	 * @param nextState - Callback receiving targeted mutable state values
-	 * @returns Updated history object
 	 *
 	 * @overload String path-based commit
 	 * @param statePath - Dot-bracket notation path to target state property
 	 * @param nextState - Callback receiving targeted mutable state values
-	 * @returns Updated history object
 	 *
 	 * @example Function-based commit
 	 * ```ts
@@ -204,7 +312,7 @@ type Commit<
 		nextState: (
 			props: CallbackProps<S>,
 		) => void
-	): History<S>
+	): void
 
 	commit<
 		SP extends NestedRecordKeys<S>,
@@ -213,7 +321,7 @@ type Commit<
 		nextState: (
 			props: CallbackPathProps<S, StringPathToArray<SP>>,
 		) => void
-	): History<S>
+	): void
 
 	commit<
 		SP extends StringPathToArray<NestedRecordKeys<S>>,
@@ -222,7 +330,7 @@ type Commit<
 		nextState: (
 			props: CallbackPathProps<S, SP>,
 		) => void
-	): History<S>
+	): void
 };
 
 type Wrap<
@@ -361,7 +469,6 @@ export type Setters<
 	/**
 	 * Resets the state to its initial value, clearing any history of changes.
 	 * @template S - Current state type
-	 * @returns {History<S>} The updated history object reflecting the reset state.
 	 *
 	 * @example
 	 * ```ts
@@ -377,7 +484,7 @@ export type Setters<
 	 * This method is useful for restoring the state to its original configuration,
 	 * effectively discarding any modifications made since the initial state.
   	 */
-	reset(): History<S>
+	reset(): void
 }
 & Commit<S>
 & Merge<S>
