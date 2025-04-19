@@ -166,6 +166,34 @@ const components: MDXComponents = {
 		}
 		return <Image {..._props} />;
 	},
+	table( props, ) {
+		const _props = {
+			...props,
+			className: 'w-full max-w-[800px]',
+		};
+		return <table {..._props} />;
+	},
+	td( props, ) {
+		const _props = {
+			...props,
+			className: 'px-2 border-r-1 border-r-solid border-r-white',
+		};
+		return <td {..._props} />;
+	},
+	th( props, ) {
+		const _props = {
+			...props,
+			className: 'px-2 border-r-1 border-r-solid border-r-white',
+		};
+		return <th {..._props} />;
+	},
+	tr( props, ) {
+		const _props = {
+			...props,
+			className: 'border-b-1 border-b-solid border-b-white',
+		};
+		return <tr {..._props} />;
+	},
 };
 
 export default function README() {
