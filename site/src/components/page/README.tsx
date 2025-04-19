@@ -150,20 +150,11 @@ const components: MDXComponents = {
 	img( props, ) {
 		const _props = {
 			...props,
-			className: 'inline-flex align-baseline h-[20px]',
+			className: 'inline-flex align-baseline h-[20px] w-auto',
 			width: '75',
 			height: '20',
 		};
-		switch ( props.alt ) {
-			case 'Test': {
-				_props.width = '110';
-				_props.className += ' w-[110px]';
-				break;
-			}
-			default:
-				_props.className += ' w-[75px]';
-				break;
-		}
+
 		return <Image {..._props} />;
 	},
 	table( props, ) {

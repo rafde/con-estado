@@ -6,6 +6,10 @@
 [![NPM Version](https://img.shields.io/npm/v/con-estado)](https://www.npmjs.com/package/con-estado)
 [![JSR Version](https://img.shields.io/jsr/v/%40rafde/con-estado)](https://jsr.io/@rafde/con-estado)
 ![Test](https://github.com/rafde/con-estado/actions/workflows/test.yml/badge.svg)
+[![Bundlephobia minzipped size](https://badgen.net/bundlephobia/minzip/con-estado)](https://bundlephobia.com/package/con-estado)
+[![Bundlephobia min size](https://badgen.net/bundlephobia/min/con-estado)](https://bundlephobia.com/package/con-estado)
+[![Bundlephobia tree-shaking](https://badgen.net/bundlephobia/tree-shaking/con-estado)](https://bundlephobia.com/package/con-estado)
+[![Bundlephobia dependency count](https://badgen.net/bundlephobia/dependency-count/con-estado)](https://bundlephobia.com/package/con-estado)
 
 </section>
 <section className="relative space-y-2">
