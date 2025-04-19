@@ -24,6 +24,17 @@ const fo = <
 	AR extends ActRecord,
 >() => EMPTY_OBJECT as AR;
 
+/**
+ * Internal configuration options for creating a state container
+ *
+ * @template S - The data structure type extending DS
+ * @template AR - Action Record type defining custom action handlers
+ *
+ * @extends ConOptions<S, AR> - Base configuration options
+ *
+ * @property dispatcher - Optional function called when history changes
+ *   Used to notify subscribers of state changes
+ */
 type CreateConOptions<
 	S extends DS,
 	AR extends ActRecord,
@@ -31,6 +42,23 @@ type CreateConOptions<
 	dispatcher?: ( history: Immutable<History<S>> ) => void
 };
 
+/**
+ * Creates a state container with history tracking and state manipulation capabilities
+ *
+ * @template S - The data structure type extending DS (must be a plain object or array)
+ * @template AR - Action Record type defining custom action handlers
+ *
+ * @param {S} initial - Initial state value
+ * @param {CreateConOptions<S, AR>} [options={}] - Configuration options
+ *
+ * @returns {CreateConReturnType<S, AR>} Object containing state manipulation methods and custom actions
+ *
+ * @throws {Error} When initial state is not a plain object or array
+ *
+ * @internal
+ * This is an internal function used by createConStore and should not be used directly.
+ * It provides the core state management functionality without the React integration.
+ */
 export default function createCon<
 	S extends DS,
 	AR extends ActRecord,
