@@ -401,7 +401,7 @@ function StateHistory() {
 </section>
 <section className="relative space-y-2">
 
-## To Do example
+## Example: To Do App
 
 An complex to-do app example of how `con-estado` can be used.
 
@@ -893,6 +893,8 @@ set( {
 // initial = { count: 20, items: ['new new new'] }
 ```
 
+Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
+
 </section>
 <section className="relative space-y-2">
 
@@ -1057,6 +1059,8 @@ commit( ( { state, initial } ) => {
   initial.count = 0;
 });
 ```
+
+Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 
 </section>
 <section className="relative space-y-2">
@@ -1325,6 +1329,8 @@ merge( {
 // };
 ```
 
+Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
+
 </section>
 <section className="relative space-y-2">
 
@@ -1485,7 +1491,10 @@ set( 'initial.items', [] );  // Correct way to clear
 
 ### `wrap`
 
-`wrap` creates reusable state updater functions that can accept additional parameters. 
+`wrap` creates reusable state updater functions that can accept additional parameters.
+
+Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
+
 It supports three different usage patterns:
 
 </section>
@@ -1813,7 +1822,6 @@ Returning Mutative draft objects will be converted to immutable objects.
 ### `reset`
 
 Resets `state` to `initial`.
-Returns [State History](#state-history) with `initial` set to `state` values.
 
 ```ts
 const [
@@ -1827,6 +1835,12 @@ const {
 
 reset();
 ```
+
+**Error Cases**
+
+Throws errors in these situations:
+- When called within [wrap](#wrap) or [commit](#commit) callbacks.
+
 </section>
 <section className="relative space-y-2">
 
@@ -2146,7 +2160,7 @@ const useStore = createConStore(initialState, {
 
 ```typescript
 // INCORRECT
-state.user.name = 'New Name'; // Direct mutation
+state.user.name = 'New Name'; // Cannot direct mutate. Typescript will show error.
 
 // CORRECT
 set('state.user.name', 'New Name');
