@@ -58,7 +58,8 @@ describe( 'createCon - set', () => {
 					},
 					initial: initialObject,
 				};
-				const next = estado.set( changes, );
+				estado.set( changes, );
+				const next = estado.get();
 				expect( next.state, ).toStrictEqual( changes.state, );
 				expect( next.initial, ).toStrictEqual( changes.initial, );
 				expect( next.prev, ).toBe( initialObject, );
@@ -95,7 +96,8 @@ describe( 'createCon - set', () => {
 						'[0]': [[1,],],
 					},
 				};
-				const next = estado.set( 'state', state, );
+				estado.set( 'state', state, );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( state, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -115,7 +117,8 @@ describe( 'createCon - set', () => {
 						},],
 					},
 				};
-				const next = estado.set( 'state.ooo.oooa[0].s\\.s', changes.ooo.oooa[ 0 ][ 's.s' ], );
+				estado.set( 'state.ooo.oooa[0].s\\.s', changes.ooo.oooa[ 0 ][ 's.s' ], );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -142,8 +145,11 @@ describe( 'createCon - set', () => {
 						's.s[1]': 'next2',
 					},
 				};
-				const prev = estado.set( 'state.\\[0].\\[0][0][0]', 7, );
-				const next = estado.set( 'state.s\\.s\\[1].s\\.s\\[1]', 'next2', );
+				estado.set( 'state.\\[0].\\[0][0][0]', 7, );
+				const prev = estado.get();
+
+				estado.set( 'state.s\\.s\\[1].s\\.s\\[1]', 'next2', );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -161,7 +167,9 @@ describe( 'createCon - set', () => {
 						on: 7,
 					},
 				};
-				const next = estado.set( 'state.o.on', changes.o.on, );
+
+				estado.set( 'state.o.on', changes.o.on, );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -187,7 +195,8 @@ describe( 'createCon - set', () => {
 							on: 2,
 						},
 					};
-					const next = estado.set( 'state.o.on', 2, );
+					estado.set( 'state.o.on', 2, );
+					const next = estado.get();
 					expect( next.state, ).toStrictEqual( changes, );
 					expect( next.initial, ).toStrictEqual( initial, );
 					expect( next.prev, ).toBe( initial, );
@@ -205,8 +214,11 @@ describe( 'createCon - set', () => {
 							],
 						},
 					};
-					let prev = initial as DeepPartial<typeof initialObject>;
-					let next = estado.set( 'state.oo.ooa[2]', 2, );
+					let prev = initial;
+
+					estado.set( 'state.oo.ooa[2]', 2, );
+					let next = estado.get();
+
 					expect( next.state, ).toStrictEqual( changes, );
 					expect( next.initial, ).toStrictEqual( initial, );
 					expect( next.prev, ).toBe( prev, );
@@ -222,8 +234,10 @@ describe( 'createCon - set', () => {
 							],
 						},
 					};
-					prev = next.state;
-					next = estado.set( 'state.oo.ooa[-2]', -2, );
+
+					prev = next.state as typeof initial;
+					estado.set( 'state.oo.ooa[-2]', -2, );
+					next = estado.get();
 					expect( next.state, ).toStrictEqual( changes, );
 					expect( next.initial, ).toStrictEqual( initial, );
 					expect( next.prev, ).toBe( prev, );
@@ -240,7 +254,8 @@ describe( 'createCon - set', () => {
 						ooa: [11,],
 					},
 				};
-				const next = estado.set( ['state', 'oo', 'ooa',], [11,], );
+				estado.set( ['state', 'oo', 'ooa',], [11,], );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( {
 					...initialObject,
@@ -268,10 +283,11 @@ describe( 'createCon - set', () => {
 
 		describe( 'set(array)', () => {
 			it( 'should have no changes when setting the same array state', () => {
-				const next = estado.set( {
+				estado.set( {
 					state: initialArray,
 					initial: initialArray,
 				}, );
+				const next = estado.get();
 				expect( history, ).toStrictEqual( next, );
 			}, );
 		}, );
@@ -286,7 +302,8 @@ describe( 'createCon - set', () => {
 				],
 				initial: initialArray,
 			};
-			const next = estado.set( changes, );
+			estado.set( changes, );
+			const next = estado.get();
 			expect( next.state, ).toStrictEqual( changes.state, );
 			expect( next.initial, ).toStrictEqual( changes.initial, );
 			expect( next.prev, ).toBe( initialArray, );
@@ -310,7 +327,8 @@ describe( 'createCon - set', () => {
 					},
 				];
 				const estado = createCon( initialArray, );
-				const next = estado.set( 'state', changes, );
+				estado.set( 'state', changes, );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -335,7 +353,8 @@ describe( 'createCon - set', () => {
 						n: 3,
 					},
 				];
-				const next = estado.set( ['state', 0, 'n',], changes[ 0 ].n, );
+				estado.set( ['state', 0, 'n',], changes[ 0 ].n, );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -358,7 +377,8 @@ describe( 'createCon - set', () => {
 						},
 					},
 				];
-				const next = estado.set( ['state', 0, 'o', 'on',], changes[ 0 ].o.on, );
+				estado.set( ['state', 0, 'o', 'on',], changes[ 0 ].o.on, );
+				const next = estado.get();
 
 				expect( next.state, ).toStrictEqual( changes, );
 				expect( next.initial, ).toBe( history.initial, );
@@ -385,36 +405,40 @@ describe( 'createCon - set', () => {
 		}, );
 
 		it( 'should handle empty arrays', () => {
-			const con = createCon( [] as number[], );
-
-			const next = con.set( 'state', [1, 2, 3,], );
+			const estado = createCon( [] as number[], );
+			estado.set( 'state', [1, 2, 3,], );
+			const next = estado.get();
 			expect( next.state, ).toEqual( [1, 2, 3,], );
 
-			const next2 = con.set( 'state', [], );
+			estado.set( 'state', [], );
+			const next2 = estado.get();
 			expect( next2.state, ).toEqual( [], );
 		}, );
 
 		it( 'should handle sparse arrays', () => {
-			const con = createCon( [1, 2, 3,] as Array<number | undefined>, );
+			const estado = createCon( [1, 2, 3,] as Array<number | undefined>, );
 
-			const next = con.set( 'state', [,, 5,], );
+			estado.set( 'state', [,, 5,], );
+			const next = estado.get();
 			expect( next.state, ).toEqual( [, , 5,], );
 
-			const next2 = con.set( ['state', 1,], 1, );
+			estado.set( ['state', 1,], 1, );
+			const next2 = estado.get();
 			expect( next2.state, ).toEqual( [, 1, 5,], );
 		}, );
 
 		it( 'should handle deeply nested sparse arrays', () => {
-			const con = createCon( {
+			const estado = createCon( {
 				matrix: [[1, 2,], [3, 4,],] as Array<Array<number | undefined> | undefined>,
 			}, );
 
-			const next = con.set( 'state.matrix', [, [, 5,],], );
+			estado.set( 'state.matrix', [, [, 5,],], );
+			const next = estado.get();
 			expect( next.state.matrix, ).toEqual( [, [, 5,],], );
 		}, );
 
 		it( 'should handle array with mixed types', () => {
-			const con = createCon( [
+			const estado = createCon( [
 				1,
 				{ id: 2,
 					value: 'two', },
@@ -423,12 +447,19 @@ describe( 'createCon - set', () => {
 			] as ( number | { id: number
 				value: string } | string | number[] )[], );
 
-			const next = con.set( ['state', 1,], { id: 20,
-				value: 'twenty', }, );
-			expect( next.state[ 1 ], ).toEqual( { id: 20,
-				value: 'twenty', }, );
+			estado.set( ['state', 1,], {
+				id: 20,
+				value: 'twenty',
+			}, );
+			const next = estado.get();
 
-			const next2 = con.set( ['state', 3, 0,], 40, );
+			expect( next.state[ 1 ], ).toEqual( {
+				id: 20,
+				value: 'twenty',
+			}, );
+
+			estado.set( ['state', 3, 0,], 40, );
+			const next2 = estado.get();
 			expect( next2.state[ 3 ], ).toEqual( [40, 5,], );
 		}, );
 
@@ -442,33 +473,38 @@ describe( 'createCon - set', () => {
 				}
 			};
 
-			const con = createCon( [
+			const estado = createCon( [
 				{ id: 1, },
 				{ id: 2,
 					value: 'two', },
 			] as Item[], );
 
-			const next = con.set( ['state', 0,], {
+			estado.set( ['state', 0,], {
 				id: 1,
 				meta: { tags: ['new',], },
 			}, );
+
+			const next = estado.get();
 
 			expect( next.state[ 0 ], ).toEqual( {
 				id: 1,
 				meta: { tags: ['new',], },
 			}, );
 
-			const next2 = con.set( 'state[0].meta.active', true, );
+			estado.set( 'state[0].meta.active', true, );
+			const next2 = estado.get();
 			expect( next2.state[ 0 ].meta?.active, ).toBe( true, );
 		}, );
 
 		it( 'should handle array index out of bounds', () => {
-			const con = createCon( [1, 2,] as number[], );
+			const estado = createCon( [1, 2,] as number[], );
 
-			const next = con.set( ['state', 5,], 6, );
+			estado.set( ['state', 5,], 6, );
+			const next = estado.get();
 			expect( next.state, ).toEqual( [1, 2, undefined, undefined, undefined, 6,], );
 
-			const next2 = con.set( 'state[10]', 10, );
+			estado.set( 'state[10]', 10, );
+			const next2 = estado.get();
 			expect( next2.state, ).toEqual( [1, 2, undefined, undefined, undefined, 6, undefined, undefined, undefined, undefined, 10,], );
 		}, );
 
