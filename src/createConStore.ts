@@ -16,6 +16,42 @@ import type { ConOptions, } from './types/ConOptions';
 import type { Selector, } from './types/Selector';
 import type { SelectorProps, } from './types/SelectorProps';
 
+/**
+ * Configuration options for creating a state store with createConStore
+ *
+ * @template S - The data structure type extending DS (must be a plain object or array)
+ * @template AR - Action Record type defining custom action handlers
+ * @template SP - Additional selector props type
+ *
+ * @extends ConOptions<S, AR> - Base configuration options
+ *
+ * @property [getSnapshotSymbol] - Optional function to customize the snapshot props
+ *   This allows extending the selector props with additional properties
+ *
+ * @example
+ * ```ts
+ * // Basic options
+ * const options: CreateConStoreOptions<MyState, MyActions, {}> = {
+ *   acts: ({ commit }) => ({
+ *     increment: () => commit(({ state }) => { state.count++ })
+ *   }),
+ *   afterChange: ({ state }) => {
+ *     localStorage.setItem('state', JSON.stringify(state));
+ *   }
+ * };
+ *
+ * // With custom snapshot
+ * const withSnapshot: CreateConStoreOptions<MyState, MyActions, { extra: string }> = {
+ *   [getSnapshotSymbol]: (props) => ({
+ *     ...props,
+ *     extra: 'additional data'
+ *   })
+ * };
+ * ```
+ *
+ * @see {@link ConOptions} For base configuration options
+ * @see {@link SelectorProps} For the props structure passed to selectors
+ */
 export type CreateConStoreOptions<
 	S extends DS,
 	AR extends ActRecord,
