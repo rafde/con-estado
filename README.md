@@ -1875,6 +1875,307 @@ unsubscribe();
 </section>
 <section className="relative space-y-2">
 
+## TypeScript Support
+
+`con-estado` is built with TypeScript and provides comprehensive type safety throughout your application. 
+The library leverages TypeScript's type inference to provide a seamless development experience.
+
+</section>
+<section className="relative space-y-2">
+
+### Type Inference
+
+The library automatically infers types from your initial state:
+
+```typescript
+// State type is inferred from initialState
+const useStore = createConStore({
+  user: {
+    name: 'John',
+    age: 30,
+    preferences: {
+      theme: 'dark' as 'dark' | 'light',
+      notifications: true
+    }
+  },
+  todos: [
+    { id: 1, text: 'Learn con-estado', completed: false }
+  ]
+});
+
+// In components:
+function UserProfile() {
+  // userData is typed as { name: string, age: number }
+  const userData = useStore(({ state }) => ({
+    name: state.user.name,
+    age: state.user.age
+  }));
+
+  // Type error if you try to access non-existent properties
+  const invalid = useStore(({ state }) => state.user.invalid); // Typescript error. Returns `undefined`
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Path Type Safety
+
+When using path-based operations, TypeScript ensures you're using valid paths:
+
+```typescript
+function TodoApp() {
+  const [state, { set, commit }] = useCon({
+    todos: [{ id: 1, text: 'Learn TypeScript', completed: false }]
+  });
+
+  // Type-safe path operations
+  set('todos[0].completed', true); // Valid
+  set('todos[0].invalid', true);   // Type error - property doesn't exist
+
+  // Type-safe commit operations
+  commit('todos', ({ stateProp }) => {
+    stateProp[0].completed = true; // Valid
+    stateProp[0].invalid = true;   // Type error
+  });
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Custom Type Definitions
+
+For more complex scenarios, you can explicitly define your state types:
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface AppState {
+  users: User[];
+  currentUser: User | null;
+  isLoading: boolean;
+}
+
+// Explicitly typed store
+const useStore = createConStore({
+  users: [],
+  currentUser: null,
+  isLoading: false
+} as AppState );
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Exported Type Utilities
+
+The library exports several utility types to help with type definitions:
+
+```typescript
+import {
+  ConState,           // Immutable state type
+  ConStateKeys,       // String paths for state
+  ConStateKeysArray,  // Array paths for state
+  ConHistory,         // History type
+  ConHistoryStateKeys // String paths including history
+} from 'con-estado';
+
+// Example usage
+type MyState = { count: number; user: { name: string } };
+type StatePaths = ConStateKeys<MyState>; // 'count' | 'user' | 'user.name'
+```
+
+</section>
+<section className="relative space-y-2">
+
+## Performance Optimization
+
+`con-estado` uses Mutative for high performance updates, 
+but there are several techniques you can use to optimize your application further:
+
+</section>
+<section className="relative space-y-2">
+
+### Use Selectors for Targeted Updates
+
+Selectors prevent unnecessary re-renders by only updating components when selected data changes:
+
+```typescript
+// BAD: Component re-renders on any state change
+function UserCount() {
+  const [state] = useCon({ users: [], settings: {} });
+  return <div>User count: {state.users.length}</div>;
+}
+
+// GOOD: Component only re-renders when users array changes
+function UserCount() {
+  const [state, { useSelector }] = useCon({ users: [], settings: {} });
+  const userCount = useSelector(({ state }) => state.users.length);
+  return <div>User count: {userCount}</div>;
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Memoize Complex Computations
+
+For expensive computations, memoize the results:
+
+```typescript
+function FilteredList() {
+  const [state, { useSelector }] = useCon( { items: [], filter: '' }, );
+
+  // Computation only runs when dependencies change
+  const filteredItems = useSelector(({ state }) => {
+    console.log('Filtering items');
+    return state.items.filter(item => 
+      item.name.includes(state.filter)
+    ).map(item => <div key={item.id}>{item.name}</div>);
+  });
+
+  return (
+    <div>
+      {filteredItems}
+    </div>
+  );
+}
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Use Path-Based Updates
+
+Update only the specific parts of state that change:
+
+```typescript
+// BAD: Creates new references for the entire state tree
+set('state', { ...state, user: { ...state.user, name: 'New Name' } });
+
+// GOOD: Only updates the specific path
+set('state.user.name', 'New Name');
+```
+
+</section>
+<section className="relative space-y-2">
+
+### Configure Mutation Options
+
+For performance-critical applications, you can adjust mutation options:
+
+```typescript
+const useStore = createConStore(initialState, {
+  mutOptions: {
+    enableAutoFreeze: false, // Disable freezing for better performance
+  }
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+## Comparison with Other Libraries
+
+</section>
+<section className="relative space-y-2">
+
+### con-estado vs Redux
+
+| Feature        | con-estado                   | Redux                              |
+|----------------|------------------------------|------------------------------------|
+| Boilerplate    | Minimal                      | Requires actions, reducers, etc.   |
+| Nested Updates | Direct path updates          | Requires manual spreading or immer |
+| TypeScript     | Built-in inference           | Requires extra setup               |
+| Middleware     | Lifecycle hooks              | Middleware system                  |
+| Learning Curve | Low to moderate              | Moderate to high                   |
+| Bundle Size    | Small                        | Larger with ecosystem              |
+| Performance    | Optimized for nested updates | General purpose                    |
+
+</section>
+<section className="relative space-y-2">
+
+### con-estado vs Zustand
+
+| Feature          | con-estado                   | Zustand                     |
+|------------------|------------------------------|-----------------------------|
+| API Style        | React-focused                | React + vanilla JS          |
+| Nested Updates   | Built-in path operations     | Manual or with immer        |
+| Selectors        | Built-in with type inference | Requires manual memoization |
+| History Tracking | Built-in                     | Not included                |
+| TypeScript       | Deep path type safety        | Basic type support          |
+
+</section>
+<section className="relative space-y-2">
+
+### con-estado vs Jotai/Recoil
+
+| Feature        | con-estado            | Jotai/Recoil            |
+|----------------|-----------------------|-------------------------|
+| State Model    | Object-based          | Atom-based              |
+| Use Case       | Nested state          | Fine-grained reactivity |
+| Learning Curve | Moderate              | Moderate to high        |
+| Debugging      | History tracking      | Dev tools               |
+| Performance    | Optimized for objects | Optimized for atoms     |
+
+</section>
+<section className="relative space-y-2">
+
+## Troubleshooting
+
+</section>
+<section className="relative space-y-2">
+
+### State Updates Not Reflected in UI
+
+**Problem**: You've updated state but don't see changes in your component.
+
+**Solutions**:
+1. Check if you're using selectors correctly
+2. Verify that you're not mutating state directly
+3. Ensure you're using the correct path in path-based operations
+
+```typescript
+// INCORRECT
+state.user.name = 'New Name'; // Direct mutation
+
+// CORRECT
+set('state.user.name', 'New Name');
+// OR
+commit('state.user', ({ stateProp }) => {
+  stateProp.name = 'New Name';
+});
+// OR
+commit('state.user.name', (props) => {
+  props.stateProp = 'New Name';
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
+## Debugging Tips
+
+1. Use the history tracking to inspect state changes
+2. Add logging in lifecycle hooks:
+
+```typescript
+const useStore = createConStore(initialState, {
+  afterChange: (history) => {
+    console.log('State updated:', history.state);
+    console.log('Changes:', history.changes);
+  }
+});
+```
+
+</section>
+<section className="relative space-y-2">
+
 ## Credits to
 
 - [Mutative](https://mutative.js.org/) for efficient immutable updates

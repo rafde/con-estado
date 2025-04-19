@@ -2,6 +2,7 @@ import process from 'node:process';
 import bundleAnalyzer from '@next/bundle-analyzer';
 import pkg from '../package.json' with { type: 'json',};
 import createMDX from '@next/mdx';
+import remarkGfm from 'remark-gfm';
 
 const withBundleAnalyzer = bundleAnalyzer( {
 	enabled: process.env.ANALYZE === 'true',
@@ -52,7 +53,7 @@ const withMDX = createMDX( {
 	// Add markdown plugins here, as desired
 	options: {
 		format: 'mdx',
-		remarkPlugins: [],
+		remarkPlugins: [remarkGfm,],
 		rehypePlugins: [
 		],
 	},
