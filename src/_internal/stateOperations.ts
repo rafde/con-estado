@@ -94,13 +94,15 @@ export default function handleStateOperation<State extends DS,>(
 			validateSetStateObject( statePath, );
 			if ( isPlainObj( statePath, ) && !nextState ) {
 				Object.assign( stateDraft, statePath, );
-				return finalizeDraft();
+				finalizeDraft();
+				break;
 			}
 			if ( !pathArray ) {
 				throw new Error( 'Invalid state path', );
 			}
 			deepAccess( stateDraft, pathArray, () => nextState, );
-			return finalizeDraft();
+			finalizeDraft();
+			break;
 		}
 
 		case 'merge': {
@@ -110,7 +112,8 @@ export default function handleStateOperation<State extends DS,>(
 			else if ( isPlainObj( statePath, ) ) {
 				deepMerge( stateDraft, statePath, );
 			}
-			return finalizeDraft( 'merge', );
+			finalizeDraft( 'merge', );
+			break;
 		}
 
 		case 'commit': {
@@ -129,7 +132,8 @@ export default function handleStateOperation<State extends DS,>(
 			else if ( isFunc( nextState, ) ) {
 				nextState( props, );
 			}
-			return finalizeDraft( 'commit', );
+			finalizeDraft( 'commit', );
+			break;
 		}
 	}
 }

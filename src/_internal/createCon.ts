@@ -11,7 +11,7 @@ import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
 import deepAccess from './deepAccess';
 import getHistoryDraft from './getHistoryDraft';
-import { isNil, isObj, isPlainObj, } from './is';
+import { isNil, isObj, } from './is';
 import objectIs from './objectIs';
 import noop from './noop';
 import parseSegments from './parseSegments';
@@ -93,15 +93,12 @@ export default function createCon<
 		return nextHistory;
 	}
 
-	const getDraft = ( stateHistoryPath = mutOptions, options = mutOptions, ) => {
-		const _mutOptions = isPlainObj( stateHistoryPath, ) ? stateHistoryPath : options;
-		return getHistoryDraft(
-			history,
-			_dispatch,
-			beforeChange,
-			_mutOptions,
-		);
-	};
+	const getDraft = () => getHistoryDraft(
+		history,
+		_dispatch,
+		beforeChange,
+		mutOptions,
+	);
 
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
@@ -119,18 +116,18 @@ export default function createCon<
 
 	const props: CreateActsProps<S> = {
 		commit( ...args: unknown[] ) {
-			return handleStateOperation( 'commit', getDraft, history, args, ) as History<S>;
+			handleStateOperation( 'commit', getDraft, history, args, );
 		},
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		merge( ...args: unknown[] ) {
-			return handleStateOperation( 'merge', getDraft, history, args, ) as History<S>;
+			handleStateOperation( 'merge', getDraft, history, args, );
 		},
 		reset() {
-			return _dispatch( reset( history, beforeChange, ), );
+			_dispatch( reset( history, beforeChange, ), );
 		},
 		set( ...args: unknown[] ) {
-			return handleStateOperation( 'set', getDraft, history, args, ) as History<S>;
+			handleStateOperation( 'set', getDraft, history, args, );
 		},
 		wrap( ...args: unknown[] ) {
 			return handleStateOperation( 'wrap', getDraft, history, args, ) as ReturnType<CreateActsProps<S>['wrap']>;

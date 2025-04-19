@@ -8,11 +8,11 @@ import type { Immutable, } from './Immutable';
 import type { ConMutOptions, } from './ConMutOptions';
 import type { DS, } from './DS';
 
-export type ConOptions<
+export interface ConOptions<
 	S extends DS,
 	AR extends ActRecord,
 	MO extends ConMutOptions = ConMutOptions,
-> = {
+> {
 	/**
 	 * Factory function for creating custom action handlers and state transformations.
 	 * Provides a centralized way to define reusable state operations with full type safety.
@@ -226,4 +226,4 @@ export type ConOptions<
 	 * @see {@link ConMutOptions} For complete list of available options
 	 */
 	mutOptions?: MO
-};
+}
