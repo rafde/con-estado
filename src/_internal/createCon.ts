@@ -7,6 +7,7 @@ import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
 import type { History, } from '../types/History';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
+import type { Ops, } from '../types/Ops';
 import type { StringPathToArray, } from '../types/StringPathToArray';
 import createHistoryProxy from './createHistoryProxy';
 import deepAccess from './deepAccess';
@@ -19,6 +20,7 @@ import reset from './reset';
 import handleStateOperation from './stateOperations';
 
 const EMPTY_OBJECT = Object.freeze( {}, );
+let counter = 0;
 
 const fo = <
 	AR extends ActRecord,
@@ -83,7 +85,12 @@ export default function createCon<
 		mutOptions,
 	} = options;
 
+	let mutable: ReturnType<typeof getHistoryDraft> | null;
+	let currentOpId: `${Ops}${number}` | null;
+
 	function _dispatch( nextHistory: History<S>, ) {
+		mutable = null;
+		currentOpId = null;
 		if ( objectIs( history, nextHistory, ) ) {
 			return history;
 		}
@@ -93,12 +100,20 @@ export default function createCon<
 		return nextHistory;
 	}
 
-	const getDraft = () => getHistoryDraft(
-		history,
-		_dispatch,
-		beforeChange,
-		mutOptions,
-	);
+	const getDraft = ( opId: `${Ops}${number}`, ) => {
+		if ( currentOpId && mutable ) {
+			return mutable;
+		}
+		currentOpId = opId;
+		mutable = getHistoryDraft(
+			history,
+			_dispatch,
+			beforeChange,
+			opId,
+			mutOptions,
+		);
+		return mutable;
+	};
 
 	function get<S extends DS, SHP extends NestedRecordKeys<History<S>>,>(
 		stateHistoryPath?: SHP,
@@ -116,21 +131,25 @@ export default function createCon<
 
 	const props: CreateActsProps<S> = {
 		commit( ...args: unknown[] ) {
-			handleStateOperation( 'commit', getDraft, history, args, );
+			handleStateOperation( 'commit', getDraft, history, args, counter++, );
 		},
 		get: get as CreateActsProps<S>['get'],
 		// getDraft: getDraft as GetDraftRecord<S>['getDraft'],
 		merge( ...args: unknown[] ) {
-			handleStateOperation( 'merge', getDraft, history, args, );
+			handleStateOperation( 'merge', getDraft, history, args, counter++, );
 		},
 		reset() {
+			if ( currentOpId ) {
+				throw new Error( 'Cannot `reset` while an operation is in progress', );
+			}
+			currentOpId = `reset${++counter}`;
 			_dispatch( reset( history, beforeChange, ), );
 		},
 		set( ...args: unknown[] ) {
-			handleStateOperation( 'set', getDraft, history, args, );
+			handleStateOperation( 'set', getDraft, history, args, counter++, );
 		},
 		wrap( ...args: unknown[] ) {
-			return handleStateOperation( 'wrap', getDraft, history, args, ) as ReturnType<CreateActsProps<S>['wrap']>;
+			return handleStateOperation( 'wrap', getDraft, history, args, counter++, ) as ReturnType<CreateActsProps<S>['wrap']>;
 		},
 	};
 
