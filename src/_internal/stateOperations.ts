@@ -2,14 +2,13 @@ import { current, isDraft, } from 'mutative';
 import type { DS, } from '../types/DS';
 import type { GetDraftRecord, } from '../types/GetDraftRecord';
 import type { History, } from '../types/History';
+import type { Ops, } from '../types/Ops';
 import callbackPropsProxy from './callbackPropsProxy';
 import deepAccess from './deepAccess';
 import deepMerge from './deepMerge';
 import { isFunc, isObj, isPlainObj, isStr, } from './is';
 import isArray from './isArray';
 import parseSegments from './parseSegments';
-
-type OperationType = 'set' | 'merge' | 'commit' | 'wrap';
 
 function isValidStatePath( statePath: unknown, ) {
 	return isStr( statePath, ) || isArray( statePath, );
@@ -47,25 +46,27 @@ function createCallbackProperties(
 	};
 }
 
-function finalizeWrapResult( result: unknown, finalize: ReturnType<GetDraftRecord<DS>['getDraft']>[1], ) {
+function finalizeWrapResult( result: unknown, finalize: ReturnType<GetDraftRecord<DS>['getDraft']>[1], opId: `${Ops}${number}`, ) {
 	const finalValue = isDraft( result, ) ? current( result as object, ) : result;
-	finalize( 'wrap', );
+	finalize( 'wrap', opId, );
 	return finalValue;
 }
 
 export default function handleStateOperation<State extends DS,>(
-	operationType: OperationType,
+	operationType: Ops,
 	getDraft: GetDraftRecord<State>['getDraft'],
 	stateHistory: History<State>,
 	[statePath, nextState,]: unknown[],
+	id: number,
 ) {
 	const isStatePathFunction = isFunc( statePath, );
 	const pathArray = getStatePathArray( statePath, );
+	const opId: `${Ops}${number}` = `${operationType}${id}`;
 
 	if ( operationType === 'wrap' ) {
-		validateCallbackFunction( 'wrap', [statePath, nextState,], );
+		validateCallbackFunction( operationType, [statePath, nextState,], );
 		return function wrapStateOperation( ...wrapArgs: unknown[] ) {
-			const [wrapDraft, wrapFinalize,] = getDraft();
+			const [wrapDraft, wrapFinalize,] = getDraft( opId, );
 			const wrapProps = createCallbackProperties(
 				wrapDraft,
 				stateHistory,
@@ -82,26 +83,26 @@ export default function handleStateOperation<State extends DS,>(
 					: undefined;
 
 			return isObj( wrapResult, ) && 'then' in wrapResult && isFunc( wrapResult.then, )
-				? wrapResult.then( ( result: unknown, ) => finalizeWrapResult( result, wrapFinalize, ), )
-				: finalizeWrapResult( wrapResult, wrapFinalize, );
+				? wrapResult.then( ( result: unknown, ) => finalizeWrapResult( result, wrapFinalize, opId, ), )
+				: finalizeWrapResult( wrapResult, wrapFinalize, opId, );
 		};
 	}
 
-	const [stateDraft, finalizeDraft,] = getDraft();
+	const [stateDraft, finalizeDraft,] = getDraft( opId, );
 
 	switch ( operationType ) {
 		case 'set': {
 			validateSetStateObject( statePath, );
 			if ( isPlainObj( statePath, ) && !nextState ) {
 				Object.assign( stateDraft, statePath, );
-				finalizeDraft();
+				finalizeDraft( operationType, opId, );
 				break;
 			}
 			if ( !pathArray ) {
 				throw new Error( 'Invalid state path', );
 			}
 			deepAccess( stateDraft, pathArray, () => nextState, );
-			finalizeDraft();
+			finalizeDraft( operationType, opId, );
 			break;
 		}
 
@@ -112,12 +113,12 @@ export default function handleStateOperation<State extends DS,>(
 			else if ( isPlainObj( statePath, ) ) {
 				deepMerge( stateDraft, statePath, );
 			}
-			finalizeDraft( 'merge', );
+			finalizeDraft( operationType, opId, );
 			break;
 		}
 
 		case 'commit': {
-			validateCallbackFunction( 'commit', [statePath, nextState,], );
+			validateCallbackFunction( operationType, [statePath, nextState,], );
 			const callbackProps = createCallbackProperties(
 				stateDraft,
 				stateHistory,
@@ -132,7 +133,7 @@ export default function handleStateOperation<State extends DS,>(
 			else if ( isFunc( nextState, ) ) {
 				nextState( props, );
 			}
-			finalizeDraft( 'commit', );
+			finalizeDraft( operationType, opId, );
 			break;
 		}
 	}

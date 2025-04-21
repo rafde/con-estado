@@ -421,4 +421,107 @@ describe( 'useCon', () => {
 			expect( oldState, ).toBe( updatedState, );
 		}, );
 	}, );
+
+	describe( 'useCon - inner calls', () => {
+		it( 'should work when set is called within commit', () => {
+			const initialState = { count: 0, };
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				result.current[ 1 ].commit( ( props, ) => {
+					result.current[ 1 ].set( 'state.count', 1, );
+					expect( props.state.count, ).toBe( 1, );
+				}, );
+			}, );
+		}, );
+
+		it( 'should work when merge is called within commit', () => {
+			const initialState = {
+				count: 0,
+				count2: 0,
+			};
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				result.current[ 1 ].commit( ( props, ) => {
+					result.current[ 1 ].merge( 'state', { count: 1, }, );
+					expect( props.state.count, ).toBe( 1, );
+				}, );
+			}, );
+		}, );
+
+		it( 'should work when reset is called within commit', () => {
+			const initialState = {
+				count: 0,
+				count2: 0,
+			};
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				result.current[ 1 ].merge( 'state', { count: 1, }, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 1, );
+
+			act( () => {
+				result.current[ 1 ].commit( () => {
+					expect( () => {
+						result.current[ 1 ].reset();
+					}, ).toThrowError( /in progress/, );
+				}, );
+			}, );
+		}, );
+
+		it( 'should work when set is called within wrap', () => {
+			const initialState = { count: 0, };
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const w = result.current[ 1 ].wrap(
+				( props, ) => {
+					result.current[ 1 ].set( 'state.count', 1, );
+					expect( props.state.count, ).toBe( 1, );
+				},
+			);
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				w();
+			}, );
+		}, );
+
+		it( 'should work when merge is called within wrap', () => {
+			const initialState = {
+				count: 0,
+				count2: 0,
+			};
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const w = result.current[ 1 ].wrap( ( props, ) => {
+				result.current[ 1 ].merge( 'state', { count: 1, }, );
+				expect( props.state.count, ).toBe( 1, );
+			}, );
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				w();
+			}, );
+		}, );
+
+		it( 'should work when reset is called within wrap', () => {
+			const initialState = {
+				count: 0,
+				count2: 0,
+			};
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const w = result.current[ 1 ].wrap( () => {
+				expect( () => {
+					result.current[ 1 ].reset();
+				}, ).toThrowError( /in progress/, );
+			}, );
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				result.current[ 1 ].merge( 'state', { count: 1, }, );
+			}, );
+			expect( result.current[ 0 ].count, ).toBe( 1, );
+
+			act( () => {
+				w();
+			}, );
+		}, );
+	}, );
 }, );
