@@ -16,7 +16,6 @@ import { isNil, isObj, } from './is';
 import objectIs from './objectIs';
 import noop from './noop';
 import parseSegments from './parseSegments';
-import reset from './reset';
 import handleStateOperation from './stateOperations';
 
 const EMPTY_OBJECT = Object.freeze( {}, );
@@ -139,11 +138,12 @@ export default function createCon<
 			handleStateOperation( 'merge', getDraft, history, args, counter++, );
 		},
 		reset() {
-			if ( currentOpId ) {
-				throw new Error( 'Cannot `reset` while an operation is in progress', );
-			}
-			currentOpId = `reset${++counter}`;
-			_dispatch( reset( history, beforeChange, ), );
+			// if ( currentOpId ) {
+			// 	throw new Error( 'Cannot `reset` while an operation is in progress', );
+			// }
+			// currentOpId = `reset${++counter}`;
+			// _dispatch( reset( history, beforeChange, ), );
+			handleStateOperation( 'reset', getDraft, history, [], counter++, );
 		},
 		set( ...args: unknown[] ) {
 			handleStateOperation( 'set', getDraft, history, args, counter++, );

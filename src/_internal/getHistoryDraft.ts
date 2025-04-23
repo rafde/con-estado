@@ -1,4 +1,4 @@
-import { create, } from 'mutative';
+import { type Draft, create, current, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { ConOptions, } from '../types/ConOptions';
 import type { DS, } from '../types/DS';
@@ -7,6 +7,7 @@ import type { ConMutOptions, } from '../types/ConMutOptions';
 import type { Ops, } from '../types/Ops';
 import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
+import { isNil, } from './is';
 import objectIs from './objectIs';
 
 export default function getHistoryDraft<
@@ -38,15 +39,49 @@ export default function getHistoryDraft<
 	] = createDraftChangeTrackingProxy( historyDraft, );
 
 	function finalize( type: Ops, opId: `${Ops}${number}`, ) {
-		beforeChange( {
+		const beforeChangeProps = {
 			historyDraft,
 			history,
 			type,
 			patches,
-		}, );
+		};
+
+		if ( type === 'reset' ) {
+			if ( isNil( history.changes, ) ) {
+				return history;
+			}
+
+			const initial = current( historyDraft.initial, );
+
+			const res = create(
+				{
+					initial,
+					state: initial,
+				},
+				( historyDraft, ) => {
+					beforeChangeProps.historyDraft = historyDraft;
+					beforeChange( beforeChangeProps, );
+				},
+			);
+
+			historyDraft.initial = res.initial as Draft<S>;
+			historyDraft.state = res.state as Draft<S>;
+
+			if ( opId !== currentOpId ) {
+				return history;
+			}
+
+			const next = _finalize() as History<S>;
+			next.prev = isNil( history.prev, ) ? undefined : history.state;
+			next.prevInitial = isNil( history.prevInitial, ) ? undefined : history.initial;
+
+			return setHistory( createHistoryProxy( next, ), );
+		}
+
+		beforeChange( beforeChangeProps, );
 
 		if ( opId !== currentOpId ) {
-			return setHistory( history, );
+			return history;
 		}
 
 		const next = _finalize() as History<S>;

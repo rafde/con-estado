@@ -136,5 +136,9 @@ export default function handleStateOperation<State extends DS,>(
 			finalizeDraft( operationType, opId, );
 			break;
 		}
+
+		case 'reset': {
+			finalizeDraft( operationType, opId, );
+		}
 	}
 }

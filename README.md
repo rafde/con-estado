@@ -1823,6 +1823,8 @@ Returning Mutative draft objects will be converted to immutable objects.
 
 Resets `state` to `initial`.
 
+Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
+
 ```ts
 const [
   state,
@@ -1835,11 +1837,6 @@ const {
 
 reset();
 ```
-
-**Error Cases**
-
-Throws errors in these situations:
-- When called within [wrap](#wrap) or [commit](#commit) callbacks.
 
 </section>
 <section className="relative space-y-2">
