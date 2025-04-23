@@ -423,7 +423,7 @@ describe( 'useCon', () => {
 	}, );
 
 	describe( 'useCon - inner calls', () => {
-		it( 'should work when set is called within commit', () => {
+		it( 'should work when `set` is called within `commit`', () => {
 			const initialState = { count: 0, };
 			const { result, } = renderHook( () => useCon( initialState, ), );
 			// const oldState = result.current[ 0 ];
@@ -435,7 +435,7 @@ describe( 'useCon', () => {
 			}, );
 		}, );
 
-		it( 'should work when merge is called within commit', () => {
+		it( 'should work when `merge` is called within `commit`', () => {
 			const initialState = {
 				count: 0,
 				count2: 0,
@@ -450,7 +450,7 @@ describe( 'useCon', () => {
 			}, );
 		}, );
 
-		it( 'should work when reset is called within commit', () => {
+		it( 'should work when `reset` is called within `commit`', () => {
 			const initialState = {
 				count: 0,
 				count2: 0,
@@ -463,15 +463,15 @@ describe( 'useCon', () => {
 			expect( result.current[ 0 ].count, ).toBe( 1, );
 
 			act( () => {
-				result.current[ 1 ].commit( () => {
-					expect( () => {
-						result.current[ 1 ].reset();
-					}, ).toThrowError( /in progress/, );
+				result.current[ 1 ].commit( ( props, ) => {
+					result.current[ 1 ].reset();
+
+					expect( props.state.count, ).toBe( initialState.count, );
 				}, );
 			}, );
 		}, );
 
-		it( 'should work when set is called within wrap', () => {
+		it( 'should work when `set` is called within `wrap`', () => {
 			const initialState = { count: 0, };
 			const { result, } = renderHook( () => useCon( initialState, ), );
 			const w = result.current[ 1 ].wrap(
@@ -486,7 +486,7 @@ describe( 'useCon', () => {
 			}, );
 		}, );
 
-		it( 'should work when merge is called within wrap', () => {
+		it( 'should work when `merge` is called within `wrap`', () => {
 			const initialState = {
 				count: 0,
 				count2: 0,
@@ -502,25 +502,112 @@ describe( 'useCon', () => {
 			}, );
 		}, );
 
-		it( 'should work when reset is called within wrap', () => {
+		it( 'should work when `reset` is called within `wrap`', () => {
 			const initialState = {
 				count: 0,
 				count2: 0,
 			};
 			const { result, } = renderHook( () => useCon( initialState, ), );
-			const w = result.current[ 1 ].wrap( () => {
-				expect( () => {
-					result.current[ 1 ].reset();
-				}, ).toThrowError( /in progress/, );
-			}, );
+
 			// const oldState = result.current[ 0 ];
 			act( () => {
 				result.current[ 1 ].merge( 'state', { count: 1, }, );
 			}, );
 			expect( result.current[ 0 ].count, ).toBe( 1, );
 
+			const w = result.current[ 1 ].wrap( ( props, ) => {
+				result.current[ 1 ].reset();
+
+				expect( props.state.count, ).toBe( initialState.count, );
+			}, );
 			act( () => {
 				w();
+			}, );
+		}, );
+
+		it( 'should work when using multiple operations when called within `wrap`', () => {
+			const initialState = {
+				count: 0,
+				items: [
+					{
+						id: 1,
+						name: 'test',
+					},
+					{
+						id: 2,
+						name: 'test2',
+					},
+					{
+						id: 3,
+						name: 'test3',
+					},
+				],
+			};
+			const { result, } = renderHook( () => useCon( initialState, ), );
+			const w = result.current[ 1 ].wrap(
+				( props, ) => {
+					result.current[ 1 ].commit( ( props, ) => {
+						result.current[ 1 ].set( 'state.count', 1, );
+
+						result.current[ 1 ].merge( 'state.items', [, { name: 'merge', },], );
+						expect( props.state.items, ).toStrictEqual( [
+							{
+								id: 1,
+								name: 'test',
+							},
+							{
+								id: 2,
+								name: 'merge',
+							},
+							{
+								id: 3,
+								name: 'test3',
+							},
+						], );
+
+						props.state.items[ 0 ].name = 'commit';
+					}, );
+					expect( props.state.count, ).toBe( 1, );
+					expect( props.state.items, ).toStrictEqual( [
+						{
+							id: 1,
+							name: 'commit',
+						},
+						{
+							id: 2,
+							name: 'merge',
+						},
+						{
+							id: 3,
+							name: 'test3',
+						},
+					], );
+
+					props.state.items[ 2 ].name = 'wrap';
+					props.state.count++;
+				},
+			);
+			// const oldState = result.current[ 0 ];
+			act( () => {
+				w();
+			}, );
+
+			expect( result.current[ 0 ], ).toStrictEqual( {
+				count: 2,
+				items: [
+					{
+						id: 1,
+						name: 'commit',
+					},
+					{
+						id: 2,
+						name: 'merge',
+					},
+					{
+						id: 3,
+						name: 'wrap',
+					},
+				],
 			}, );
 		}, );
 	}, );

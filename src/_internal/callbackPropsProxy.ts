@@ -28,8 +28,6 @@ export default function callbackPropsProxy<
 	const baseTarget = {
 		prev: history.prev,
 		prevInitial: history.prevInitial,
-		state: historyDraft.state,
-		initial: historyDraft.initial,
 	};
 	const hasStatePath = Boolean( statePathArray, );
 
@@ -37,6 +35,10 @@ export default function callbackPropsProxy<
 		get( target, prop, ) {
 			if ( prop in baseTarget ) {
 				return reflectGet( baseTarget, prop, );
+			}
+
+			if ( prop in historyDraft ) {
+				return reflectGet( historyDraft, prop, );
 			}
 
 			const isChangesProp = hasStatePath && prop === 'changesProp';
@@ -77,6 +79,10 @@ export default function callbackPropsProxy<
 				const draft = prop === 'stateProp' ? historyDraft.state : historyDraft.initial;
 				deepAccess( draft, statePathArray, () => value, );
 				return true;
+			}
+
+			if ( prop in historyDraft ) {
+				return reflectSet( historyDraft, prop, value, );
 			}
 
 			return false;
