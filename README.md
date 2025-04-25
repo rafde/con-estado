@@ -399,11 +399,11 @@ function StateHistory() {
 ```
 
 </section>
-<section className="relative space-y-2">`
+<section className="relative space-y-2">
 
 ## Batch Updates
 
-In cases where you need to consecutively [`set`](#set), [`merge`](#merge), or [`reset`](#reset) data, 
+In cases where you need to consecutively [`set`](#set), [`merge`](#merge), or [`reset`](#reset) data,
 you probably don't want to trigger consecutive re-renders. In this case, you can batch these updates by calling them in
 [`commit`](#commit) or [`wrap`](#wrap)
 
@@ -500,7 +500,6 @@ useCon(
 ```
 
 </section>
-
 <section className="relative space-y-2">
 
 #### 2.2. `options.beforeChange`
