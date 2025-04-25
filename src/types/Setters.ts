@@ -93,6 +93,9 @@ type Set<
 	 * - Maintains immutable history tracking
 	 * - Type-safe for all update patterns
 	 *
+	 * @remarks
+	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
@@ -221,6 +224,9 @@ type Merge<
 	 * - Special characters in paths must be escaped in dot-bracket notation
 	 * - Maintains type safety across all merge patterns
 	 *
+	 * @remarks
+	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 *
 	 * @throws {Error} When trying to:
 	 * - Access non-object/array properties with dot-bracket notation
 	 * - Merge incompatible types (e.g., object into array)
@@ -298,7 +304,10 @@ type Commit<
 	 * - Maintains type safety across all update patterns
 	 * - Path-based commits support both array and dot notation
 	 * - Unlike wrap, executes immediately instead of returning a function
-	 * - Useful for synchronous state initialization and resets
+	 * - Useful for synchronous state initialization
+	 *
+	 * @remarks
+	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
@@ -416,6 +425,9 @@ type Wrap<
 	 * - Path-based wrappers support both array and dot-bracket notation
 	 * - Useful for creating reusable parameterized state updates
 	 *
+	 * @remarks
+	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
@@ -483,7 +495,10 @@ export type Setters<
 	 * @remarks
 	 * This method is useful for restoring the state to its original configuration,
 	 * effectively discarding any modifications made since the initial state.
-  	 */
+	 *
+	 * @remarks
+	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 */
 	reset(): void
 }
 & Commit<S>

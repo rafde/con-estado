@@ -379,7 +379,7 @@ Track and access previous state values:
 
 - **state**: Current immutable state object.
 - **prev**: The previous immutable `state` object before `state` was updated.
-- **initial**: Immutable immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
+- **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
 such as merging with server data into `initial` while `state` keeps client side data.
 - **prevInitial**: The previous immutable `initial` object before `initial` was updated.
 - **changes**: Immutable object that keeps track of deeply nested difference between the `state` and `initial` object.
@@ -397,6 +397,31 @@ function StateHistory() {
   </div>;
 }
 ```
+
+</section>
+<section className="relative space-y-2">`
+
+## Batch Updates
+
+In cases where you need to consecutively [`set`](#set), [`merge`](#merge), or [`reset`](#reset) data, 
+you probably don't want to trigger consecutive re-renders. In this case, you can batch these updates by calling them in
+[`commit`](#commit) or [`wrap`](#wrap)
+
+```ts
+// state.set.some.arr = [ { data: 0 }, ]
+commit( ({ state }) => {
+  // state.set.some.arr = [ { data: 0 }, { data: 1 }, ]
+  merge( 'state.set.some.arr', [ , {data: 1}, ] );
+  
+  // state.set.some.arr = []
+  set( 'state.set.some.arr', [] );
+  
+  // state.set.some.arr = [ { data: 0 }, ]
+  reset();
+});
+```
+
+This provides the convenience of using `merge`, `set`, or `reset` without having to worry about multiple re-renders.
 
 </section>
 <section className="relative space-y-2">
