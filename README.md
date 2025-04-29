@@ -409,7 +409,7 @@ you probably don't want to trigger consecutive re-renders. In this case, you can
 
 ```ts
 // state.set.some.arr = [ { data: 0 }, ]
-commit( ({ state }) => {
+commit( ( { state } ) => {
   // state.set.some.arr = [ { data: 0 }, { data: 1 }, ]
   merge( 'state.set.some.arr', [ , {data: 1}, ] );
   
@@ -641,14 +641,14 @@ Examples:
 const setCount = useCon( 
   initialState,
    controls => controls.state.count < 10
-    ? controls.wrap('count')
+    ? controls.wrap( 'count' )
     : () => {}
 );
 
 // Won't re-render, but it will do something.
 const setCount = useCon( initialState, controls => (value) => {
   controls.state.count < 10
-   ? controls.set('count', value)
+   ? controls.set( 'state.count', value )
    : undefined
 });
 ```
@@ -658,7 +658,7 @@ const setCount = useCon( initialState, controls => (value) => {
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
   setCount: controls.state.count < 10
-   ? controls.wrap('count')
+   ? controls.wrap( 'count' )
    : () => {}
 }));
 ```
@@ -715,13 +715,13 @@ example
 const setCount = useCon( 
   initialState,
   controls => controls.state.count < 10
-   ? controls.wrap('count')
+   ? controls.wrap( 'count' )
    : () => {}
 );
 
 // Won't re-render, but it will do something.
 const setCount = useCon( initialState, controls => (value) => {
-  controls.state.count < 10 ? controls.set('count', value) : undefined
+  controls.state.count < 10 ? controls.set( 'state.count', value ) : undefined
 });
 ```
 
@@ -729,7 +729,7 @@ const setCount = useCon( initialState, controls => (value) => {
 // This will re-render when `controls.state.count` value is updated
 const setCount = useCon( initialState, controls => ({
   count: controls.state.count,
-  setCount: controls.state.count < 10 ? controls.wrap('count') : () => {}
+  setCount: controls.state.count < 10 ? controls.wrap( 'count' ) : () => {}
 }));
 ```
 
@@ -927,7 +927,7 @@ Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 Replace specific values at specific paths in `state` or `initial`:
 
 ```tsx
-// state = { user: { name: 'John', age: 25 }, items: ['one', 'two'] }
+// state = { user: { name: 'John', age: 25 }, items: [ 'one', 'two' ] }
 // initial = { user: { name: 'John', age: 20 } }
 
 // String path
@@ -940,19 +940,19 @@ set( 'initial.user.age', 21);
 // state unchanged
 
 // Set array
-set( 'state.items', ['three', 'four']);
-// state.items === ['three', 'four']
+set( 'state.items', [ 'three', 'four' ]);
+// state.items === [ 'three', 'four' ]
 
 // Set specific index
 set( 'state.items[0]', 'updated');
-// state.items === ['updated', 'four']
+// state.items === [ 'updated', 'four' ]
 
 // Array path
-set( ['state', 'user', 'name'], 'Jane');
+set( [ 'state', 'user', 'name' ], 'Jane');
 // state.user.name === 'Jane'
 ```
 
-Negative indices are allowed, but they can't be out of bounds. E.g., `['initial', 'posts', -1]` or `initial.posts[-1]`
+Negative indices are allowed, but they can't be out of bounds. E.g., `[ 'initial', 'posts', -1 ]` or `initial.posts[-1]`
 is valid if 'posts' has at least one element.
 
 ```ts
@@ -1100,13 +1100,13 @@ Contains the following parameters:
 	- **changes**: Immutable changes made to state (`undefined` on first update).
 
 ```ts
-commit( ({
+commit( ( {
   state,      // Mutable current state
   initial,    // Mutable initial state
   prev,       // Immutable previous state
   prevInitial,// Immutable previous initial state
   changes,    // Immutable changes made to state
-}) => {
+} ) => {
   // Your update logic
 });
 ```
@@ -1286,12 +1286,12 @@ Throws errors in these situations:
 // };
 
 // Invalid paths
-commit('count.path.invalid', ( props ) => {
+commit( 'count.path.invalid', ( props ) => {
   props.stateProp = 42;  // Error: `count` is not an object.
 }); 
 
 // Out of bounds
-commit('posts[-999]', ( props ) => {
+commit( 'posts[-999]', ( props ) => {
   props.stateProp = 'value'; // Error: Index out of bounds. Array size is 2.
 });
 ```
@@ -1500,9 +1500,9 @@ merge( 'initial.items', [
 // initial = { items: [1, 22, 3] };
 
 // Using negative indices
-merge( 'initial.items[-1]', -11);
+merge( 'initial.items[-1]', -11 );
 // Updates last element
-// initial = { items: [1, 22, -11] };
+// initial = { items: [ 1, 22, -11 ] };
 
 
 // To clear an array, use set instead
@@ -1594,7 +1594,7 @@ Update `state` and/or `initial` at a specific path using dot-bracket notation:
 //       profile: { name: '' },
 //       settings: { theme: 'light' }
 //     },
-//     posts: ['post1', ]
+//     posts: [ 'post1', ]
 //   }
 // };
 
@@ -1771,13 +1771,13 @@ Throws errors in these situations:
 // };
 
 // Invalid paths
-const yourUpdater = wrap('count.path.invalid', ( props, value ) => {
+const yourUpdater = wrap( 'count.path.invalid', ( props, value ) => {
   props.stateProp = value;
 }); 
 yourUpdater( 42 ); // Error: `count` is not an object.
 
 // Out of bounds
-const outOfBoundsUpdater = wrap('posts[-999]', ( props, value ) => {
+const outOfBoundsUpdater = wrap( 'posts[-999]', ( props, value ) => {
   props.stateProp = value;
 });
 outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
@@ -1964,16 +1964,16 @@ When using path-based operations, TypeScript ensures you're using valid paths:
 
 ```typescript
 function TodoApp() {
-  const [state, { set, commit }] = useCon({
+  const [ state, { set, commit }] = useCon({
     todos: [{ id: 1, text: 'Learn TypeScript', completed: false }]
   });
 
   // Type-safe path operations
-  set('todos[0].completed', true); // Valid
-  set('todos[0].invalid', true);   // Type error - property doesn't exist
+  set( 'state.todos[0].completed', true); // Valid
+  set( 'state.todos[0].invalid', true);   // Type error - property doesn't exist
 
   // Type-safe commit operations
-  commit('todos', ({ stateProp }) => {
+  commit( 'todos', ( { stateProp } ) => {
     stateProp[0].completed = true; // Valid
     stateProp[0].invalid = true;   // Type error
   });
@@ -2095,10 +2095,10 @@ Update only the specific parts of state that change:
 
 ```typescript
 // BAD: Creates new references for the entire state tree
-set('state', { ...state, user: { ...state.user, name: 'New Name' } });
+set( 'state', { ...state, user: { ...state.user, name: 'New Name' } });
 
 // GOOD: Only updates the specific path
-set('state.user.name', 'New Name');
+set( 'state.user.name', 'New Name');
 ```
 
 </section>
@@ -2184,13 +2184,13 @@ const useStore = createConStore(initialState, {
 state.user.name = 'New Name'; // Cannot direct mutate. Typescript will show error.
 
 // CORRECT
-set('state.user.name', 'New Name');
+set( 'state.user.name', 'New Name');
 // OR
-commit('state.user', ({ stateProp }) => {
+commit( 'user', ( { stateProp } ) => {
   stateProp.name = 'New Name';
 });
 // OR
-commit('state.user.name', (props) => {
+commit( 'user.name', (props) => {
   props.stateProp = 'New Name';
 });
 ```
