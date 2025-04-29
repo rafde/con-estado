@@ -1,9 +1,12 @@
 import { type Draft, create, current, } from 'mutative';
 import type { ActRecord, } from '../types/ActRecord';
 import type { ConOptions, } from '../types/ConOptions';
+import type { DeepPartial, } from '../types/DeepPartial';
 import type { DS, } from '../types/DS';
 import type { History, } from '../types/History';
 import type { ConMutOptions, } from '../types/ConMutOptions';
+import type { HistoryState, } from '../types/HistoryState';
+import type { Immutable, } from '../types/Immutable';
 import type { Ops, } from '../types/Ops';
 import createDraftChangeTrackingProxy from './createChangeTrackingProxy';
 import createHistoryProxy from './createHistoryProxy';
@@ -100,5 +103,6 @@ export default function getHistoryDraft<
 	return [
 		draft,
 		finalize,
+		patches as Immutable<DeepPartial<HistoryState<S>>>,
 	] as const;
 }

@@ -2,9 +2,11 @@ import type { ActRecord, } from '../types/ActRecord';
 import type { ConOptions, } from '../types/ConOptions';
 import type { CreateActsProps, } from '../types/CreateActsProps';
 import type { CreateConReturnType, } from '../types/CreateConReturnType';
+import type { DeepPartial, } from '../types/DeepPartial';
 import type { DS, } from '../types/DS';
 import type { GetArrayPathValue, } from '../types/GetArrayPathValue';
 import type { History, } from '../types/History';
+import type { HistoryState, } from '../types/HistoryState';
 import type { Immutable, } from '../types/Immutable';
 import type { NestedRecordKeys, } from '../types/NestedRecordKeys';
 import type { Ops, } from '../types/Ops';
@@ -88,6 +90,7 @@ export default function createCon<
 	let currentOpId: `${Ops}${number}` | null;
 
 	function _dispatch( nextHistory: History<S>, ) {
+		const patches = mutable?.[ 2 ];
 		mutable = null;
 		currentOpId = null;
 		if ( objectIs( history, nextHistory, ) ) {
@@ -95,7 +98,10 @@ export default function createCon<
 		}
 		history = nextHistory;
 		dispatcher( history as Immutable<History<S>>, );
-		queueMicrotask( () => afterChange( history as Immutable<History<S>>, ), );
+		queueMicrotask( () => afterChange(
+			history as Immutable<History<S>>,
+			patches as Immutable<DeepPartial<HistoryState<S>>>,
+		), );
 		return nextHistory;
 	}
 

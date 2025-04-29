@@ -147,16 +147,18 @@ export interface ConOptions<
 	 * - prevInitial: Previous initial state
 	 * - changes: Tracked changes between state and initial
 	 *
+	 * @param {Immutable<DeepPartial<HistoryState<S>>>} patches - Deeply nested partial changes made to `state` or `initial`.
+	 *
 	 * @returns {Promise<void> | void} Optional promise for async operations
 	 *
 	 * @example Persistence
 	 * ```typescript
-	 * afterChange: async (history) => {
+	 * afterChange: async (history, patches) => {
 	 *   // Local storage
 	 *   localStorage.setItem('appState', JSON.stringify(history.state));
 	 *
 	 *   // Database
-	 *   if (history.prev?.user !== history.state.user) {
+	 *   if (typeof patches.state?.user !== 'undefined') {
 	 *     await db.users.update(history.state.user);
 	 *   }
 	 * }
@@ -197,6 +199,7 @@ export interface ConOptions<
 	 */
 	afterChange?: (
 		history: Immutable<History<S>>,
+		patches: Immutable<DeepPartial<HistoryState<S>>>,
 	) => Promise<void> | void
 	/**
 	 * Configuration options for controlling how mutations are processed.
