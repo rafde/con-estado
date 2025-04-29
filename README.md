@@ -542,7 +542,7 @@ useCon( initialState, {
 #### 2.3. `options.afterChange`
 
 Post-change async callback function executed after state changes are applied.
-Provides access to the updated [State History](#state-history)
+Provides access to the updated [State History](#state-history) and the patches that were made.
 
 **Return type**: `void`
 
@@ -551,7 +551,8 @@ useCon(
   initial,
   {
     afterChange(
-      { state, initial, prev, prevInitial, changes, }
+      { state, initial, prev, prevInitial, changes, },
+      { state, initial } // patches: what deeply nested specific changes where made
     ) {
       // your code with async support
     }

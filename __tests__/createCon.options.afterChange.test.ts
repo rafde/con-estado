@@ -26,7 +26,15 @@ describe( 'createConBase - option.afterChange()', () => {
 			expect( afterChange, ).toHaveBeenCalledTimes( 1, );
 		}, );
 		await waitFor( () => {
-			expect( afterChange, ).toBeCalledWith( estado.get(), );
+			expect( afterChange, ).toBeCalledWith(
+				estado.get(),
+				{
+					state: {
+						counter: 10,
+						list: [, 'item2',],
+					},
+				},
+			);
 		}, );
 	}, );
 }, );
