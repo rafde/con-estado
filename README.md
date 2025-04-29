@@ -884,7 +884,7 @@ const [
 
 const {
   state,
-} = useConSelector(( { state, } ) => ( { state, }, ));
+} = useConSelector( ( { state, } ) => ( { state, }, ) );
 ```
 
 </section>
@@ -1425,7 +1425,7 @@ merge( 'initial.count.path.invalid', 42 ); // Error: `count` is not an object.
 merge( 'initial.posts', { post: 'new post' } ); // Error: cannot merge object into array
 
 // Out of bounds
-merge( 'initial.posts[-999]', 'value'); // Error: Index out of bounds. Array size is 2.
+merge( 'initial.posts[-999]', 'value' ); // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
@@ -1827,15 +1827,15 @@ Wrapped functions can return Promise-like or non-Promise values:
 // state = { items: [ 'a', 'b', 'c' ] }
 
 const removeItem = wrap(
-  ( { state }, index: number) => {
+  ( { state }, index: number ) => {
     const removed = state.items[index];
-    state.items.splice(index, 1);
+    state.items.splice( index, 1 );
     return removed;
   }
 );
 
 // Usage
-const removed = removeItem(1);  // returns 'b'
+const removed = removeItem( 1 );  // returns 'b'
 // state.items === [ 'a', 'c' ]
 ```
 
@@ -1929,7 +1929,7 @@ The library automatically infers types from your initial state:
 
 ```typescript
 // State type is inferred from initialState
-const useStore = createConStore({
+const useStore = createConStore( {
   user: {
     name: 'John',
     age: 30,
@@ -1941,18 +1941,18 @@ const useStore = createConStore({
   todos: [
     { id: 1, text: 'Learn con-estado', completed: false }
   ]
-});
+} );
 
 // In components:
 function UserProfile() {
   // userData is typed as { name: string, age: number }
-  const userData = useStore(({ state }) => ({
+  const userData = useStore( ( { state } ) => ( {
     name: state.user.name,
     age: state.user.age
-  }));
+  } ) );
 
   // Type error if you try to access non-existent properties
-  const invalid = useStore(({ state }) => state.user.invalid); // Typescript error. Returns `undefined`
+  const invalid = useStore( ( { state } ) => state.user.invalid ); // Typescript error. Returns `undefined`
 }
 ```
 
@@ -1965,19 +1965,19 @@ When using path-based operations, TypeScript ensures you're using valid paths:
 
 ```typescript
 function TodoApp() {
-  const [ state, { set, commit }] = useCon({
+  const [ state, { set, commit }] = useCon( {
     todos: [{ id: 1, text: 'Learn TypeScript', completed: false }]
-  });
+  } );
 
   // Type-safe path operations
-  set( 'state.todos[0].completed', true); // Valid
-  set( 'state.todos[0].invalid', true);   // Type error - property doesn't exist
+  set( 'state.todos[0].completed', true ); // Valid
+  set( 'state.todos[0].invalid', true );   // Type error - property doesn't exist
 
   // Type-safe commit operations
   commit( 'todos', ( { stateProp } ) => {
     stateProp[0].completed = true; // Valid
     stateProp[0].invalid = true;   // Type error
-  });
+  } );
 }
 ```
 
@@ -2002,7 +2002,7 @@ interface AppState {
 }
 
 // Explicitly typed store
-const useStore = createConStore({
+const useStore = createConStore( {
   users: [],
   currentUser: null,
   isLoading: false
@@ -2048,14 +2048,14 @@ Selectors prevent unnecessary re-renders by only updating components when select
 ```typescript
 // BAD: Component re-renders on any state change
 function UserCount() {
-  const [state] = useCon({ users: [], settings: {} });
+  const [state] = useCon( { users: [], settings: {} } );
   return <div>User count: {state.users.length}</div>;
 }
 
 // GOOD: Component only re-renders when users array changes
 function UserCount() {
-  const [state, { useSelector }] = useCon({ users: [], settings: {} });
-  const userCount = useSelector(({ state }) => state.users.length);
+  const [ state, { useSelector } ] = useCon( { users: [], settings: {} } );
+  const userCount = useSelector( ({ state }) => state.users.length );
   return <div>User count: {userCount}</div>;
 }
 ```
@@ -2069,10 +2069,10 @@ For expensive computations, memoize the results:
 
 ```typescript
 function FilteredList() {
-  const [state, { useSelector }] = useCon( { items: [], filter: '' }, );
+  const  [state, { useSelector } ] = useCon( { items: [], filter: '' }, );
 
   // Computation only runs when dependencies change
-  const filteredItems = useSelector(({ state }) => {
+  const filteredItems = useSelector( ( { state } ) => {
     console.log('Filtering items');
     return state.items.filter(item => 
       item.name.includes(state.filter)
@@ -2096,10 +2096,10 @@ Update only the specific parts of state that change:
 
 ```typescript
 // BAD: Creates new references for the entire state tree
-set( 'state', { ...state, user: { ...state.user, name: 'New Name' } });
+set( 'state', { ...state, user: { ...state.user, name: 'New Name' } } );
 
 // GOOD: Only updates the specific path
-set( 'state.user.name', 'New Name');
+set( 'state.user.name', 'New Name' );
 ```
 
 </section>
@@ -2206,9 +2206,9 @@ commit( 'user.name', (props) => {
 
 ```typescript
 const useStore = createConStore(initialState, {
-  afterChange: (history) => {
+  afterChange: ( history, patches ) => {
     console.log('State updated:', history.state);
-    console.log('Changes:', history.changes);
+    console.log( 'Changes:', patches );
   }
 });
 ```
