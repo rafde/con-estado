@@ -102,11 +102,14 @@ const useConSelector = createConStore( initialState, {
 function App() {
   const state = useConSelector( 'state' );
   // Does not recreate handler
-  const onClickButton = useConSelector( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
-    console.log( 'toggle email was ', props.stateProp);
-    props.stateProp = !props.stateProp;
-    console.log( 'toggle email is ', props.stateProp);
-  } ) );
+  const onClickButton = useConSelector( ( controls ) => controls.wrap( 
+    'user.preferences.notifications.email', 
+    ( props ) => {
+      console.log( 'toggle email was ', props.stateProp);
+      props.stateProp = !props.stateProp;
+      console.log( 'toggle email is ', props.stateProp);
+    } 
+  ) );
   const onChangeInput = useConSelector.acts.onChangeInput;
 
   return (
@@ -153,7 +156,7 @@ const useConSelector = createConStore(initialState);
 
 function UserProfile() {
   // Only re-renders when selected data changes
-  const userData = useConSelector( { state } => ({
+  const userData = useConSelector( ( { state } ) => ({
     name: state.user.name,
     avatar: state.user.avatar
   }));
@@ -193,7 +196,7 @@ const initialState = {
   user: {
     name: 'John',
     preferences: {
-      theme: 'light' as 'light' | 'dark'
+      theme: 'light' as 'light' | 'dark',
       notifications: {
         email: true,
       },
@@ -202,24 +205,29 @@ const initialState = {
 };
 
 function App() {
-  const [ state, { useSelector, acts } ] = useCon( initialState, {
-    acts: ({ set }) => ({
-      onChangeInput: (event: ChangeEvent<HTMLInputElement>) => {
+  const [ state, { useSelector, } ] = useCon( initialState, {
+    acts: ( { set } ) => ({
+      onChangeInput: (
+        event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+      ) => {
         const name = event.target.name as ConHistoryStateKeys<
           typeof initialState
         >;
         const value = event.target.value;
-        console.log( 'onChangeInput', name, value );
-        set( name, value );
+        console.log('onChangeInput', name, value);
+        set(name, value);
       },
     }),
   });
+  const onChangeInput = useSelector( 'acts.onChangeInput' );
   // Does not recreate handler
-  const onClickButton = useSelector( ( ( controls ) => controls.wrap( 'user.preferences.notifications.email', ( props ) => {
-    console.log( 'toggle email was ', props.stateProp );
-    props.stateProp = !props.stateProp;
-    console.log( 'toggle email is ', props.stateProp );
-  })));
+  const onClickButton = useSelector( ( controls ) =>
+    controls.wrap( 'user.preferences.notifications.email', ( props ) => {
+      console.log('toggle email was ', props.stateProp);
+      props.stateProp = !props.stateProp;
+      console.log('toggle email is ', props.stateProp);
+    })
+  );
 
   return (
     <div>
@@ -228,7 +236,7 @@ function App() {
         type="text"
         name="state.user.name"
         value={state.user.name}
-        onChange={acts.onChangeInput}
+        onChange={onChangeInput}
       />
       <button
         onClick={onClickButton}
@@ -239,7 +247,7 @@ function App() {
       <select
         value={state.user.preferences.theme}
         name="state.user.preferences.theme"
-        onChange={acts.onChangeInput}
+        onChange={onChangeInput}
       >
         <option value="light">Light</option>
         <option value="dark">Dark</option>
@@ -284,10 +292,10 @@ set( 'state.todos', [] );            // Clear array
 
 ### Path Update Methods
 
-- [`set`](#set): Replace value at path.
-- [`merge`](#merge): Merge into both `state` and/or `initial`.
-- [`commit`](#commit): Modify value using a callback and/or path.
-- [`wrap`](#wrap): Modify value using a callback that can return a value.
+- [set](#set): Replace value at path.
+- [merge](#merge): Merge into both `state` and/or `initial`.
+- [commit](#commit): Modify value using a callback and/or path.
+- [wrap](#wrap): Modify value using a callback that can return a value.
 
 </section>
 <section className="relative space-y-2">
@@ -298,24 +306,24 @@ Custom Selector is a `function` that optimize renders by selecting only needed s
 
 ```tsx
 function UserPreferences() {
-    const preferences = useCon( initialState, props => ( {
-        theme: props.state.user.preferences.theme,
-        updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
-          props.set(
-            event.target.name as ConHistoryStateKeys<typeof initialState>,
-            event.target.value,
-          );
-        },
-      } ),
-    );
-    return <select
-      value={preferences.theme}
-      name="state.user.preferences.theme"
-      onChange={preferences.updateTheme}
-    >
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-    </select>;
+  const preferences = useCon( initialState, props => ( {
+    theme: props.state.user.preferences.theme,
+    updateTheme( event: ChangeEvent<HTMLSelectElement> ) {
+      props.set(
+        event.target.name as ConHistoryStateKeys<typeof initialState>,
+        event.target.value,
+      );
+    },
+  } ), );
+  
+  return <select
+    value={preferences.theme}
+    name="state.user.preferences.theme"
+    onChange={preferences.updateTheme}
+  >
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>;
 }
 ```
 
@@ -331,28 +339,25 @@ function PostList() {
   const [ state, { acts, } ] = useCon(
     { posts: [ { id: 1, text: 'post', } ] },
     {
-      acts: ( { wrap, commit, set, } ) => {
-
-        return {
-          addPost( post: Post, ) {
-            commit( 'posts', ( ( { stateProp }, ) ) => {
-              stateProp.push( post );
-            });
-          },
-          updatePost: wrap(
-            'posts',
-            ( { stateProp }, id: number, updates: Partial<Post>, ) => {
-              const post = stateProp.find( p => p.id === id );
-              if (post) Object.assign( post, updates );
-            }
-          ),
-          async fetchPosts() {
-            const posts = await api.getPosts();
-            set( 'state.posts', posts );
-          },
+      acts: ( { wrap, commit, set, } ) => ({
+        addPost( post: Post, ) {
+          commit( 'posts', props => {
+            props.stateProp.push( post );
+          });
+        },
+        updatePost: wrap(
+          'posts',
+          ( { stateProp }, id: number, updates: Partial<Post>, ) => {
+            const post = stateProp.find( p => p.id === id );
+            if (post) Object.assign( post, updates );
+          }
+        ),
+        async fetchPosts() {
+          const posts = await api.getPosts();
+          set( 'state.posts', posts );
         },
       },
-    }
+    })
   );
 
   return <div>
@@ -380,7 +385,7 @@ Track and access previous state values:
 - **state**: Current immutable state object.
 - **prev**: The previous immutable `state` object before `state` was updated.
 - **initial**: Immutable initial state it started as. It can be updated through `historyDraft` for re-sync purposes,
-such as merging with server data into `initial` while `state` keeps client side data.
+such as merging server data into `initial` while `state` keeps latest client side data.
 - **prevInitial**: The previous immutable `initial` object before `initial` was updated.
 - **changes**: Immutable object that keeps track of deeply nested difference between the `state` and `initial` object.
 
@@ -409,9 +414,9 @@ you probably don't want to trigger consecutive re-renders. In this case, you can
 
 ```ts
 // state.set.some.arr = [ { data: 0 }, ]
-commit( ( { state } ) => {
+commit( () => {
   // state.set.some.arr = [ { data: 0 }, { data: 1 }, ]
-  merge( 'state.set.some.arr', [ , {data: 1}, ] );
+  merge( 'state.set.some.arr', [ , { data: 1 }, ] );
   
   // state.set.some.arr = []
   set( 'state.set.some.arr', [] );
@@ -452,8 +457,8 @@ useCon( [] );
 useCon( () => ([]) );
 ```
 
-Used to initialize the [`state`](#state) value. non-`null` `Object` with data, `Array`,
-or a function that returns an `Object` or `Array`
+Used to initialize the [`state`](#state) value. non-`null` `Object`, `Array`,
+or a `function` that returns a non-`null` `Object` or `Array`
 
 </section>
 <section className="relative space-y-2">
@@ -476,7 +481,7 @@ createConStore( initialState, options );
 Optional factory function for creating a Record of action handlers and state transformations.
 The action handlers have access to a subset of the controls object.
 
-**Return type**: `Record<string | number, (...args: unknown[]) => unknown>`
+**Return type**: `Record<s tring | number, (...args: unknown[]) => unknown >`
 
 ```ts
 useCon(
@@ -518,10 +523,10 @@ Enables validation, normalization, or transformation of state updates.
 ```tsx
 useCon( initialState, {
   beforeChange: ({
-    historyDraft, // Mutable draft of state and initial
-    history,      // Current immutable state history
+    historyDraft, // Mutable draft of `state` and `initial`
+    history,      // Current immutable history
     type,         // Operation type: 'set' | 'reset' | 'merge' | 'commit' | 'wrap'
-    patches,      // Latest changes made to state/initial
+    patches,      // Latest changes made to `state` or `initial`
   }) => {
     // Validate changes
     if (historyDraft.state.count < 0) {
@@ -541,7 +546,7 @@ useCon( initialState, {
 
 #### 2.3. `options.afterChange`
 
-Post-change async callback function executed after state changes are applied.
+Post-change `async` callback `function` executed after state changes are applied.
 Provides access to the updated [State History](#state-history) and the patches that were made.
 
 **Return type**: `void`
@@ -695,7 +700,8 @@ const [ state, controls, ] = useCon( initialState, options, selector, );
 
 ### `useSelector`
 
-`useCon` has access to additional control property from `selector` named `useSelector`. A `function` that works like what `createConStore` returns.
+`useCon` has access to additional control property from `selector` named `useSelector`.
+A `function` that works like what `createConStore` returns.
 - By default, returns `[state, controls]` when no selector is provided. If a `selector` is provided, it returns the result of the `selector`.
 - This allows you to use local state as a local store that can be passed down to other components, where each component can provide a custom `selector`.
 
@@ -932,24 +938,24 @@ Replace specific values at specific paths in `state` or `initial`:
 // initial = { user: { name: 'John', age: 20 } }
 
 // String path
-set( 'state.user.age', 30);
+set( 'state.user.age', 30 );
 // state.user.age === 30
 // initial unchanged
 
-set( 'initial.user.age', 21);
+set( 'initial.user.age', 21 );
 // initial.user.age === 21
 // state unchanged
 
 // Set array
-set( 'state.items', [ 'three', 'four' ]);
+set( 'state.items', [ 'three', 'four' ] );
 // state.items === [ 'three', 'four' ]
 
 // Set specific index
-set( 'state.items[0]', 'updated');
+set( 'state.items[0]', 'updated' );
 // state.items === [ 'updated', 'four' ]
 
 // Array path
-set( [ 'state', 'user', 'name' ], 'Jane');
+set( [ 'state', 'user', 'name' ], 'Jane' );
 // state.user.name === 'Jane'
 ```
 
@@ -965,13 +971,13 @@ is valid if 'posts' has at least one element.
 set( 'initial.posts[-1]', { title: 'Updated Second Title', } );
 // initial = { posts: [ 
 //  undefined, 
-//  { title: 'Updated Second Title', content: 'Second post content', }, 
+//  { title: 'Updated Second Title', }, 
 // ], }; 
 
 set( [ 'initial', 'posts', -2 ], { title: 'Updated First Content' }, );
 // initial = { posts: [
 //  { title: 'Updated First Content', },
-//  { title: 'Updated Second Title', content: 'Second post content', },
+//  { title: 'Updated Second Title', },
 // ], }; 
 
 set( 'initial.posts[-3]', { title: 'Third Title', }, ); // throws error
@@ -1139,7 +1145,7 @@ Update `state` and/or `initial` at a specific path using dot-bracket notation:
 
 // String path
 commit( 'user.profile.name', (props) => {
-  props.stateProp = 'John';
+  props.stateProp = 'Jane';
 });
 // state.user.profile.name === 'Jane'
 
@@ -1180,7 +1186,7 @@ commit( 'posts[-1]', ( props ) => {
 //  { title: 'Updated Second Title', content: 'Second post content', }, 
 // ], }; 
 
-commit( [ 'posts', -2 ], ( props ) => {
+commit( [ 'posts', -2, 'title' ], ( props ) => {
   props.stateProp = 'Updated First Content';
 } );
 
@@ -1250,10 +1256,6 @@ commit( 'path.user\\.name\\[s]', ( props ) => {
 When setting a value at a non-existing path, intermediate `object`s or `array`s are created automatically:
 
 ```tsx
-// state = {
-//   count: 1,
-//};
-
 commit( 'deeply.nested.value', ( props ) => {
   props.stateProp = 42;
 });
@@ -1270,6 +1272,11 @@ commit( 'items[0].name', ( props ) => {
   props.stateProp = 'First';
 });
 // state = {
+//   deeply: {
+//     nested: {
+//       value: 42
+//     }
+//   },
 //   items: [ { name: 'First' } ]
 // };
 ```
@@ -1342,10 +1349,12 @@ Merge `object`s/`array`s at a specific path.
 // };
 
 merge( {
-  user: {
-    profile: { lastName: 'Doe', },
-    preferences: { theme: 'dark', },
-  }
+  initial: {
+    user: {
+      profile: { lastName: 'Doe', },
+      preferences: { theme: 'dark', },
+    },
+  },
 } );
 
 // initial.user = {
@@ -1374,7 +1383,7 @@ in the history state using a dot-bracket-notation for path or `array` of `string
 
 // String path
 merge( 'initial.user.profile', { age: 30 } );
-// state.user.profile === { name: 'John', age: 30 }
+// initial.user.profile === { name: 'John', age: 30 }
 
 // Array path
 merge( [ 'initial', 'user', 'settings' ], { theme: 'dark' } );
@@ -1965,7 +1974,7 @@ When using path-based operations, TypeScript ensures you're using valid paths:
 
 ```typescript
 function TodoApp() {
-  const [ state, { set, commit }] = useCon( {
+  const [ state, { set, commit } ] = useCon( {
     todos: [{ id: 1, text: 'Learn TypeScript', completed: false }]
   } );
 
@@ -2048,14 +2057,14 @@ Selectors prevent unnecessary re-renders by only updating components when select
 ```typescript
 // BAD: Component re-renders on any state change
 function UserCount() {
-  const [state] = useCon( { users: [], settings: {} } );
+  const [ state ] = useCon( { users: [], settings: {} } );
   return <div>User count: {state.users.length}</div>;
 }
 
 // GOOD: Component only re-renders when users array changes
 function UserCount() {
   const [ state, { useSelector } ] = useCon( { users: [], settings: {} } );
-  const userCount = useSelector( ({ state }) => state.users.length );
+  const userCount = useSelector( ( { state } ) => state.users.length );
   return <div>User count: {userCount}</div>;
 }
 ```
@@ -2069,11 +2078,11 @@ For expensive computations, memoize the results:
 
 ```typescript
 function FilteredList() {
-  const  [state, { useSelector } ] = useCon( { items: [], filter: '' }, );
+  const  [ state, { useSelector } ] = useCon( { items: [], filter: '' }, );
 
   // Computation only runs when dependencies change
   const filteredItems = useSelector( ( { state } ) => {
-    console.log('Filtering items');
+    console.log( 'Filtering items' );
     return state.items.filter(item => 
       item.name.includes(state.filter)
     ).map(item => <div key={item.id}>{item.name}</div>);
@@ -2207,7 +2216,7 @@ commit( 'user.name', (props) => {
 ```typescript
 const useStore = createConStore(initialState, {
   afterChange: ( history, patches ) => {
-    console.log('State updated:', history.state);
+    console.log( 'State updated:', history.state );
     console.log( 'Changes:', patches );
   }
 });
