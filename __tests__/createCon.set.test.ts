@@ -1,4 +1,4 @@
-import { afterEach, describe, } from 'vitest';
+import { afterEach, describe, expect, } from 'vitest';
 import createCon from '../src/_internal/createCon';
 import type { DeepPartial, } from 'src/types/DeepPartial';
 
@@ -244,6 +244,11 @@ describe( 'createCon - set', () => {
 					expect( next.prev, ).toBe( prev, );
 					expect( next.prevInitial, ).toBe( undefined, );
 					expect( next.changes, ).toStrictEqual( changes, );
+				}, );
+
+				it( 'should set new array path value', () => {
+					estado.set( 'state.ooo.oooa[1]', { s: 'new', }, );
+					expect( estado.get( 'state.ooo.oooa[1]', ), ).toStrictEqual( { s: 'new', }, );
 				}, );
 			}, );
 		}, );
