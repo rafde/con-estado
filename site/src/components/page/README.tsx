@@ -188,7 +188,7 @@ const components: MDXComponents = {
 };
 
 export default function README() {
-	return <section className="pb-4 px-4 space-y-4">
+	return <section className="pb-4 px-4 space-y-4 [&>section]:relative [&>section]:space-y-2">
 		<ReadMe {...{ components, }} />
 	</section>;
 }
