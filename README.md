@@ -1,4 +1,4 @@
-<section className="relative space-y-2">
+<section>
 
 # con-estado
 
@@ -12,7 +12,7 @@
 [![Bundlephobia dependency count](https://badgen.net/bundlephobia/dependency-count/con-estado)](https://bundlephobia.com/package/con-estado)
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Why `con-estado`?
 
@@ -38,7 +38,7 @@ Managing deeply nested state in React often becomes cumbersome with traditional 
 For documentation with working examples, see [con-estado docs](https://rafde.github.io/con-estado).
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Installation
 
@@ -55,7 +55,7 @@ deno add jsr:@rafde/con-estado
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Global Store
 
@@ -145,7 +145,7 @@ Key advantages:
 - **Optimized subscriptions** through selector-based consumption
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Using Selectors with Global Store
 
@@ -169,7 +169,7 @@ function UserProfile() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### Selector Best Practices
 
@@ -179,7 +179,7 @@ function UserProfile() {
 4. Use TypeScript for type safety
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Local State
 
@@ -258,7 +258,7 @@ function App() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Path-based Operations
 
@@ -288,7 +288,7 @@ set( 'state.todos', [] );            // Clear array
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Path Update Methods
 
@@ -298,7 +298,7 @@ set( 'state.todos', [] );            // Clear array
 - [wrap](#wrap): Modify value using a callback that can return a value.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Custom Selectors
 
@@ -328,7 +328,7 @@ function UserPreferences() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Actions
 
@@ -376,7 +376,7 @@ function PostList() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## State History
 
@@ -404,7 +404,7 @@ function StateHistory() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Batch Updates
 
@@ -429,7 +429,7 @@ commit( () => {
 This provides the convenience of using `merge`, `set`, or `reset` without having to worry about multiple re-renders.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Example: To Do App
 
@@ -438,14 +438,14 @@ An complex to-do app example of how `con-estado` can be used.
 [To Do Example](https://stackblitz.com/edit/con-estado-todont-app-fikb7k8w?ctl=1&embed=1&file=src%2Fstore%2Findex.ts)
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Parameters API
 
 `createConStore` and `useCon` take the same parameters.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### 1. `initial`
 
@@ -461,7 +461,7 @@ Used to initialize the [`state`](#state) value. non-`null` `Object`, `Array`,
 or a `function` that returns a non-`null` `Object` or `Array`
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### 2. `options`
 
@@ -474,7 +474,7 @@ createConStore( initialState, options );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### 2.1. `options.acts`
 
@@ -505,7 +505,7 @@ useCon(
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### 2.2. `options.beforeChange`
 
@@ -542,7 +542,7 @@ useCon( initialState, {
 ```
 </section>
 
-<section className="relative space-y-2">
+<section>
 
 #### 2.3. `options.afterChange`
 
@@ -566,7 +566,7 @@ useCon(
 ```
 </section>
 
-<section className="relative space-y-2">
+<section>
 
 #### 2.4. `options.mutOptions`
 
@@ -586,7 +586,7 @@ useCon( initialState, {
 
 </section>
 
-<section className="relative space-y-2">
+<section>
 
 ### 3. `selector`
 
@@ -686,7 +686,7 @@ const [
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## `useCon`
 
@@ -696,7 +696,7 @@ Local state manager for a React Component
 const [ state, controls, ] = useCon( initialState, options, selector, );
 ```
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `useSelector`
 
@@ -758,7 +758,7 @@ const yourAction = useSelector( 'acts.yourAction' );
 Other `string` paths to `get`, `commit`, `merge`, `reset`, `set`, `subscribe`, `wrap` will return corresponding `function`.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## `createConStore`
 
@@ -769,7 +769,7 @@ const useConSelector = createConStore( initialState, options, selector, );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `useConSelector`
 Called `useConSelector` for reference. You have a choice in naming.
@@ -832,7 +832,7 @@ const yourAction = useConSelector( 'acts.yourAction' );
 Other `string` paths to `get`, `commit`, `merge`, `reset`, `set`, `subscribe`, `wrap` will return corresponding `function`.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Shared Controls API
 
@@ -845,7 +845,7 @@ The following `function`s
 have access to the following controls:
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `get`
 
@@ -875,7 +875,7 @@ const specificChange = get( [ 'changes', 'user', '.name' ] );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `state`
 
@@ -894,7 +894,7 @@ const {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `set`
 
@@ -927,7 +927,7 @@ set( {
 Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### Path-based `set`
 
@@ -1003,7 +1003,7 @@ set( 'initial.posts[-999]', 'value' ); // Error: Index out of bounds. Array size
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `set` Paths with Special Characters
 
@@ -1023,7 +1023,7 @@ set( 'initial.path.user\\.name\\[s]', 'New Name', );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `set` Non-existing Path
 
@@ -1069,7 +1069,7 @@ set( 'initial.posts[-999]', 'value', ); // Error: Index out of bounds. Array siz
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `commit`
 
@@ -1077,7 +1077,7 @@ The `commit` method provides atomic updates to both `state` and `initial` values
 It supports the following usage patterns:
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### `commit` Callback
 
@@ -1094,7 +1094,7 @@ commit( ( { state, initial } ) => {
 Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `commit` Callback Parameters
 
@@ -1119,7 +1119,7 @@ commit( ( {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### Path-based `commit` Callback
 
@@ -1224,7 +1224,7 @@ commit( 'posts[-999]', ( props ) => {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `commit` Special Character Paths
 
@@ -1249,7 +1249,7 @@ commit( 'path.user\\.name\\[s]', ( props ) => {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `commit` Non-existing Paths
 
@@ -1305,7 +1305,7 @@ commit( 'posts[-999]', ( props ) => {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### Path-based `commit` Callback Parameters
 
@@ -1336,7 +1336,7 @@ commit(
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `merge`
 
@@ -1366,7 +1366,7 @@ merge( {
 Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### Path-based `merge`
 
@@ -1438,7 +1438,7 @@ merge( 'initial.posts[-999]', 'value' ); // Error: Index out of bounds. Array si
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `merge` Special Characters in Paths
 
@@ -1458,7 +1458,7 @@ merge( 'initial.path.user\\.name\\[s]', 'New Name', );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `merge` Non-existing Path
 
@@ -1484,7 +1484,7 @@ merge( 'initial.items[1]', { name: 'Second' });
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### `merge` Special Cases
 
@@ -1521,7 +1521,7 @@ set( 'initial.items', [] );  // Correct way to clear
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `wrap`
 
@@ -1532,7 +1532,7 @@ Can be called within [commit](#commit) or [wrap](#wrap) callbacks.
 It supports three different usage patterns:
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### `wrap` Callback
 
@@ -1553,7 +1553,7 @@ const state = await yourFullStateUpdater( 1 );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `wrap` Callback Parameters
 
@@ -1584,7 +1584,7 @@ const yourUpdater = wrap(
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### Path-based `wrap`
 
@@ -1709,7 +1709,7 @@ outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `wrap` Special Character Paths
 
@@ -1735,7 +1735,7 @@ yourUpdater( 'New Name' );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### `wrap` Non-existing Paths
 
@@ -1794,7 +1794,7 @@ outOfBoundsUpdater( 'value' );  // Error: Index out of bounds. Array size is 2.
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ##### Path-based `wrap` Callback Parameters
 
@@ -1826,7 +1826,7 @@ const yourUpdater = wrap(
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 #### `wrap` Return Values
 
@@ -1851,7 +1851,7 @@ const removed = removeItem( 1 );  // returns 'b'
 Returning Mutative draft objects will be converted to immutable objects.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `reset`
 
@@ -1873,7 +1873,7 @@ reset();
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `acts`
 
@@ -1891,7 +1891,7 @@ const {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### `subscribe`
 
@@ -1922,7 +1922,7 @@ const unsubscribe = subscribe( ( { state, }, ) => {
 unsubscribe();
 ```
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## TypeScript Support
 
@@ -1930,7 +1930,7 @@ unsubscribe();
 The library leverages TypeScript's type inference to provide a seamless development experience.
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Type Inference
 
@@ -1966,7 +1966,7 @@ function UserProfile() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Path Type Safety
 
@@ -1991,7 +1991,7 @@ function TodoApp() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Custom Type Definitions
 
@@ -2019,7 +2019,7 @@ const useStore = createConStore( {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Exported Type Utilities
 
@@ -2040,7 +2040,7 @@ type StatePaths = ConStateKeys<MyState>; // 'count' | 'user' | 'user.name'
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Performance Optimization
 
@@ -2048,7 +2048,7 @@ type StatePaths = ConStateKeys<MyState>; // 'count' | 'user' | 'user.name'
 but there are several techniques you can use to optimize your application further:
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Use Selectors for Targeted Updates
 
@@ -2070,7 +2070,7 @@ function UserCount() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Memoize Complex Computations
 
@@ -2097,7 +2097,7 @@ function FilteredList() {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Use Path-Based Updates
 
@@ -2112,7 +2112,7 @@ set( 'state.user.name', 'New Name' );
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### Configure Mutation Options
 
@@ -2127,12 +2127,12 @@ const useStore = createConStore(initialState, {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Comparison with Other Libraries
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### con-estado vs Redux
 
@@ -2147,7 +2147,7 @@ const useStore = createConStore(initialState, {
 | Performance    | Optimized for nested updates | General purpose                    |
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### con-estado vs Zustand
 
@@ -2160,7 +2160,7 @@ const useStore = createConStore(initialState, {
 | TypeScript       | Deep path type safety        | Basic type support          |
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### con-estado vs Jotai/Recoil
 
@@ -2173,12 +2173,12 @@ const useStore = createConStore(initialState, {
 | Performance    | Optimized for objects | Optimized for atoms     |
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Troubleshooting
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ### State Updates Not Reflected in UI
 
@@ -2206,7 +2206,7 @@ commit( 'user.name', (props) => {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Debugging Tips
 
@@ -2223,7 +2223,7 @@ const useStore = createConStore(initialState, {
 ```
 
 </section>
-<section className="relative space-y-2">
+<section>
 
 ## Credits to
 
