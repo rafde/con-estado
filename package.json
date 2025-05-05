@@ -11,7 +11,7 @@
 	"devDependencies": {
 		"@eslint/compat": "1.2.9",
 		"@eslint/eslintrc": "3.3.1",
-		"@eslint/js": "9.25.1",
+		"@eslint/js": "9.26.0",
 		"@parcel/bundler-library": "2.14.4",
 		"@parcel/packager-ts": "2.14.4",
 		"@parcel/transformer-typescript-types": "2.14.4",
