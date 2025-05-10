@@ -481,7 +481,7 @@ createConStore( initialState, options );
 Optional factory function for creating a Record of action handlers and state transformations.
 The action handlers have access to a subset of the controls object.
 
-**Return type**: `Record<s tring | number, (...args: unknown[]) => unknown >`
+**Return type**: `Record<string | number, (...args: unknown[]) => unknown>`
 
 ```ts
 useCon(
