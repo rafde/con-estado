@@ -101,7 +101,7 @@ type ConSet<
 	 *
 	 * @see {@link History} For history object structure
 	 * @see {@link Commit.commit commit} For mutation-based updates
-	 * @see {@link Merge.merge merge} For deep merging updates
+	 * @see {@link ConMerge.merge merge} For deep merging updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 */
 	set(
@@ -134,7 +134,7 @@ type ConSet<
 	): void
 };
 
-type Merge<
+type ConMerge<
 	S extends DS,
 	NS extends HistoryState<S> = HistoryState<S>,
 > = {
@@ -158,7 +158,7 @@ type Merge<
 	 *
 	 * @example Complete state merge
 	 * ```ts
-	 * // Merge updates into both state and initial
+	 * // ConMerge updates into both state and initial
 	 * merge({
 	 *   state: {
 	 *     user: { profile: { name: 'John' } }
@@ -171,31 +171,31 @@ type Merge<
 	 *
 	 * @example String path merge
 	 * ```ts
-	 * // Merge into nested object
+	 * // ConMerge into nested object
 	 * merge( 'user.profile', {
 	 *   name: 'John',
 	 *   age: 30
 	 * });
 	 *
-	 * // Merge into array
+	 * // ConMerge into array
 	 * merge( 'posts[0]', {
 	 *   title: 'Updated',
 	 *   views: 100
 	 * });
 	 *
-	 * // Merge with escaped special characters
+	 * // ConMerge with escaped special characters
 	 * merge( 'path.user\\.name\\[0]', { value: 'John' } );
 	 * ```
 	 *
 	 * @example Array path merge
 	 * ```ts
-	 * // Merge into nested object
+	 * // ConMerge into nested object
 	 * merge( [ 'user', 'profile' ], {
 	 *   name: 'John',
 	 *   age: 30
 	 * });
 	 *
-	 * // Merge into array with negative index
+	 * // ConMerge into array with negative index
 	 * merge( [ 'posts', -1 ], {
 	 *   title: 'Updated Last'
 	 * });
@@ -229,7 +229,7 @@ type Merge<
 	 *
 	 * @throws {Error} When trying to:
 	 * - Access non-object/array properties with dot-bracket notation
-	 * - Merge incompatible types (e.g., object into array)
+	 * - ConMerge incompatible types (e.g., object into array)
 	 * - Access out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
@@ -313,7 +313,7 @@ type Commit<
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link Merge.merge merge} For deep merging updates
+	 * @see {@link ConMerge.merge merge} For deep merging updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 * @see {@link ConSet.set set} For direct value replacement
 	 */
@@ -434,7 +434,7 @@ type Wrap<
 	 * @see {@link History} For history object structure
 	 * @see {@link ConSet.set set} For direct value replacement
 	 * @see {@link Commit.commit commit} For mutation-based updates
-	 * @see {@link Merge.merge merge} For deep merging updates
+	 * @see {@link ConMerge.merge merge} For deep merging updates
 	 */
 	wrap<
 		A extends unknown[],
@@ -502,6 +502,6 @@ export type Setters<
 	reset(): void
 }
 & Commit<S>
-& Merge<S>
+& ConMerge<S>
 & ConSet<S>
 & Wrap<S>;
