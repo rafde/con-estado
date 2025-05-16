@@ -23,7 +23,7 @@ type CallbackProps<
 	S extends DS,
 > = Immutable<Omit<History<S>, 'state' | 'initial'>> & Draft<HistoryState<S>>;
 
-type Set<
+type ConSet<
 	S extends DS,
 	NS extends HistoryState<S> = HistoryState<S>,
 > = {
@@ -47,18 +47,18 @@ type Set<
 	 *
 	 * @example Complete state update
 	 * ```ts
-	 * // Set both state and initial
+	 * // ConSet both state and initial
 	 * set({
 	 *   state: { count: 5 },
 	 *   initial: { count: 0 }
 	 * });
 	 *
-	 * // Set only state
+	 * // ConSet only state
 	 * set({
 	 *   state: { count: 5 }
 	 * });
 	 *
-	 * // Set only initial
+	 * // ConSet only initial
 	 * set({
 	 *   initial: { count: 0 }
 	 * });
@@ -233,7 +233,7 @@ type Merge<
 	 * - Access out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link Set.set set} For direct value replacement
+	 * @see {@link ConSet.set set} For direct value replacement
 	 * @see {@link Commit.commit commit} For mutation-based updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 */
@@ -315,7 +315,7 @@ type Commit<
 	 * @see {@link History} For history object structure
 	 * @see {@link Merge.merge merge} For deep merging updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
-	 * @see {@link Set.set set} For direct value replacement
+	 * @see {@link ConSet.set set} For direct value replacement
 	 */
 	commit(
 		nextState: (
@@ -432,7 +432,7 @@ type Wrap<
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link Set.set set} For direct value replacement
+	 * @see {@link ConSet.set set} For direct value replacement
 	 * @see {@link Commit.commit commit} For mutation-based updates
 	 * @see {@link Merge.merge merge} For deep merging updates
 	 */
@@ -503,5 +503,5 @@ export type Setters<
 }
 & Commit<S>
 & Merge<S>
-& Set<S>
+& ConSet<S>
 & Wrap<S>;
