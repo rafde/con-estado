@@ -94,13 +94,13 @@ type ConSet<
 	 * - Type-safe for all update patterns
 	 *
 	 * @remarks
-	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
-	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link ConCommit.commit commit} For mutation-based updates
 	 * @see {@link ConMerge.merge merge} For deep merging updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 */
@@ -225,7 +225,7 @@ type ConMerge<
 	 * - Maintains type safety across all merge patterns
 	 *
 	 * @remarks
-	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to:
 	 * - Access non-object/array properties with dot-bracket notation
@@ -234,7 +234,7 @@ type ConMerge<
 	 *
 	 * @see {@link History} For history object structure
 	 * @see {@link ConSet.set set} For direct value replacement
-	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link ConCommit.commit commit} For mutation-based updates
 	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
 	 */
 	merge( nextState: DeepPartial<NS> ): void
@@ -254,7 +254,7 @@ type ConMerge<
 	): void
 };
 
-type Commit<
+type ConCommit<
 	S extends DS,
 > = {
 	/**
@@ -307,7 +307,7 @@ type Commit<
 	 * - Useful for synchronous state initialization
 	 *
 	 * @remarks
-	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
@@ -426,14 +426,14 @@ type Wrap<
 	 * - Useful for creating reusable parameterized state updates
 	 *
 	 * @remarks
-	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
 	 * @see {@link ConSet.set set} For direct value replacement
-	 * @see {@link Commit.commit commit} For mutation-based updates
+	 * @see {@link ConCommit.commit commit} For mutation-based updates
 	 * @see {@link ConMerge.merge merge} For deep merging updates
 	 */
 	wrap<
@@ -497,11 +497,11 @@ export type Setters<
 	 * effectively discarding any modifications made since the initial state.
 	 *
 	 * @remarks
-	 * This method can be called within {@link Commit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
 	 */
 	reset(): void
 }
-& Commit<S>
+& ConCommit<S>
 & ConMerge<S>
 & ConSet<S>
 & Wrap<S>;
