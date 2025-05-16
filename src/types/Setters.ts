@@ -94,7 +94,7 @@ type ConSet<
 	 * - Type-safe for all update patterns
 	 *
 	 * @remarks
-	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link ConWrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
@@ -102,7 +102,7 @@ type ConSet<
 	 * @see {@link History} For history object structure
 	 * @see {@link ConCommit.commit commit} For mutation-based updates
 	 * @see {@link ConMerge.merge merge} For deep merging updates
-	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
+	 * @see {@link ConWrap.wrap wrap} For reusable parameterized updates
 	 */
 	set(
 		nextState: {
@@ -225,7 +225,7 @@ type ConMerge<
 	 * - Maintains type safety across all merge patterns
 	 *
 	 * @remarks
-	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link ConWrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to:
 	 * - Access non-object/array properties with dot-bracket notation
@@ -235,7 +235,7 @@ type ConMerge<
 	 * @see {@link History} For history object structure
 	 * @see {@link ConSet.set set} For direct value replacement
 	 * @see {@link ConCommit.commit commit} For mutation-based updates
-	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
+	 * @see {@link ConWrap.wrap wrap} For reusable parameterized updates
 	 */
 	merge( nextState: DeepPartial<NS> ): void
 	merge<
@@ -307,14 +307,14 @@ type ConCommit<
 	 * - Useful for synchronous state initialization
 	 *
 	 * @remarks
-	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link ConWrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
 	 *
 	 * @see {@link History} For history object structure
 	 * @see {@link ConMerge.merge merge} For deep merging updates
-	 * @see {@link Wrap.wrap wrap} For reusable parameterized updates
+	 * @see {@link ConWrap.wrap wrap} For reusable parameterized updates
 	 * @see {@link ConSet.set set} For direct value replacement
 	 */
 	commit(
@@ -342,7 +342,7 @@ type ConCommit<
 	): void
 };
 
-type Wrap<
+type ConWrap<
 	S extends DS,
 	RK extends NestedRecordKeys<S> = NestedRecordKeys<S>,
 > = {
@@ -426,7 +426,7 @@ type Wrap<
 	 * - Useful for creating reusable parameterized state updates
 	 *
 	 * @remarks
-	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link ConWrap.wrap wrap}
 	 *
 	 * @throws {Error} When trying to access non-object/array properties with dot-bracket notation
 	 * @throws {Error} When path has out-of-bounds negative indices
@@ -497,11 +497,11 @@ export type Setters<
 	 * effectively discarding any modifications made since the initial state.
 	 *
 	 * @remarks
-	 * This method can be called within {@link ConCommit.commit commit} and {@link Wrap.wrap wrap}
+	 * This method can be called within {@link ConCommit.commit commit} and {@link ConWrap.wrap wrap}
 	 */
 	reset(): void
 }
 & ConCommit<S>
 & ConMerge<S>
 & ConSet<S>
-& Wrap<S>;
+& ConWrap<S>;
