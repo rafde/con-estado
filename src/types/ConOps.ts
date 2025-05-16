@@ -475,7 +475,7 @@ type ConWrap<
 	): ( ...args: A ) => R
 };
 
-export type Setters<
+export type ConOps<
 	S extends DS,
 > = {
 	/**

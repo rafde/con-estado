@@ -1,7 +1,7 @@
 import type { DS, } from './DS';
 import type { GetArrayPathValue, } from './GetArrayPathValue';
 import type { History, } from './History';
-import type { Setters, } from './Setters';
+import type { ConOps, } from './ConOps';
 import type { Immutable, } from './Immutable';
 import type { NestedRecordKeys, } from './NestedRecordKeys';
 import type { StringPathToArray, } from './StringPathToArray';
@@ -81,4 +81,4 @@ export type CreateActsProps<
 	): Immutable<GetArrayPathValue<History<S>, SHP>>
 }
 // & GetDraftRecord<S>
-& Setters<S>;
+& ConOps<S>;
