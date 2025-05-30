@@ -30,7 +30,7 @@
 		"typescript": "5.8.3"
 	},
 	"devDependencies": {
-		"@next/eslint-plugin-next": "15.3.2",
+		"@next/eslint-plugin-next": "15.3.3",
 		"@stylistic/eslint-plugin": "4.4.0",
 		"eslint": "9.27.0",
 		"eslint-plugin-jsx-a11y": "6.10.2",
