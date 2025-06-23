@@ -31,7 +31,7 @@
 	},
 	"devDependencies": {
 		"@next/eslint-plugin-next": "15.3.3",
-		"@stylistic/eslint-plugin": "4.4.1",
+		"@stylistic/eslint-plugin": "5.0.0",
 		"eslint": "9.29.0",
 		"eslint-plugin-jsx-a11y": "6.10.2",
 		"eslint-plugin-react": "7.37.5",
