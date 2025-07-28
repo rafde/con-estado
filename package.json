@@ -16,7 +16,7 @@
 		"@parcel/packager-ts": "2.15.4",
 		"@parcel/transformer-typescript-types": "2.15.4",
 		"@stylistic/eslint-plugin": "5.2.2",
-		"@testing-library/dom": "10.4.0",
+		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
 		"@types/node": "24.1.0",
 		"@types/react": "19.1.8",
