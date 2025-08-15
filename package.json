@@ -31,7 +31,7 @@
 		"globals": "16.3.0",
 		"happy-dom": "18.0.1",
 		"husky": "9.1.7",
-		"lint-staged": "15.5.2",
+		"lint-staged": "16.1.5",
 		"parcel": "2.15.4",
 		"react": "19.1.1",
 		"react-dom": "19.1.1",
